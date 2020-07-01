@@ -28,7 +28,7 @@ public class LinkCrawl {
 		if (checksum.exists()) {
 			makeDifference(mainPath + "landingPage"+fs+"content"+fs+"checksum.md5");
 		}
-		//lade die Webseite herunter
+		//lade die Webseite herrunter
 		MyWget myWget = new MyWget(landingPage, mainPath + "landingPage"+fs, false);
 		int res = myWget.getPage();
 
