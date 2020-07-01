@@ -15,6 +15,7 @@ import org.jsoup.select.Elements;
 import org.apache.commons.io.FileUtils;
 
 public class MyWget {
+	private String fs = System.getProperty("file.separator");
 	private String protokoll, pageFrom, dirTo, hostname;
 	private boolean context;
 	private int result;
@@ -52,8 +53,8 @@ public class MyWget {
 		this.pageFrom = pageFrom.substring(this.protokoll.length());
 		this.hostname = this.pageFrom.substring(0, this.pageFrom.indexOf("/"));
 		this.dirTo = dirTo;
-		if (!dirTo.endsWith("/"))
-			this.dirTo = this.dirTo + "/";
+		if (!dirTo.endsWith(fs))
+			this.dirTo = this.dirTo + fs;
 		this.context = context;
 	}
 
@@ -65,10 +66,10 @@ public class MyWget {
 	 * @throws IOException
 	 */
 	public void buildChecksum() throws IOException {
-		File md5File = new File(this.dirTo + "content/checksum.md5");
+		File md5File = new File(this.dirTo + "content" + fs +"checksum.md5");
 		FileWriter fileWriter = new FileWriter(md5File);
 		PrintWriter printWriter = new PrintWriter(fileWriter);
-		this.makeMD5s(new File(this.dirTo + "content/"), printWriter);
+		this.makeMD5s(new File(this.dirTo + "content" + fs), printWriter);
 		printWriter.close();
 	}
 
@@ -104,8 +105,8 @@ public class MyWget {
 	  * @throws IOException
 	  */
 	public void showDifferences() throws IOException {
-		BufferedReader checksumOld = new BufferedReader(new FileReader(this.dirTo + "content_temp/checksum.md5"));
-		BufferedReader checksumNew = new BufferedReader(new FileReader(this.dirTo + "content/checksum.md5"));
+		BufferedReader checksumOld = new BufferedReader(new FileReader(this.dirTo + "content_temp" + fs + "checksum.md5"));
+		BufferedReader checksumNew = new BufferedReader(new FileReader(this.dirTo + "content" + fs + "checksum.md5"));
 		String zeileOld, zeileNew;
 		ArrayList<String> justOld = new ArrayList<String>();
 		ArrayList<String> justNew = new ArrayList<String>();
@@ -122,7 +123,7 @@ public class MyWget {
 			if (justOld.get(i).length() < 35) {
 				System.out.println(justOld.get(i) + " (zu kurz)");
 			} else {
-				File file = new File(this.dirTo + "content_temp/" + justOld.get(i).substring(34));
+				File file = new File(this.dirTo + "content_temp" + fs + justOld.get(i).substring(34));
 				if (!file.exists()) {
 					System.out.println(justOld.get(i) + " (Datei nicht gefunden)");
 				} else {
@@ -141,7 +142,7 @@ public class MyWget {
 			if (justNew.get(i).length() < 35) {
 				System.out.println(justNew.get(i) + " (zu kurz)");
 			} else {
-				File file = new File(this.dirTo + "content/" + justNew.get(i).substring(34));
+				File file = new File(this.dirTo + "content" + fs + justNew.get(i).substring(34));
 				if (!file.exists()) {
 					System.out.println(justNew.get(i) + " (Datei nicht gefunden)");
 				} else {
@@ -165,9 +166,9 @@ public class MyWget {
 	 */
 	public String getTarget() {
 		if (this.context) {
-			return new String(this.dirTo + "content/" + this.pageFrom);
+			return new String(this.dirTo + "content" + fs + this.pageFrom);
 		} else {
-			return new String(this.dirTo + "content/" + this.pageFrom.substring(this.pageFrom.lastIndexOf("/") + 1));
+			return new String(this.dirTo + "content" + fs + this.pageFrom.substring(this.pageFrom.lastIndexOf("/") + 1));
 		}
 	}
 
@@ -210,10 +211,10 @@ public class MyWget {
 		printWriter.close();
 
 		int ret = 1;
-		dir = new File(this.dirTo + "content/");
+		dir = new File(this.dirTo + "content");
 		// falls der Ordner bereits existiert...
 		if (dir.exists() && dir.isDirectory()) {
-			File dest = new File(this.dirTo + "content_temp/");
+			File dest = new File(this.dirTo + "content_temp" + fs);
 			if (dest.exists()) {
 				MyUtils.deleteDirectory(dest);
 			}
@@ -222,7 +223,15 @@ public class MyWget {
 		} else {
 			ret = 0;
 		}
-		String cmd;
+		dir.mkdirs();
+		
+		if (this.context) {
+			System.err.println("Zurzeit nicht supported.");
+		} else {
+			JWGet.get(this.protokoll + this.pageFrom, getTarget());
+		}
+		
+		/*String cmd;
 		if (this.context) {
 			// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehört
 			cmd = "wget -p -k -q -N -P " + this.dirTo + "content/ " + this.protokoll + this.pageFrom;
@@ -244,16 +253,16 @@ public class MyWget {
 			}
 		} catch (InterruptedException e2) {
 			e2.printStackTrace();
-		}
+		}*/
 
 		this.buildChecksum();
 
 		//System.out.println("hostname = '" + this.hostname + "'");
 		if (this.context) {
 			File target = new File(this.getTarget());
-			Files.copy(target.toPath(), new File(this.dirTo + "content/target.html").toPath(),
+			Files.copy(target.toPath(), new File(this.dirTo + "content" + fs + "target.html").toPath(),
 					StandardCopyOption.REPLACE_EXISTING);
-			target = new File(this.dirTo + "content/target.html");
+			target = new File(this.dirTo + "content" + fs + "target.html");
 			Document doc = Jsoup.parse(target, "ISO-8859-1", this.hostname);
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
 			doc.outputSettings().charset("UTF-8");
@@ -304,10 +313,10 @@ public class MyWget {
 		}
 
 		if (ret == 1) {
-			if (FileUtils.contentEquals(new File(this.dirTo + "content/checksum.md5"),
-					new File(this.dirTo + "content_temp/checksum.md5"))) {
+			if (FileUtils.contentEquals(new File(this.dirTo + "content" + fs + "checksum.md5"),
+					new File(this.dirTo + "content_temp" + fs + "checksum.md5"))) {
 				// Falls sich nichts geändert hat...
-				File dest = new File(this.dirTo + "content_temp/");
+				File dest = new File(this.dirTo + "content_temp" + fs);
 				if (dest.exists()) {
 					// ...wird die Kopie nicht mehr gebraucht
 					MyUtils.deleteDirectory(dest);
