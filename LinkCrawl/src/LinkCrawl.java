@@ -55,12 +55,12 @@ public class LinkCrawl {
 		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", protokoll + hostname);
 		Element content = doc.getElementById("content");
 		List<kongress> listNew = new ArrayList<kongress>();
-		//Füge die URLS in eine Liste ein
+		// Füge die URLS in eine Liste ein
 		for (int i = 2; i < content.getElementsByTag("a").size(); i++) {
 			listNew.add(new kongress(content.getElementsByTag("a").get(i).attr("href")));
 		}
-		
-		//überprüfe ob die kurzIDs ok sind
+
+		// überprüfe ob die kurzIDs ok sind
 		for (kongress it : listNew) {
 			boolean haveProblem = false;
 			for (kongress it2 : listNew) {
@@ -75,19 +75,16 @@ public class LinkCrawl {
 				break;
 			}
 		}
-		
+
 		String propertypfad = System.getProperty("user.home") + fs + "properties.txt";
 		String password = Utilities.readStringFromProperty(propertypfad, "password");
 		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 		ResultSet resultSet = null;
 
-		String insertSQL = null;
-		for (kongress it : listNew ) {
-			resultSet = sqlManager.executePreparedSql(
-				"INSERT IGNORE INTO urls (ID, URL, Status) VALUES (\"" + it.kurzID + "\", \"" + it.url + "\", 10);");
+		for (kongress it : listNew) {
+			resultSet = sqlManager.executePreparedSql("INSERT IGNORE INTO urls (ID, URL, Status) VALUES (\"" + it.kurzID
+					+ "\", \"" + it.url + "\", 10);");
 		}
-
-		// resultSet = sqlManager.executeSql("SELECT * FROM url_status WHERE id=0");
 
 		while (resultSet.next()) {
 			System.out.println(resultSet.getString(1) + " " + resultSet.getString(2));
