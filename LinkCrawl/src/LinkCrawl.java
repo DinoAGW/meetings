@@ -51,20 +51,40 @@ public class LinkCrawl {
 		int res = myWget.getPage();
 		// myWget.explainResult();
 
+		File htmlFile = new File(mainPath + "landingPage" + fs + "content" + fs + "index.htm");
+		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", protokoll + hostname);
+		Element content = doc.getElementById("content");
+		List<kongress> listNew = new ArrayList<kongress>();
+		//Füge die URLS in eine Liste ein
+		for (int i = 2; i < content.getElementsByTag("a").size(); i++) {
+			listNew.add(new kongress(content.getElementsByTag("a").get(i).attr("href")));
+		}
+		
+		//überprüfe ob die kurzIDs ok sind
+		for (kongress it : listNew) {
+			boolean haveProblem = false;
+			for (kongress it2 : listNew) {
+				if ((it.kurzID.equals(it2.kurzID)) && (it != it2)) {// Ich gehe stark davon aus, dass ein Kongress
+					// anhand der kurzId eindeutig bestimmt ist
+					System.out.println("Problem mit url " + it.url + " und " + it2.url);
+					haveProblem = true;
+					break;
+				}
+			}
+			if (haveProblem) {
+				break;
+			}
+		}
+		
 		String propertypfad = System.getProperty("user.home") + fs + "properties.txt";
 		String password = Utilities.readStringFromProperty(propertypfad, "password");
 		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 		ResultSet resultSet = null;
 
-		File htmlFile = new File(mainPath + "landingPage" + fs + "content" + fs + "index.htm");
-		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", protokoll + hostname);
-		Element content = doc.getElementById("content");
-		// List<kongress> listNew = new ArrayList<kongress>();
 		String insertSQL = null;
-		for (int i = 2; i < content.getElementsByTag("a").size(); i++) {
-			// listNew.add(new kongress(content.getElementsByTag("a").get(i).attr("href")));
+		for (kongress it : listNew ) {
 			resultSet = sqlManager.executePreparedSql(
-					"INSERT INTO urls (URL, Status) VALUES (\"" + content.getElementsByTag("a").get(i).attr("href") + "\", 10);");
+				"INSERT IGNORE INTO urls (ID, URL, Status) VALUES (\"" + it.kurzID + "\", \"" + it.url + "\", 10);");
 		}
 
 		// resultSet = sqlManager.executeSql("SELECT * FROM url_status WHERE id=0");
