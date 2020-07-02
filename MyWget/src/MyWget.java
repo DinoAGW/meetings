@@ -13,6 +13,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 public class MyWget {
 	private String fs = System.getProperty("file.separator");
@@ -225,18 +226,27 @@ public class MyWget {
 		}
 		dir.mkdirs();
 		
-		if (this.context) {
+		/*if (this.context) {
 			System.err.println("Zurzeit nicht supported.");
 		} else {
 			JWGet.get(this.protokoll + this.pageFrom, getTarget());
-		}
+		}*/
 		
-		/*String cmd;
-		if (this.context) {
-			// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehört
-			cmd = "wget -p -k -q -N -P " + this.dirTo + "content/ " + this.protokoll + this.pageFrom;
+		String cmd = null;
+		if (SystemUtils.IS_OS_LINUX) {
+			if (this.context) {
+				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehört
+				cmd = "wget -p -k -q -N -P " + this.dirTo + "content/ " + this.protokoll + this.pageFrom;
+			} else {
+				cmd = "wget    -k -q -N -P " + this.dirTo + "content/ " + this.protokoll + this.pageFrom;
+			}
 		} else {
-			cmd = "wget    -k -q -N -P " + this.dirTo + "content/ " + this.protokoll + this.pageFrom;
+			if (this.context) {
+				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehört
+				cmd = "C:\\wget-1.20.3-win64\\wget.exe -p -k -P " + this.dirTo + "content" + fs + " " + this.protokoll + this.pageFrom;
+			} else {
+				cmd = "C:\\wget-1.20.3-win64\\wget.exe    -k -P " + this.dirTo + "content" + fs + " " + this.protokoll + this.pageFrom;
+			}
 		}
 
 		// führe den wget Befehl aus
@@ -253,7 +263,7 @@ public class MyWget {
 			}
 		} catch (InterruptedException e2) {
 			e2.printStackTrace();
-		}*/
+		}
 
 		this.buildChecksum();
 

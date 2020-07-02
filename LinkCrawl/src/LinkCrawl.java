@@ -49,28 +49,29 @@ public class LinkCrawl {
 		// lade die Webseite herrunter
 		MyWget myWget = new MyWget(landingPage, mainPath + "landingPage" + fs, false);
 		int res = myWget.getPage();
-		myWget.explainResult();
-
-		File htmlFile = new File(mainPath + "landingPage/content/index.htm");
-		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", protokoll + hostname);
-		Element content = doc.getElementById("content");
-		List<kongress> listNew = new ArrayList<kongress>();
-		for (int i = 2; i < content.getElementsByTag("a").size(); i++) {
-			listNew.add(new kongress(content.getElementsByTag("a").get(i).attr("href")));
-		}
+		// myWget.explainResult();
 
 		String propertypfad = System.getProperty("user.home") + fs + "properties.txt";
-
 		String password = Utilities.readStringFromProperty(propertypfad, "password");
-
 		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
-		/*
-		 * ResultSet resultSet =
-		 * sqlManager.executeSql("SELECT * FROM status WHERE id=0");
-		 * 
-		 * while (resultSet.next()) { System.out.println(resultSet.getString(1) + " " +
-		 * resultSet.getString(2)); }
-		 */
+		ResultSet resultSet = null;
+
+		File htmlFile = new File(mainPath + "landingPage" + fs + "content" + fs + "index.htm");
+		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", protokoll + hostname);
+		Element content = doc.getElementById("content");
+		// List<kongress> listNew = new ArrayList<kongress>();
+		String insertSQL = null;
+		for (int i = 2; i < content.getElementsByTag("a").size(); i++) {
+			// listNew.add(new kongress(content.getElementsByTag("a").get(i).attr("href")));
+			resultSet = sqlManager.executePreparedSql(
+					"INSERT INTO urls (URL, Status) VALUES (\"" + content.getElementsByTag("a").get(i).attr("href") + "\", 10);");
+		}
+
+		// resultSet = sqlManager.executeSql("SELECT * FROM url_status WHERE id=0");
+
+		while (resultSet.next()) {
+			System.out.println(resultSet.getString(1) + " " + resultSet.getString(2));
+		}
 	}
 
 }
