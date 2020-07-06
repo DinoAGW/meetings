@@ -1,4 +1,5 @@
 package linkCrawl;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -21,6 +22,7 @@ import utilities.Utilities;
 public class LinkCrawl {
 	static String fs = System.getProperty("file.separator");
 
+	@SuppressWarnings("unused")
 	private static void makeDifference(String fileName) throws IOException {
 		FileWriter fileWriter = new FileWriter(fileName, true);
 		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
@@ -38,12 +40,14 @@ public class LinkCrawl {
 
 		File checksum = new File(mainPath + "landingPage" + fs + "content" + fs + "checksum.md5");
 		if (checksum.exists()) {
-			//makeDifference(mainPath + "landingPage" + fs + "content" + fs + "checksum.md5");
+			// makeDifference(mainPath + "landingPage" + fs + "content" + fs +
+			// "checksum.md5");
 		}
 		// lade die Webseite herrunter
 		MyWget myWget = new MyWget(landingPage, mainPath + "landingPage" + fs, false);
+		@SuppressWarnings("unused")
 		int res = myWget.getPage();
-		myWget.explainResult();
+		// myWget.explainResult();
 
 		File htmlFile = new File(mainPath + "landingPage" + fs + "content" + fs + "index.htm");
 		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", protokoll + hostname);
@@ -56,17 +60,11 @@ public class LinkCrawl {
 
 		// überprüfe ob die kurzIDs ok sind
 		for (Kongress it : listNew) {
-			boolean haveProblem = false;
 			for (Kongress it2 : listNew) {
 				if ((it.kurzID.equals(it2.kurzID)) && (it != it2)) {// Ich gehe stark davon aus, dass ein Kongress
 					// anhand der kurzId eindeutig bestimmt ist
-					System.out.println("Problem mit url " + it.url + " und " + it2.url);
-					haveProblem = true;
-					break;
+					System.err.println("Problem mit url " + it.url + " und " + it2.url);
 				}
-			}
-			if (haveProblem) {
-				break;
 			}
 		}
 
@@ -76,12 +74,19 @@ public class LinkCrawl {
 		ResultSet resultSet = null;
 
 		for (Kongress it : listNew) {
-			resultSet = sqlManager.executePreparedSql("INSERT IGNORE INTO urls (ID, URL, Status) VALUES (\"" + it.kurzID
-					+ "\", \"" + it.url + "\", 10);");
+			resultSet = sqlManager.executeSql("SELECT * FROM urls WHERE ID = '" + it.kurzID + "'");
+			//Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
+			if (resultSet.next()) {
+				// War schon drin
+			} else {
+				// Füge ein
+				System.out.println("Verarbeite: '" + it.kurzID + "', '" + it.url + "'");
+				resultSet = sqlManager.executeSql("INSERT INTO urls (ID, URL, Status) VALUES (\"" + it.kurzID
+						+ "\", \"" + it.url + "\", 10);");
+				break; // tu nicht zu viel
+			}
 		}
 
-		while (resultSet.next()) {
-			System.out.println(resultSet.getString(1) + " " + resultSet.getString(2));
-		}
+		System.out.println("LinkCrawl Ende.");
 	}
 }

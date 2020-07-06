@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import org.jsoup.Jsoup;
@@ -222,7 +223,10 @@ public class MyWget {
 				MyUtils.deleteDirectory(dest);
 			}
 			// ...sichere ihn erstmal weg.
-			Files.move(dir.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			if (!dir.renameTo(dest)) {
+				System.err.println("Ordner konnte nicht von '" + dir + "' in '" + dest + "' umbenannt werden.");
+			}
+			//Files.move(Paths.get(dir.getAbsolutePath()), Paths.get(dest.getAbsolutePath()), StandardCopyOption.REPLACE_EXISTING);
 		} else {
 			ret = 0;
 		}
@@ -242,29 +246,36 @@ public class MyWget {
 			} else {
 				cmd = "wget    -k -q -N -P " + this.dirTo + "content/ " + this.protokoll + this.pageFrom;
 			}
+			// führe den wget Befehl aus
+			Runtime run = Runtime.getRuntime();
+			Process pr = run.exec(cmd);
+			try {
+				pr.waitFor();
+				BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+
+				String line = "";
+
+				while ((line = buf.readLine()) != null) {
+					System.out.println(line);
+				}
+			} catch (InterruptedException e2) {
+				e2.printStackTrace();
+			}
 		} else {
+			ProcessBuilder pb = null;
 			if (this.context) {
 				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehÃ¶rt
-				cmd = "C:\\wget-1.20.3-win64\\wget.exe -p -k -P " + this.dirTo + "content" + fs + " " + this.protokoll + this.pageFrom;
+				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-p", "-k", "-P", this.dirTo + "content" + fs, this.protokoll + this.pageFrom);
 			} else {
-				cmd = "C:\\wget-1.20.3-win64\\wget.exe    -k -P " + this.dirTo + "content" + fs + " " + this.protokoll + this.pageFrom;
+				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-k", "-P", this.dirTo + "content" + fs, this.protokoll + this.pageFrom);
 			}
-		}
-
-		// fÃ¼hre den wget Befehl aus
-		Runtime run = Runtime.getRuntime();
-		Process pr = run.exec(cmd);
-		try {
-			pr.waitFor();
-			BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-
-			String line = "";
-
-			while ((line = buf.readLine()) != null) {
-				System.out.println(line);
+			// führe den wget Befehl aus
+			pb.redirectErrorStream(true);
+			Process process = pb.start();
+			BufferedReader inStreamReader = new BufferedReader ( new InputStreamReader(process.getInputStream()));
+			while (inStreamReader.readLine() != null) {
+				// do something with commandline output
 			}
-		} catch (InterruptedException e2) {
-			e2.printStackTrace();
 		}
 
 		this.buildChecksum();

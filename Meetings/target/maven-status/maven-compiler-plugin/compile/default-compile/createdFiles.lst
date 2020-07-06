@@ -1,6 +1,7 @@
 myWget\MyWget.class
-linkCrawl\LinkCrawl$kongress.class
-myWget\MyUtils.class
-utilities\Utilities.class
 utilities\SqlManager.class
 linkCrawl\LinkCrawl.class
+myWget\MyUtils.class
+utilities\Kongress.class
+utilities\Utilities.class
+linkDownload\LinkDownload.class

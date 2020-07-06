@@ -9,7 +9,10 @@ import org.apache.commons.codec.digest.DigestUtils;
 
 public class MyUtils {
 	public static String md5_of_file(File file) throws IOException {
-		return DigestUtils.md5Hex(new FileInputStream(file));
+		FileInputStream fis = new FileInputStream(file);
+		String ret = DigestUtils.md5Hex(fis);
+		fis.close();
+		return ret; 
 	}
 
 	public static boolean deleteDirectory(File directoryToBeDeleted) {

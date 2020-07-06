@@ -1,6 +1,8 @@
 package utilities;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,7 +11,6 @@ import java.io.Writer;
 import java.util.Properties;
 
 public class Utilities {
-
 	public static String readline() throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		String ausgelesen = in.readLine();
@@ -30,5 +31,19 @@ public class Utilities {
 		properties.load(reader);
 		reader.close();
 		return properties.getProperty(prop);
+	}
+
+	public static void deleteDir(String path) {
+		File filePath = new File(path);
+		if (filePath.exists()) deleteDir(filePath);
+	}
+
+	public static void deleteDir(File path) {
+		for (File file : path.listFiles()) {
+			if (file.isDirectory())
+				deleteDir(file);
+			file.delete();
+		}
+		path.delete();
 	}
 }

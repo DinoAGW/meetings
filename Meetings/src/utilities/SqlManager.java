@@ -29,9 +29,14 @@ public class SqlManager {
 
 		// Print the ID of the inserted row.
 		while (resultSet.next()) {
-			System.out.println("Generated: " + resultSet.getString(1));
+			//System.out.println("Generated: " + resultSet.getString(1));
 		}
 		return resultSet;
 	}
 
+	public int executeUpdate(String sql) throws SQLException {
+		Statement statement = this.connection.createStatement();
+		int ret = statement.executeUpdate(sql);
+		return ret;
+	}
 }
