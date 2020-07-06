@@ -3,9 +3,13 @@ package linkDownload;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 //import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -128,12 +132,17 @@ public class LinkDownload {
 					content.getElementById("content").append(newElement[i].html());
 				}
 			}
-			bw = new BufferedWriter(
+			FileOutputStream fstream = new FileOutputStream(kongressDir + "merge" + fs + "content" + fs + "target.html");
+			OutputStreamWriter out = new OutputStreamWriter(fstream, StandardCharsets.ISO_8859_1);
+			out.append(doc.html());
+			out.close();
+			fstream.close();
+			/*bw = new BufferedWriter(
 					// new FileWriter(kongressDir + "merge/content/target.html",
 					// Charset.forName("ISO-8859-1")));
 					new FileWriter(kongressDir + "merge" + fs + "content" + fs + "target.html"));
 			bw.append(doc.html());
-			bw.close();
+			bw.close();*/
 
 			File cssFile = new File(kongressDir + "merge" + fs + "content" + fs + "www.egms.de" + fs + "static" + fs
 					+ "css" + fs + "gms-framework.css");
