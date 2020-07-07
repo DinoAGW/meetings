@@ -1,7 +1,7 @@
-myWget\MyWget.class
+META-INF\MANIFEST.MF
 utilities\SqlManager.class
-linkCrawl\LinkCrawl.class
-myWget\MyUtils.class
+META-INF\maven\Meetings\Meetings\pom.properties
+META-INF\maven\Meetings\Meetings\pom.xml
 utilities\Kongress.class
 utilities\Utilities.class
-linkDownload\LinkDownload.class
+utilities\Clean.class
