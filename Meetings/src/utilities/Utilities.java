@@ -11,6 +11,8 @@ import java.io.Writer;
 import java.util.Properties;
 
 public class Utilities {
+	public static String fs = System.getProperty("file.separator");
+	
 	public static String readline() throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		String ausgelesen = in.readLine();
