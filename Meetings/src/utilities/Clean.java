@@ -18,6 +18,7 @@ public class Clean {
 		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 
 		sqlManager.executeUpdate("DELETE FROM ueberordnungen;");
+		sqlManager.executeUpdate("DELETE FROM abstracts;");
 		
 		System.out.println("Clean Ende.");
 	}
