@@ -23,33 +23,33 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.pdfa.PdfADocument;
 
-import utilities.Kongress;
+import utilities.Abstract;
 import utilities.SqlManager;
 import utilities.Utilities;
 
-public class Convert {
+public class AbstractConvert {
 	public static String fs = System.getProperty("file.separator");
 	public static final String ICC = "resources/sRGB_v4_ICC_preference_displayclass.icc";
 	public static final String FONT = "resources/OpenSans-Regular.ttf";
 
 	public static void main(String[] args) throws IOException, SQLException {
-		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
+		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Abstracts\\";
 
 		String propertypfad = System.getProperty("user.home") + fs + "properties.txt";
 		String password = Utilities.readStringFromProperty(propertypfad, "password");
 		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 		ResultSet resultSet = null;
 
-		resultSet = sqlManager.executeSql("SELECT * FROM ueberordnungen WHERE status=30");
+		resultSet = sqlManager.executeSql("SELECT * FROM abstracts WHERE status=30");
 
 		while (resultSet.next()) {
-			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
+			System.out.println("Verarbeite: '" + resultSet.getString("Ue_ID") + "', '" + resultSet.getString("Ab_ID") + "', '" + resultSet.getString("URL") + "'");
 
-			Kongress it = new Kongress(resultSet.getString("URL"));
-			String kongressDir = mainPath + "kongresse" + fs + it.kurzID + fs;
+			Abstract it = new Abstract(resultSet.getString("URL"));
+			String kongressDir = mainPath + "kongresse" + fs + it.Ue_ID + fs + it.Ab_ID + fs;
 			String baseDir = kongressDir + "merge" + fs + "content" + fs;
 			String from = baseDir + "target.html";
-			String to = kongressDir + it.kurzID + ".pdf";
+			String to = kongressDir + it.Ab_ID + ".pdf";
 
 			Document doc = Jsoup.parse(new File(from), "CP1252", baseDir);
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
@@ -78,15 +78,15 @@ public class Convert {
 			HtmlConverter.convertToPdf(doc.html(), pdf, properties);
 			System.setErr(stderr);
 
-			int updated = sqlManager.executeUpdate("UPDATE ueberordnungen SET Status = 50 WHERE ID = '" + it.kurzID + "';");
+			int updated = sqlManager.executeUpdate("UPDATE abstracts SET Status = 50 WHERE Ab_ID = '" + it.Ab_ID + "';");
 			if (updated != 1)
 				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
-						+ it.kurzID + "', aber es waren: " + updated + ".");
+						+ it.Ab_ID + "', aber es waren: " + updated + ".");
 
 			break; // Tu nicht zu viel
 		}
 
-		System.out.println("Convert Ende.");
+		System.out.println("AbstractConvert Ende.");
 	}
 
 }

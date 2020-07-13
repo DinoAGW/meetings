@@ -264,10 +264,10 @@ public class MyWget {
 		} else {
 			ProcessBuilder pb = null;
 			if (this.context) {
-				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehÃ¶rt
-				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-p", "-k", "-P", this.dirTo + "content" + fs, this.protokoll + this.pageFrom);
+				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehört
+				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-p", "-k", "-erobots=off", "-P", this.dirTo + "content" + fs, this.protokoll + this.pageFrom);
 			} else {
-				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-k", "-P", this.dirTo + "content" + fs, this.protokoll + this.pageFrom);
+				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-k", "-erobots=off", "-P", this.dirTo + "content" + fs, this.protokoll + this.pageFrom);
 			}
 			// führe den wget Befehl aus
 			pb.redirectErrorStream(true);

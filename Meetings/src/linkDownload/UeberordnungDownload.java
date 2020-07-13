@@ -34,7 +34,7 @@ import utilities.Kongress;
 import utilities.SqlManager;
 import utilities.Utilities;
 
-public class LinkDownload {
+public class UeberordnungDownload {
 	static String fs = System.getProperty("file.separator");
 
 	public static void linkDownload(String mainPath, String protokoll, String hostname)
@@ -210,6 +210,6 @@ public class LinkDownload {
 
 		linkDownload(mainPath, protokoll, hostname);
 
-		System.out.println("LinkDownload Ende.");
+		System.out.println("UeberordnungDownload Ende.");
 	}
 }

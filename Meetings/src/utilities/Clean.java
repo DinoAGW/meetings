@@ -11,6 +11,10 @@ public class Clean {
 		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
 		Utilities.deleteDir(mainPath + "kongresse");
 		Utilities.deleteDir(mainPath + "landingPage");
+		
+		mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Abstracts\\";
+		Utilities.deleteDir(mainPath + "kongresse");
+		//Utilities.deleteDir(mainPath + "landingPage");
 
 		//urls Tabelle leeren
 		String propertypfad = System.getProperty("user.home") + fs + "properties.txt";

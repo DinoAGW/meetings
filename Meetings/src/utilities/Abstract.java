@@ -11,6 +11,9 @@ public class Abstract {
 		int preLast = url.lastIndexOf("/", last-1);
 		this.Ue_ID = url.substring(preLast+1, last);
 		this.Ab_ID = url.substring(last+1);
+		if (this.Ab_ID.contains(".")) {
+			this.Ab_ID = this.Ab_ID.substring(0, this.Ab_ID.indexOf("."));
+		}
 	}
 
 }
