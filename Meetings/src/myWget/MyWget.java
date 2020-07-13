@@ -170,9 +170,9 @@ public class MyWget {
 	 */
 	public String getTarget() {
 		if (this.context) {
-			return new String(this.dirTo + "content" + fs + this.pageFrom);
+			return new String(this.dirTo + "content" + fs + this.pageFrom).replace("?", "@");
 		} else {
-			return new String(this.dirTo + "content" + fs + this.pageFrom.substring(this.pageFrom.lastIndexOf("/") + 1));
+			return new String(this.dirTo + "content" + fs + this.pageFrom.substring(this.pageFrom.lastIndexOf("/") + 1)).replace("?", "@");
 		}
 	}
 
@@ -283,6 +283,7 @@ public class MyWget {
 		//System.out.println("hostname = '" + this.hostname + "'");
 		if (this.context) {
 			File target = new File(this.getTarget());
+			//System.out.println(this.getTarget());
 			Files.copy(target.toPath(), new File(this.dirTo + "content" + fs + "target.html").toPath(),
 					StandardCopyOption.REPLACE_EXISTING);
 			target = new File(this.dirTo + "content" + fs + "target.html");

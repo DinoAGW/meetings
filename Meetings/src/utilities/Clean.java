@@ -17,7 +17,7 @@ public class Clean {
 		String password = Utilities.readStringFromProperty(propertypfad, "password");
 		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 
-		sqlManager.executeUpdate("DELETE FROM urls;");
+		sqlManager.executeUpdate("DELETE FROM ueberordnungen;");
 		
 		System.out.println("Clean Ende.");
 	}

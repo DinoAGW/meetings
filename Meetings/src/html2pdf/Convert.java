@@ -40,7 +40,7 @@ public class Convert {
 		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 		ResultSet resultSet = null;
 
-		resultSet = sqlManager.executeSql("SELECT * FROM urls WHERE status=30");
+		resultSet = sqlManager.executeSql("SELECT * FROM ueberordnungen WHERE status=30");
 
 		while (resultSet.next()) {
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
@@ -78,7 +78,7 @@ public class Convert {
 			HtmlConverter.convertToPdf(doc.html(), pdf, properties);
 			System.setErr(stderr);
 
-			int updated = sqlManager.executeUpdate("UPDATE urls SET Status = 50 WHERE ID = '" + it.kurzID + "';");
+			int updated = sqlManager.executeUpdate("UPDATE ueberordnungen SET Status = 50 WHERE ID = '" + it.kurzID + "';");
 			if (updated != 1)
 				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
 						+ it.kurzID + "', aber es waren: " + updated + ".");

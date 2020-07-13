@@ -74,14 +74,14 @@ public class LinkCrawl {
 		ResultSet resultSet = null;
 
 		for (Kongress it : listNew) {
-			resultSet = sqlManager.executeSql("SELECT * FROM urls WHERE ID = '" + it.kurzID + "'");
+			resultSet = sqlManager.executeSql("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "'");
 			//Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 			if (resultSet.next()) {
 				// War schon drin
 			} else {
 				// Füge ein
 				System.out.println("Verarbeite: '" + it.kurzID + "', '" + it.url + "'");
-				resultSet = sqlManager.executeSql("INSERT INTO urls (ID, URL, Status) VALUES (\"" + it.kurzID
+				resultSet = sqlManager.executeSql("INSERT INTO ueberordnungen (ID, URL, Status) VALUES (\"" + it.kurzID
 						+ "\", \"" + it.url + "\", 10);");
 				break; // tu nicht zu viel
 			}
