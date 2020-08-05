@@ -45,7 +45,6 @@ public class AbstractDownload {
 
 		resultSet = sqlManager.executeSql("SELECT * FROM abstracts WHERE status=10");
 
-		int abstractlist = 0;
 		while (resultSet.next()) {
 			System.out.println("Verarbeite: '" + resultSet.getString("Ue_ID") + "', '" + resultSet.getString("Ab_ID") + "', '" + resultSet.getString("URL") + "'");
 			Abstract it = new Abstract(resultSet.getString("URL"));
