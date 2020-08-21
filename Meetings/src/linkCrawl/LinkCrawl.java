@@ -31,18 +31,9 @@ public class LinkCrawl {
 		printWriter.close();
 	}
 
-	public static void main(String[] args) throws IOException, SQLException {
-		String protokoll = "https://";
-		String hostname = "www.egms.de";
-		String landingPage = protokoll + hostname + "/static/de/meetings/index.htm";
-
-		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
-
+	public static void linkCrawl(String protokoll, String hostname, String landingPage, String mainPath)
+			throws IOException, SQLException {
 		File checksum = new File(mainPath + "landingPage" + fs + "content" + fs + "checksum.md5");
-		if (checksum.exists()) {
-			// makeDifference(mainPath + "landingPage" + fs + "content" + fs +
-			// "checksum.md5");
-		}
 		// lade die Webseite herrunter
 		MyWget myWget = new MyWget(landingPage, mainPath + "landingPage" + fs, false);
 		@SuppressWarnings("unused")
@@ -73,19 +64,31 @@ public class LinkCrawl {
 		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 		ResultSet resultSet = null;
 
+		int Anzahl = 1;
 		for (Kongress it : listNew) {
-			resultSet = sqlManager.executeSql("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "'");
-			//Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
+			resultSet = sqlManager
+					.executeSql("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "_" + it.language + "'");
+			// Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 			if (resultSet.next()) {
 				// War schon drin
 			} else {
 				// Füge ein
 				System.out.println("Verarbeite: '" + it.kurzID + "', '" + it.url + "'");
 				resultSet = sqlManager.executeSql("INSERT INTO ueberordnungen (ID, URL, Status) VALUES (\"" + it.kurzID
-						+ "\", \"" + it.url + "\", 10);");
-				break; // tu nicht zu viel
+						+ "_" + it.language + "\", \"" + it.url + "\", 10);");
+				if (0 == --Anzahl)
+					break; // tu nicht zu viel
 			}
 		}
+	}
+
+	public static void main(String[] args) throws IOException, SQLException {
+		String protokoll = "https://";
+		String hostname = "www.egms.de";
+		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
+
+		linkCrawl(protokoll, hostname, protokoll + hostname + "/static/de/meetings/index.htm", mainPath);
+		linkCrawl(protokoll, hostname, protokoll + hostname + "/static/en/meetings/index.htm", mainPath);
 
 		System.out.println("LinkCrawl Ende.");
 	}

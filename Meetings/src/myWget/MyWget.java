@@ -287,7 +287,7 @@ public class MyWget {
 			Files.copy(target.toPath(), new File(this.dirTo + "content" + fs + "target.html").toPath(),
 					StandardCopyOption.REPLACE_EXISTING);
 			target = new File(this.dirTo + "content" + fs + "target.html");
-			Document doc = Jsoup.parse(target, "ISO-8859-1", this.hostname);
+			Document doc = Jsoup.parse(target, "CP1252" , this.hostname);//vorher: "ISO-8859-1"
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
 			doc.outputSettings().charset("UTF-8");
 			
@@ -333,7 +333,7 @@ public class MyWget {
 				}
 				e.attr("href", url);
 			}
-			FileUtils.writeStringToFile(target, doc.outerHtml(), "ISO-8859-1");
+			FileUtils.writeStringToFile(target, doc.outerHtml(), "CP1252");//"ISO-8859-1"
 		}
 
 		if (ret == 1) {

@@ -30,7 +30,7 @@ import utilities.Utilities;
 public class UeberordnungConvert {
 	public static String fs = System.getProperty("file.separator");
 	public static final String ICC = "resources/sRGB_v4_ICC_preference_displayclass.icc";
-	public static final String FONT = "resources/OpenSans-Regular.ttf";
+	public static final String FONT = "resources/OpenSans-Regular.ttf";// wird zurzeit nicht verwendet
 
 	public static void main(String[] args) throws IOException, SQLException {
 		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
@@ -42,32 +42,35 @@ public class UeberordnungConvert {
 
 		resultSet = sqlManager.executeSql("SELECT * FROM ueberordnungen WHERE status=30");
 
+		int Anzahl = 2;
 		while (resultSet.next()) {
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 
 			Kongress it = new Kongress(resultSet.getString("URL"));
-			String kongressDir = mainPath + "kongresse" + fs + it.kurzID + fs;
+			String kongressDir = mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs;
 			String baseDir = kongressDir + "merge" + fs + "content" + fs;
 			String from = baseDir + "target.html";
-			String to = kongressDir + it.kurzID + ".pdf";
+			String to = kongressDir + it.kurzID + it.languageSpec + ".pdf";
 
 			Document doc = Jsoup.parse(new File(from), "CP1252", baseDir);
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
 			doc.outputSettings().charset("CP1252");
 
 			ConverterProperties properties = new ConverterProperties();
-			properties.setBaseUri(baseDir);//braucht man, weil String übergeben wird, statt File
+			properties.setBaseUri(baseDir);// braucht man, weil String übergeben wird, statt File
 
 			OutlineHandler outlineHandler = OutlineHandler.createStandardHandler();
 			properties.setOutlineHandler(outlineHandler);
 
-			DefaultFontProvider fontProvider = new DefaultFontProvider(false, true, false);//register... StandardPdf, ShippedFree, System ...Fonts
+			DefaultFontProvider fontProvider = new DefaultFontProvider(false, true, false);// register... StandardPdf,
+																							// ShippedFree, System
+																							// ...Fonts
 			properties.setFontProvider(fontProvider);
 
-			PdfWriter writer = new PdfWriter(to, new  WriterProperties().addXmpMetadata());
+			PdfWriter writer = new PdfWriter(to, new WriterProperties().addXmpMetadata());
 
-			PdfDocument pdf = new PdfADocument(writer, PdfAConformanceLevel.PDF_A_2B,
-					new PdfOutputIntent("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", new FileInputStream(ICC)));
+			PdfDocument pdf = new PdfADocument(writer, PdfAConformanceLevel.PDF_A_2A, new PdfOutputIntent("Custom", "",
+					"http://www.color.org", "sRGB IEC61966-2.1", new FileInputStream(ICC)));
 
 			pdf.setDefaultPageSize(PageSize.A4);
 
@@ -78,12 +81,14 @@ public class UeberordnungConvert {
 			HtmlConverter.convertToPdf(doc.html(), pdf, properties);
 			System.setErr(stderr);
 
-			int updated = sqlManager.executeUpdate("UPDATE ueberordnungen SET Status = 50 WHERE ID = '" + it.kurzID + "';");
+			int updated = sqlManager.executeUpdate(
+					"UPDATE ueberordnungen SET Status = 50 WHERE ID = '" + it.kurzID + "_" + it.language + "';");
 			if (updated != 1)
 				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
-						+ it.kurzID + "', aber es waren: " + updated + ".");
+						+ it.kurzID + "_" + it.language + "', aber es waren: " + updated + ".");
 
-			break; // Tu nicht zu viel
+			if (0 == --Anzahl)
+				break; // Tu nicht zu viel
 		}
 
 		System.out.println("UeberordnungConvert Ende.");

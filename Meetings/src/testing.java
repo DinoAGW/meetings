@@ -14,9 +14,10 @@ public class testing {
 		Clean.main(args);
 		LinkCrawl.main(args);
 		UeberordnungDownload.main(args);
-		AbstractDownload.main(args);
 		UeberordnungConvert.main(args);
+		AbstractDownload.main(args);
 		AbstractConvert.main(args);
+		System.out.println("testing Ende");
 	}
 
 }

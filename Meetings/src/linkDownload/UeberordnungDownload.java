@@ -46,17 +46,18 @@ public class UeberordnungDownload {
 
 		resultSet = sqlManager.executeSql("SELECT * FROM ueberordnungen WHERE status=10");
 
+		int Anzahl = 2;
 		while (resultSet.next()) {
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 			Kongress it = new Kongress(resultSet.getString("URL"));
 			// der eigentliche Aufruf
-			String kongressDir = mainPath + "kongresse" + fs + it.kurzID + fs;
+			String kongressDir = mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs;
 			MyWget myWget = new MyWget(it.url, kongressDir, true);
 			@SuppressWarnings("unused")
 			int res = myWget.getPage();
 
 			File kongressFile = new File(myWget.getTarget());
-			Document doc = Jsoup.parse(kongressFile, "ISO-8859-1", protokoll + hostname);
+			Document doc = Jsoup.parse(kongressFile, "CP1252", protokoll + hostname);//
 			Elements elements = doc.getElementById("owner_links").children();
 			List<String> owner_links = new ArrayList<String>();
 			for (Element listenEintrag : elements) {
@@ -68,7 +69,7 @@ public class UeberordnungDownload {
 			String[] contentPath = new String[owner_links.size()];
 			for (int i = 0; i < owner_links.size(); i++) {
 				// System.out.println("herunterladen: " + owner_links.get(i));
-				contentPath[i] = mainPath + "kongresse" + fs + it.kurzID + fs + i + fs;
+				contentPath[i] = mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs + i + fs;
 				contentMyWget[i] = new MyWget(owner_links.get(i), contentPath[i], true);
 				contentMyWget[i].getPage();
 			}
@@ -108,9 +109,10 @@ public class UeberordnungDownload {
 			bw.close();
 
 			File htmlFile = new File(kongressDir + "content" + fs + "target.html");
-			doc = Jsoup.parse(htmlFile, "ISO-8859-1", protokoll + hostname);
-			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
-			doc.outputSettings().charset("UTF-8");
+			doc = Jsoup.parse(htmlFile, "CP1252", protokoll + hostname);// vorher: "ISO-8859-1"
+//			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);//wofür wa das?
+//			doc.outputSettings().charset("CP1252");//vorher: "UTF-8"
+//			doc.outputSettings().charset("ISO-8859-1");
 
 			Element content = doc.child(0);
 			content.getElementById("navigation_language").remove();
@@ -122,7 +124,8 @@ public class UeberordnungDownload {
 			Element[] newElement = new Element[10];
 			for (int i = 0; i < owner_links.size(); i++) {
 				content.getElementById("content").append("<div class=\"clear\">&nbsp;</div>");
-				newDoc[i] = Jsoup.parse(new File(contentPath[i] + "content" + fs + "target.html"), "ISO-8859-1",
+				newDoc[i] = Jsoup.parse(new File(contentPath[i] + "content" + fs + "target.html"), "CP1252", // vorher:
+																												// "ISO-8859-1"
 						protokoll + hostname);
 				newElement[i] = newDoc[i].getElementById("owner");
 				while (newElement[i].nextElementSibling() != null) {
@@ -132,7 +135,7 @@ public class UeberordnungDownload {
 			}
 			FileOutputStream fstream = new FileOutputStream(
 					kongressDir + "merge" + fs + "content" + fs + "target.html");
-			OutputStreamWriter out = new OutputStreamWriter(fstream, StandardCharsets.ISO_8859_1);
+			OutputStreamWriter out = new OutputStreamWriter(fstream, "windows-1252");
 			out.append(doc.html());
 			out.close();
 			fstream.close();
@@ -153,51 +156,57 @@ public class UeberordnungDownload {
 
 			Elements sessionlist = content.getElementsByClass("sessionlist").first().getElementsByTag("a");
 			int i = 0;
+			int Anzahl2 = 1;
 			for (Element session : sessionlist) {
-				String kongressDir2 = mainPath + "kongresse" + fs + it.kurzID + fs + "abstractlist" + ++i;
+				String kongressDir2 = mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs + "abstractlist"
+						+ ++i;
 				MyWget myWget2 = new MyWget(session.attr("href"), kongressDir2, true);
 				@SuppressWarnings("unused")
 				int res2 = myWget2.getPage();
 
 				File abstractlistFile = new File(myWget2.getTarget());
-				Elements abstractlist = Jsoup.parse(abstractlistFile, "ISO-8859-1", protokoll + hostname).child(0)
+				Elements abstractlist = Jsoup.parse(abstractlistFile, "CP1252", protokoll + hostname).child(0)// vorher:
+																												// "ISO-8859-1"
 						.getElementsByClass("hx_link");
 
 				// System.out.println("hier:");
 				// System.out.println(Jsoup.parse(abstractlistFile, "ISO-8859-1", protokoll +
 				// hostname).child(0));
 				for (Element abstractElement : abstractlist) {
-
 					Abstract aAbstract = new Abstract(abstractElement.attr("href"));
-					resultSet = sqlManager
-							.executeSql("SELECT * FROM abstracts WHERE Ab_ID = '" + aAbstract.Ab_ID + "'");
+					ResultSet resultSet2 = sqlManager.executeSql("SELECT * FROM abstracts WHERE Ab_ID = '"
+							+ aAbstract.Ab_ID + "_" + aAbstract.language + "'");
 					// Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
-					if (resultSet.next()) {
+					if (resultSet2.next()) {
 						// War schon drin
 					} else {
 						// Füge ein
 						// System.out.println("Verarbeite: '" + it.kurzID + "', '" + it.url + "'");
-						resultSet = sqlManager.executeSql(
-								"INSERT INTO abstracts (Ue_ID, Ab_ID , URL, Status) VALUES (\"" + aAbstract.Ue_ID
-										+ "\", \"" + aAbstract.Ab_ID + "\", \"" + aAbstract.url + "\", 10);");
-						break; // tu nicht zu viel
+						resultSet2 = sqlManager
+								.executeSql("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, Status) VALUES (\""
+										+ aAbstract.Ue_ID + "_" + aAbstract.language + "\", \"" + aAbstract.Ab_ID + "_"
+										+ aAbstract.language + "\", \"" + aAbstract.url + "\", 10);");
+						if (0 == --Anzahl2)
+							break; // tu nicht zu viel
 					}
 				}
-				break; // tu nicht zu viel
+				if (0 == Anzahl2)
+					break; // tu nicht zu viel
 			}
 
 			// Den Fortschritt in der Datenbank vermerken
 			int updated = sqlManager
-					.executeUpdate("UPDATE ueberordnungen SET Status = 30 WHERE ID = '" + it.kurzID + "';");
+					.executeUpdate("UPDATE ueberordnungen SET Status = 30 WHERE ID = '" + it.kurzID + "_" + it.language + "';");
 			// int updated = 1;// zum testen
 			if (updated != 1)
 				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
-						+ it.kurzID + "', aber es waren: " + updated + ".");
+						+ it.kurzID + "_" + it.language + "', aber es waren: " + updated + ".");
 			// Nicht zu schnell eine Anfrage nach der Anderen
 			System.out.flush();
 			TimeUnit.SECONDS.sleep(1);
 
-			break; // Tue nicht zu viel
+			if (0 == --Anzahl)
+				break; // Tue nicht zu viel
 		}
 
 	}
