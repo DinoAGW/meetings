@@ -52,8 +52,8 @@ public class LinkCrawl {
 		// überprüfe ob die kurzIDs ok sind
 		for (Kongress it : listNew) {
 			for (Kongress it2 : listNew) {
-				if ((it.kurzID.equals(it2.kurzID)) && (it != it2)) {// Ich gehe stark davon aus, dass ein Kongress
-					// anhand der kurzId eindeutig bestimmt ist
+				if ((it.kurzID.equals(it2.kurzID)) && (it != it2)) {// Ich gehe stark davon aus, dass jede kurzId nur
+																	// ein mal in der Liste gefunden wird.
 					System.err.println("Problem mit url " + it.url + " und " + it2.url);
 				}
 			}

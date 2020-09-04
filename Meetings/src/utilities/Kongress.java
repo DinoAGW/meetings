@@ -10,6 +10,8 @@ public class Kongress {
 		this.url = new String(url);
 		String[] tokens = new String[10];
 		tokens = this.url.split("/");
+		if (this.url.endsWith("/"))
+			tokens[tokens.length] = "index.html";
 		this.kurzID = tokens[tokens.length - 2];
 		this.language = tokens[tokens.length - 4];
 		this.languageSpec = "";
