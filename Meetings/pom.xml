@@ -6,7 +6,6 @@
 	<artifactId>Meetings</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -61,7 +60,7 @@
 			<artifactId>layout</artifactId>
 			<version>7.1.10</version>
 			<scope>system</scope>
-			<systemPath>${project.basedir}/resources/itext7-layout-7.1.10-SNAPSHOT.jar</systemPath>
+			<systemPath>${project.basedir}/lib/itext7-layout-7.1.10-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<!-- Kommt von ConvertHtmlToPDF2 -->
 		<!-- https://mvnrepository.com/artifact/com.itextpdf/html2pdf -->
