@@ -17,7 +17,6 @@ import org.jsoup.nodes.Element;
 import myWget.MyWget;
 import utilities.Kongress;
 import utilities.SqlManager;
-import utilities.Utilities;
 
 public class LinkCrawl {
 	static String fs = System.getProperty("file.separator");
@@ -33,7 +32,6 @@ public class LinkCrawl {
 
 	public static void linkCrawl(String protokoll, String hostname, String landingPage, String mainPath)
 			throws IOException, SQLException {
-		File checksum = new File(mainPath + "landingPage" + fs + "content" + fs + "checksum.md5");
 		// lade die Webseite herrunter
 		MyWget myWget = new MyWget(landingPage, mainPath + "landingPage" + fs, false);
 		@SuppressWarnings("unused")
@@ -44,12 +42,15 @@ public class LinkCrawl {
 		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", protokoll + hostname);
 		Element content = doc.getElementById("content");
 		List<Kongress> listNew = new ArrayList<Kongress>();
-		// Füge die URLS in eine Liste ein
+		// Fï¿½ge die URLS in eine Liste ein
 		for (int i = 2; i < content.getElementsByTag("a").size(); i++) {
-			listNew.add(new Kongress(content.getElementsByTag("a").get(i).attr("href")));
+			String linRef = content.getElementsByTag("a").get(i).attr("href");
+			if (linRef != null && !linRef.isEmpty()) {
+				listNew.add(new Kongress(linRef));
+			}
 		}
 
-		// überprüfe ob die kurzIDs ok sind
+		// ï¿½berprï¿½fe ob die kurzIDs ok sind
 		for (Kongress it : listNew) {
 			for (Kongress it2 : listNew) {
 				if ((it.kurzID.equals(it2.kurzID)) && (it != it2)) {// Ich gehe stark davon aus, dass jede kurzId nur
@@ -59,23 +60,20 @@ public class LinkCrawl {
 			}
 		}
 
-		String propertypfad = System.getProperty("user.home") + fs + "properties.txt";
-		String password = Utilities.readStringFromProperty(propertypfad, "password");
-		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 		ResultSet resultSet = null;
 
 		int Anzahl = 1;
 		for (Kongress it : listNew) {
-			resultSet = sqlManager
+			resultSet = SqlManager.INSTANCE
 					.executeSql("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "_" + it.language + "'");
-			// Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
+			// Prï¿½fe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 			if (resultSet.next()) {
 				// War schon drin
 			} else {
-				// Füge ein
+				// Fï¿½ge ein
 				System.out.println("Verarbeite: '" + it.kurzID + "', '" + it.url + "'");
-				resultSet = sqlManager.executeSql("INSERT INTO ueberordnungen (ID, URL, Status) VALUES (\"" + it.kurzID
-						+ "_" + it.language + "\", \"" + it.url + "\", 10);");
+				SqlManager.INSTANCE.executeUpdate("INSERT INTO ueberordnungen (ID, URL, Status) VALUES ('" + it.kurzID
+						+ "_" + it.language + "', '" + it.url + "', 10);");
 				if (0 == --Anzahl)
 					break; // tu nicht zu viel
 			}
