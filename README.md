@@ -64,9 +64,6 @@ Status of abstracts:
 | /Ueberordnungen/kongresse/{kurzID}{languageSpec}/abstractlist{i}/ | Subfolder where one Abstractlist of the Sessionlist is downloaded to |
 | /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{kurzID}{languageSpec}.pdf | The PDF Version of the congress Overview |
 | /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{Ab_ID}/ | The Destination for the Abstract Download, for example /Ueberordnungen/kongresse/maf2020_en/20maf01/ for https://www.egms.de/static/en/meetings/maf2020/20maf01.shtml |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
-|  |  |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{Ab_ID}/merge/ | just like the merge folder in the congress overview part |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{Ab_ID}/merge/content/target.html | just like the congress overview part |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{Ab_ID}/{Ab_ID}{languageSpec}.pdf | The PDF Version of the Abstract |
