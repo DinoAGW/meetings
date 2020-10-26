@@ -23,6 +23,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.pdfa.PdfADocument;
 
+import utilities.Clean;
 import utilities.Kongress;
 import utilities.SqlManager;
 
@@ -32,7 +33,7 @@ public class UeberordnungConvert {
 	public static final String FONT = "resources/OpenSans-Regular.ttf";// wird zurzeit nicht verwendet
 
 	public static void main(String[] args) throws IOException, SQLException {
-		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
+		String overviewPath = Clean.mainPath.concat("Ueberordnungen").concat(fs);
 
 		ResultSet resultSet = null;
 
@@ -43,7 +44,7 @@ public class UeberordnungConvert {
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 
 			Kongress it = new Kongress(resultSet.getString("URL"));
-			String kongressDir = mainPath + "kongresse" + fs + it.getPathId() + fs;
+			String kongressDir = overviewPath + "kongresse" + fs + it.getPathId() + fs;
 			String baseDir = kongressDir + "merge" + fs + "content" + fs;
 			String from = baseDir + "target.html";
 			String to = kongressDir + it.kurzID + it.languageSpec + ".pdf";

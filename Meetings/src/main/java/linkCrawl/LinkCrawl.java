@@ -17,6 +17,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import myWget.MyWget;
+import utilities.Clean;
 import utilities.Kongress;
 import utilities.SqlManager;
 
@@ -83,10 +84,10 @@ public class LinkCrawl {
 	}
 
 	public static void main(String[] args) throws IOException, SQLException {
-		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
+		String overviewPath = Clean.mainPath.concat("Ueberordnungen").concat(fs);
 
-		linkCrawl(crawlURL("/static/de/meetings/index.htm"), mainPath);
-		linkCrawl(crawlURL("/static/en/meetings/index.htm"), mainPath);
+		linkCrawl(crawlURL("/static/de/meetings/index.htm"), overviewPath);
+		linkCrawl(crawlURL("/static/en/meetings/index.htm"), overviewPath);
 
 		System.out.println("LinkCrawl Ende.");
 	}

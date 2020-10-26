@@ -18,6 +18,7 @@ import org.jsoup.nodes.Element;
 import myWget.MyUtils;
 import myWget.MyWget;
 import utilities.Abstract;
+import utilities.Clean;
 import utilities.SqlManager;
 
 public class AbstractDownload {
@@ -90,12 +91,12 @@ public class AbstractDownload {
 	}
 
 	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
-		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Abstracts\\";
+		String absPath = Clean.mainPath.concat("Abstracts").concat(fs);
 
 		String protokoll = "https://";
 		String hostname = "www.egms.de";
 
-		linkDownload(mainPath, protokoll, hostname);
+		linkDownload(absPath, protokoll, hostname);
 
 		System.out.println("AbstractDownload Ende.");
 	}
