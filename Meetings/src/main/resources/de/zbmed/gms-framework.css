@@ -1,0 +1,224 @@
+/* #################################################################### initialisations ########################## */
+
+html{ height:100%; }
+body{
+	/*margin:0;*/  padding:0;  border-style:none;
+	height:100%;
+	font-size:75%; 
+	text-align:left; 
+	background-color:#f2f2f3; color:#000;
+}
+
+body, input {
+	font-family:Geneva,Verdana,'DejaVu Sans',sans-serif; /* Geneva=Mac, Verdana=Windows */
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family:'New York',Georgia,'DejaVu Serif',serif; /* New York=Mac, Georgia=Windows */
+}
+
+h1, h2, h3, h4, h5, h6, p, blockqoute, pre, adress, div, form, fieldset{
+	margin:0;  padding:0;  border-style:none;
+}
+table, td, th{
+	margin:0;  padding:0;
+}
+ul, ol, dl, li{
+	margin-top:0;  margin-bottom:0;  margin-right:0; /*kein margin-left festsetzen!!!*/
+	padding-top:0; padding-bottom:0; margin-right:0;
+	border-style:none;
+}
+img {
+	margin:0;  padding:0;  border-style:none;
+	vertical-align:bottom;
+}
+.hidden_navigation,
+.verborgen,
+.hidden {  
+	display:none;
+}
+
+.randlos { margin:0; }
+.clear,
+.clearboth { clear:both; display:block; } /*CAVE "clear" ist zugleich ein class fuer <table>*/
+
+/*
+.lang, .de, .en { color:red; }
+*/
+
+:active, :focus { outline:none; }
+
+/* http://meyerweb.com/eric/tools/css/reset/ koennte noch ein paar weiter Tipps zum CSs-Resetting haben */
+
+
+
+/* #################################################################### structure ################################ */
+/* - #page (gesamter Inhalt)   */
+/* - #header (Kopfbereich)     */
+/* - #column (links Spalte)    */
+/* - #content (Inhaltsbereich) */
+
+/* Breite gesamte Seite (und Kopfbereich), zzgl. IE6-Definition, die max-width entspricht */
+#page, #header {
+	/*min-width:800px;*/
+	max-width:784px;
+}
+#page {
+	padding-bottom:2em;
+}
+* html #page {
+	width:1024px;
+	/* width:expression( document.body.clientWidth > 1024 ? "1024px" :"auto" ); */
+}
+
+/* Kopfbereich, Hintergrund und absolute Positionierung ganz oben */
+#header {
+	background-image:url(../images/header_repeat.png);
+	background-position:top left;
+	background-repeat:repeat-x;
+	height:120px;
+	left:0;
+	position:absolute;
+	top:0;
+	width:100%;
+}
+
+/* Linke Spalte */
+#column {
+	left:10px;
+	top:130px;
+	position:absolute;
+	width:210px;
+}
+
+/* Inhaltsbereich inkl. Mehrspaltigkeit [TODO überarbeiten, sobald Inhalte da sind -- petsch 03.08.09] */
+#content {
+	/*padding-left:240px;*/
+	padding-top:130px;
+}
+#content .einespalte   { margin:0; }
+#content .linkespalte  { float:left;  width:48%;  margin:0 4px 0 0; }
+#content .rechtespalte { float:right; width:48%;  margin:0; }
+
+/* #################################################################### navigation ############################### */
+/* Sprachauswahl */
+#navigation_language   { padding-bottom:0.5em; }
+#navigation_language a { background:transparent; color:black; }
+
+/* Hauptnavitation */
+ul#navigation {
+	list-style-type:none;
+	margin:0 0 4em 0;
+	padding:0;
+}
+
+ul#navigation a {
+	display:block;
+	margin:0;
+}
+
+ul#navigation li {
+	border-bottom:1px solid #f2f2f3; /* Rahme in body-Hintergrundfarbe, sonst macht IE6 große Abstände... */	
+	line-height:2em;
+	margin:0 0 1em 0;
+}
+
+ul#navigation li a {
+	background-color:#2b4878;
+	border-left:0.63em solid #2b4878; /* 0.625 = 0.75 / 1.2 */
+	color:white;
+	display:block;
+	font-size:1.2em; /* wie h3 */
+	padding-left:0.21em; /* 0.25 / 1.2 */
+	padding-right:0.83em; /* 1 / 1.2 */
+	text-decoration:none;
+}
+
+ul#navigation li a:hover {
+	border-left-color:#e3e3e4;
+}
+
+ul#navigation li a.active {
+	border-left-color: #800000; /*#f50;*/
+}
+
+ul#navigation li ul {
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}
+
+/* IE6 braucht Border, sonst werden Abstände viel zu groß dargestellt */
+* html ul#navigation li ul li {
+	border-bottom-width:1px;
+}
+
+ul#navigation li ul li {
+	border-top:1px solid #2b4878;
+	background-color:#e3e3e4;
+	border-width:1px 0 0 0;
+	margin:0;
+	padding:0;
+}
+
+ul#navigation li ul li a {
+	background:none;
+	border-left:0.75em solid #e3e3e4;
+	color:black;
+	font-size:1em;
+	padding-left:0.25em;
+	padding-right:1em;
+}
+
+ul#navigation li ul li a:hover {
+	border-color:#2b4878;
+}
+
+/* #################################################################### boxen unter Navigation und auf Startseite ############# */
+/* =============================== service-box */
+.box {
+	background-color:#e3e3e4;
+	border-top:0.25em solid #2b4878;
+	margin-bottom:1em;
+	padding:1em;
+}
+.box h2,
+.box h3 {
+	margin-top:0;
+}
+/* =============================== Openaccess-Box */
+#openaccess_box h3 {
+	text-align:center;
+	font-size:1em;
+}
+#openaccess_box div.navlist {
+	text-align:center;
+}
+/* =============================== Newsbox auf Startseite */
+.newsbox {
+	background-color:#e3e3e4;
+	border:1px solid #2b4878;
+	margin:2.5em 0 1.5em 0;
+	padding:1em;
+}
+.newsbox dl,
+.newsbox h3 {
+	margin:0;
+	padding:0;
+}
+.newsbox dt {
+	font-weight:bold;
+	margin:1em 0 0;
+}
+.newsbox dd {
+	margin-left: 3.5em;
+}
+
+/* #################################################################### portal_service ############################### */
+/* #################################################################### Verwendung überprüfen ?! ################################ */
+#portal_service {
+	width:auto;
+}
+/* ??? */
+.portal_areas {
+	margin:3em;
+}
