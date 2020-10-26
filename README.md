@@ -58,4 +58,15 @@ Status of abstracts:
 | /Ueberordnungen/landingPage/ | The target for the first langindPage of GMS Meetings ([GMS landingPage](https://www.egms.de/static/en/meetings/index.htm)) |
 | /Ueberordnungen/kongresse/ | The folder where the landing Page of all Meetings will be saved into subfolders |
 | /Ueberordnungen/kongresse/{kurzID}{languageSpec}/ | The Subfolder for the langindPage of one particular Meeting Overview, for Example /Ueberordnungen/kongresse/maf2020/ (German Version) or /Ueberordnungen/kongresse/maf2020_en/ (english Version) |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{i}/ | The Subfolders for additional information from the links, listed in owner_links, like 0/ for https://www.egms.de/static/en/meetings/maf2020/contact.htm or 1/ for https://www.egms.de/static/en/meetings/maf2020/imprint.htm |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/merge/ | In here, the websites belonging to a Meeting Overview will be merged together |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/merge/content/target.html | The file, where all content of there html Files are merged into (with linkings to its prerequisites) |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/abstractlist{i}/ | Subfolder where one Abstractlist of the Sessionlist is downloaded to |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{kurzID}{languageSpec}.pdf | The PDF Version of the congress Overview |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{Ab_ID}/ | The Destination for the Abstract Download, for example /Ueberordnungen/kongresse/maf2020_en/20maf01/ for https://www.egms.de/static/en/meetings/maf2020/20maf01.shtml |
+|  |  |
+|  |  |
+|  |  |
+|  |  |
+|  |  |
 |  |  |
