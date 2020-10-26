@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -30,7 +32,7 @@ public class LinkCrawl {
 		printWriter.close();
 	}
 
-	public static void linkCrawl(String protokoll, String hostname, String landingPage, String mainPath)
+	public static void linkCrawl(URL landingPage, String mainPath)
 			throws IOException, SQLException {
 		// lade die Webseite herrunter
 		MyWget myWget = new MyWget(landingPage, mainPath + "landingPage" + fs, false);
@@ -39,7 +41,7 @@ public class LinkCrawl {
 		// myWget.explainResult();
 
 		File htmlFile = new File(mainPath + "landingPage" + fs + "content" + fs + "index.htm");
-		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", protokoll + hostname);
+		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", landingPage.getProtocol() + landingPage.getHost());
 		Element content = doc.getElementById("content");
 		List<Kongress> listNew = new ArrayList<Kongress>();
 		// F�ge die URLS in eine Liste ein
@@ -81,13 +83,17 @@ public class LinkCrawl {
 	}
 
 	public static void main(String[] args) throws IOException, SQLException {
-		String protokoll = "https://";
-		String hostname = "www.egms.de";
 		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
 
-		linkCrawl(protokoll, hostname, protokoll + hostname + "/static/de/meetings/index.htm", mainPath);
-		linkCrawl(protokoll, hostname, protokoll + hostname + "/static/en/meetings/index.htm", mainPath);
+		linkCrawl(crawlURL("/static/de/meetings/index.htm"), mainPath);
+		linkCrawl(crawlURL("/static/en/meetings/index.htm"), mainPath);
 
 		System.out.println("LinkCrawl Ende.");
+	}
+	
+	private static URL crawlURL(final String path) throws MalformedURLException {
+		String protokoll = "https://";
+		String hostname = "www.egms.de";
+		return new URL(protokoll.concat(hostname).concat(path));
 	}
 }
