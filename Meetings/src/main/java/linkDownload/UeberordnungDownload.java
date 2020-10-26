@@ -8,9 +8,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-//import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-//import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.ResultSet;
@@ -30,22 +27,18 @@ import org.jsoup.select.Elements;
 import myWget.MyUtils;
 import myWget.MyWget;
 import utilities.Abstract;
+import utilities.Clean;
 import utilities.Kongress;
 import utilities.SqlManager;
-import utilities.Utilities;
 
 public class UeberordnungDownload {
 	static String fs = System.getProperty("file.separator");
 
-	public static void linkDownload(String mainPath, String protokoll, String hostname)
+	public static void linkDownload(String protokoll, String hostname)
 			throws IOException, SQLException, InterruptedException {
-		String propertypfad = System.getProperty("user.home") + fs + "properties.txt";
-		String password = Utilities.readStringFromProperty(propertypfad, "password");
-		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 		ResultSet resultSet = null;
 
-		//looking for found links which has to be downloaded
-		resultSet = sqlManager.executeSql("SELECT * FROM ueberordnungen WHERE status=10");
+		resultSet = SqlManager.INSTANCE.executeSql("SELECT * FROM ueberordnungen WHERE status=10");
 
 		//limiting work done for testing purpose
 		int Anzahl = 2;
@@ -53,9 +46,7 @@ public class UeberordnungDownload {
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 			Kongress it = new Kongress(resultSet.getString("URL"));
 			// der eigentliche Aufruf
-			String kongressDir = mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs;
-			
-			//downloading the Website and all prerequisites on harddisk
+			String kongressDir = Clean.mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs;
 			MyWget myWget = new MyWget(it.url, kongressDir, true);
 			@SuppressWarnings("unused")
 			int res = myWget.getPage();
@@ -75,7 +66,7 @@ public class UeberordnungDownload {
 			String[] contentPath = new String[owner_links.size()];
 			for (int i = 0; i < owner_links.size(); i++) {
 				// System.out.println("herunterladen: " + owner_links.get(i));
-				contentPath[i] = mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs + i + fs;
+				contentPath[i] = Clean.mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs + i + fs;
 				contentMyWget[i] = new MyWget(owner_links.get(i), contentPath[i], true);
 				contentMyWget[i].getPage();
 			}
@@ -154,7 +145,7 @@ public class UeberordnungDownload {
 			if (!MyUtils.md5_of_file(cssFile).equals("532d9c009619553ea5841742ac59b2df")) {
 				System.err.println("gms-framework.css ist anders, als gewohnt.");
 			}
-			File cssFileSrc = new File(mainPath + "gms-framework.css");
+			File cssFileSrc = new File(Clean.mainPath + "gms-framework.css");
 			Files.copy(cssFileSrc.toPath(), cssFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 			//The "LandingPage" of the congress always have a sessionlist, with websites, where the links to the abstracts can be found
@@ -164,7 +155,7 @@ public class UeberordnungDownload {
 			int Anzahl2 = 1;
 			//Go through them, to extract the links of the abstracts (not actually for "landingPage" of the congress download purpose, but because it is needed later)
 			for (Element session : sessionlist) {
-				String kongressDir2 = mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs + "abstractlist"
+				String kongressDir2 = Clean.mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs + "abstractlist"
 						+ ++i;
 				//download the Sessions from the Sessionlist
 				MyWget myWget2 = new MyWget(session.attr("href"), kongressDir2, true);
@@ -178,14 +169,15 @@ public class UeberordnungDownload {
 				//go through the abstracts in a session
 				for (Element abstractElement : abstractlist) {
 					Abstract aAbstract = new Abstract(abstractElement.attr("href"));
-					ResultSet resultSet2 = sqlManager.executeSql("SELECT * FROM abstracts WHERE Ab_ID = '"
+					ResultSet resultSet2 = SqlManager.INSTANCE.executeSql("SELECT * FROM abstracts WHERE Ab_ID = '"
 							+ aAbstract.Ab_ID + "_" + aAbstract.language + "'");
 					//Check if the abstract was in the Database before
+					// Pr�fe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 					if (resultSet2.next()) {
 						// skip if yes
 					} else {
 						// otherwise insert it
-						resultSet2 = sqlManager
+						resultSet2 = SqlManager.INSTANCE
 								.executeSql("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, Status) VALUES (\""
 										+ aAbstract.Ue_ID + "_" + aAbstract.language + "\", \"" + aAbstract.Ab_ID + "_"
 										+ aAbstract.language + "\", \"" + aAbstract.url + "\", 10);");
@@ -198,7 +190,7 @@ public class UeberordnungDownload {
 			}
 
 			// assign this congress as downloaded
-			int updated = sqlManager
+			int updated = SqlManager.INSTANCE
 					.executeUpdate("UPDATE ueberordnungen SET Status = 30 WHERE ID = '" + it.kurzID + "_" + it.language + "';");
 			if (updated != 1)
 				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
@@ -214,12 +206,10 @@ public class UeberordnungDownload {
 	}
 
 	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
-		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
-
 		String protokoll = "https://";
 		String hostname = "www.egms.de";
 
-		linkDownload(mainPath, protokoll, hostname);
+		linkDownload(protokoll, hostname);
 
 		System.out.println("UeberordnungDownload Ende.");
 	}
