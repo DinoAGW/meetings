@@ -44,7 +44,7 @@ public class AbstractConvert {
 					+ "', '" + resultSet.getString("URL") + "'");
 
 			Abstract it = new Abstract(resultSet.getString("URL"));
-			String kongressDir = mainPath + "kongresse" + fs + it.Ue_ID + it.languageSpec + fs + it.Ab_ID + fs;
+			String kongressDir = mainPath + "kongresse" + fs + it.getPathId() + fs;
 			String baseDir = kongressDir + "merge" + fs + "content" + fs;
 			String from = baseDir + "target.html";
 			String to = kongressDir + it.Ab_ID + it.languageSpec + ".pdf";

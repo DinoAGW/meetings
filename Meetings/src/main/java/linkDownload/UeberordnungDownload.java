@@ -44,13 +44,13 @@ public class UeberordnungDownload {
 
 		//limiting work done for testing purpose
 		int Anzahl = 2;
-		
+
 		while (resultSet.next()) {
 			// For each overview record
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 			Kongress it = new Kongress(resultSet.getString("URL"));
 			// der eigentliche Aufruf
-			String kongressDir = Clean.mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs;
+			String kongressDir = Clean.mainPath + "kongresse" + fs + it.getPathId() + fs;
 			MyWget myWget = new MyWget(it.url, kongressDir, true);
 			@SuppressWarnings("unused")
 			int res = myWget.getPage();
@@ -70,7 +70,7 @@ public class UeberordnungDownload {
 			String[] contentPath = new String[owner_links.size()];
 			for (int i = 0; i < owner_links.size(); i++) {
 				// System.out.println("herunterladen: " + owner_links.get(i));
-				contentPath[i] = Clean.mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs + i + fs;
+				contentPath[i] = Clean.mainPath + "kongresse" + fs + it.getPathId() + fs + i + fs;
 				contentMyWget[i] = new MyWget(owner_links.get(i), contentPath[i], true);
 				contentMyWget[i].getPage();
 			}
@@ -159,7 +159,7 @@ public class UeberordnungDownload {
 			int Anzahl2 = 1;
 			//Go through them, to extract the links of the abstracts (not actually for "landingPage" of the congress download purpose, but because it is needed later)
 			for (Element session : sessionlist) {
-				String kongressDir2 = Clean.mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs + "abstractlist"
+				String kongressDir2 = Clean.mainPath + "kongresse" + fs + it.getPathId() + fs + "abstractlist"
 						+ ++i;
 				//download the Sessions from the Sessionlist
 				MyWget myWget2 = new MyWget(new URL(session.attr("href")), kongressDir2, true);

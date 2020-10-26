@@ -19,10 +19,13 @@ public class Kongress {
 		this.languageSpec = (this.language.equals("de")) ? "" :	"_".concat(this.language);
 	}
 
+	public String getPathId() {
+		return this.kurzID.concat(this.languageSpec);
+	}
+
 	@Override
 	public String toString() {
 		return "Kongress [url=" + url + ", kurzID=" + kurzID + ", language=" + language + ", languageSpec="
 				+ languageSpec + "]";
 	}
-
 }

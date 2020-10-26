@@ -43,7 +43,7 @@ public class UeberordnungConvert {
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 
 			Kongress it = new Kongress(resultSet.getString("URL"));
-			String kongressDir = mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs;
+			String kongressDir = mainPath + "kongresse" + fs + it.getPathId() + fs;
 			String baseDir = kongressDir + "merge" + fs + "content" + fs;
 			String from = baseDir + "target.html";
 			String to = kongressDir + it.kurzID + it.languageSpec + ".pdf";
