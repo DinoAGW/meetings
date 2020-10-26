@@ -22,7 +22,15 @@ password=<passwort>
 
 ## Explanation
 
-The german word Überordnung refers to the Overview of the congress, for example: https://www.egms.de/dynamic/en/meetings/maf2020/index.htm
+### Structure of Meetings in https://www.egms.de/static/en/meetings/index.htm
+
+* There is a List of congresses. For every congress, you first see the so called 'Überordnung' of a congress.
+* The german word Überordnung refers to the Overview of the congress, for example: https://www.egms.de/dynamic/en/meetings/maf2020/index.htm .
+* In this example, there are three Pages which have information about the congress, found at 'MAF 2020' (landing page), 'Contact' and 'Imprint'.
+* All information to a 'Kongressüberordnung' (in that case, the content of these three websites) should be downloaded, processed and transformed to a PDF
+* Every Überordnung have a set of Sessionlists (In the one given example, its just one here: https://www.egms.de/dynamic/en/meetings/maf2020/index.htm?main=1 ).
+* Every Session in the Sessionlist has a List of Abstracts in it, for example: https://www.egms.de/static/en/meetings/maf2020/20maf01.shtml
+* For every Abstract, the website should be downloaded, processed and transformed to a PDF
 
 ### Database purpose
 
