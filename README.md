@@ -49,3 +49,13 @@ Status of abstracts:
 | 10 | UeberordnungDownload found the link in a Sessionlist of the congress overview and inserted it into the table |
 | 30 | AbstractDownload downloaded the website of the abstract with all of their prerequisites on harddisk  |
 | 50 | AbstractConvert converted the html with their prerequisites to PDF vie iText |
+
+### Folder Overview
+
+"/" is written here as the root folder for the project to work in (not the harddisk root Folder). Example given for [this congress](https://www.egms.de/dynamic/en/meetings/maf2020/index.htm)
+| Folder | Purpose |
+| ---: | :--- |
+| /Ueberordnungen/landingPage/ | The target for the first langindPage of GMS Meetings ([GMS landingPage](https://www.egms.de/static/en/meetings/index.htm)) |
+| /Ueberordnungen/kongresse/ | The folder where the landing Page of all Meetings will be saved into subfolders |
+| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/ | The Subfolder for the langindPage of one particular Meeting Overview, for Example /Ueberordnungen/kongresse/maf2020/ (German Version) or /Ueberordnungen/kongresse/maf2020_en/ (english Version) |
+|  |  |
