@@ -3,14 +3,17 @@ package utilities;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+
 public class Abstract {
+	public final static String fs = System.getProperty("file.separator");
+
 	public final URL url;
 	public final String Ue_ID;
 	public final String Ab_ID;
 	public final String language;
 	public final String languageSpec;
 
-	public Abstract(String url) throws MalformedURLException {
+	public Abstract(final String url) throws MalformedURLException {
 		this.url = new URL(url);
 		String[] tokens = new String[10];
 		tokens = this.url.toString().split("/");
@@ -20,4 +23,7 @@ public class Abstract {
 		this.languageSpec = (this.language.equals("de")) ? "" : "_".concat(this.language);
 	}
 
+	public String getPathId() {
+		return this.Ue_ID.concat(this.languageSpec).concat(fs).concat(this.Ab_ID); 
+	}
 }

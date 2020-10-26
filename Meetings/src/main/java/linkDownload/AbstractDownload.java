@@ -35,7 +35,7 @@ public class AbstractDownload {
 					+ "', '" + resultSet.getString("URL") + "'");
 			Abstract it = new Abstract(resultSet.getString("URL"));
 			// der eigentliche Aufruf
-			String kongressDir = mainPath + "kongresse" + fs + it.Ue_ID + it.languageSpec + fs + it.Ab_ID + fs;
+			String kongressDir = mainPath + "kongresse" + fs + it.getPathId() + fs;
 			MyWget myWget = new MyWget(it.url, kongressDir, true);
 			@SuppressWarnings("unused")
 			int res = myWget.getPage();
