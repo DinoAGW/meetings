@@ -25,12 +25,11 @@ import com.itextpdf.pdfa.PdfADocument;
 
 import utilities.Abstract;
 import utilities.Clean;
+import utilities.Resources;
 import utilities.SqlManager;
 
 public class AbstractConvert {
 	public static String fs = System.getProperty("file.separator");
-	public static final String ICC = "resources/sRGB_v4_ICC_preference_displayclass.icc";
-	public static final String FONT = "resources/OpenSans-Regular.ttf";
 
 	public static void main(String[] args) throws IOException, SQLException {
 		String absPath = Clean.mainPath.concat(fs).concat("Abstracts").concat(fs);
@@ -68,7 +67,7 @@ public class AbstractConvert {
 			PdfWriter writer = new PdfWriter(to, new WriterProperties().addXmpMetadata());
 
 			PdfDocument pdf = new PdfADocument(writer, PdfAConformanceLevel.PDF_A_2A, new PdfOutputIntent("Custom", "",
-					"http://www.color.org", "sRGB IEC61966-2.1", new FileInputStream(ICC)));
+					"http://www.color.org", "sRGB IEC61966-2.1", new FileInputStream(Resources.INSTANCE.getDisplayIcc())));
 
 			pdf.setDefaultPageSize(PageSize.A4);
 

@@ -30,6 +30,7 @@ import myWget.MyWget;
 import utilities.Abstract;
 import utilities.Clean;
 import utilities.Kongress;
+import utilities.Resources;
 import utilities.SqlManager;
 
 public class UeberordnungDownload {
@@ -149,8 +150,7 @@ public class UeberordnungDownload {
 			if (!MyUtils.md5_of_file(cssFile).equals("532d9c009619553ea5841742ac59b2df")) {
 				System.err.println("gms-framework.css ist anders, als gewohnt.");
 			}
-			File cssFileSrc = new File(Clean.mainPath + "gms-framework.css");
-			Files.copy(cssFileSrc.toPath(), cssFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			Files.copy(Resources.INSTANCE.getCss().toPath(), cssFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 			//The "LandingPage" of the congress always have a sessionlist, with websites, where the links to the abstracts can be found
 			Elements sessionlist = content.getElementsByClass("sessionlist").first().getElementsByTag("a");
