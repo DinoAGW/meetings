@@ -7,34 +7,37 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.nio.file.Files;
 //import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 public class MyWget {
 	private String fs = System.getProperty("file.separator");
-	private String protokoll, pageFrom, dirTo, hostname;
-	private boolean context;
+	private final URL pageFrom;
+	private final String dirTo;
+	private final boolean context;
 	private int result;
 
 	private void makeMD5s(File file, PrintWriter printWriter) throws IOException {
 		if (file.isDirectory()) {
 			for (File fileEntry : file.listFiles()) {
-				// nutze den printWriter auch für den rekursiven Aufruf nach
+				// nutze den printWriter auch fï¿½r den rekursiven Aufruf nach
 				this.makeMD5s(fileEntry, printWriter);
 			}
 		} else if (!file.getPath().endsWith("checksum.md5")) {
-			// Füge die jeweilige Datei mit Pfad hinzu, aber relativ zum content Ordner,
+			// Fï¿½ge die jeweilige Datei mit Pfad hinzu, aber relativ zum content Ordner,
 			// also ohne den dirTo Pfad und ohne die 8 "content/" Zeichen.
 			printWriter.println(MyUtils.md5_of_file(file) + "  " + file.getPath().substring(this.dirTo.length() + 8));
-			// lässt sich dann auch mittels #md5sum -c checksum.md5 überprüfen
+			// lï¿½sst sich dann auch mittels #md5sum -c checksum.md5 ï¿½berprï¿½fen
 		}
 	}
 
@@ -46,24 +49,14 @@ public class MyWget {
 	 * @param context  - ob auch alle weiteren Inhalte zu der Webseite gespeichert
 	 *                 werden sollen.
 	 */
-	public MyWget(String pageFrom, String dirTo, boolean context) {
-		if (pageFrom.startsWith("http://")) {
-			this.protokoll = "http://";
-		} else if (pageFrom.startsWith("https://")) {
-			this.protokoll = "https://";
-		} else {
-			System.err.println("URL muss mit http:// oder mit https:// anfangen!");
-		}
-		this.pageFrom = pageFrom.substring(this.protokoll.length());
-		this.hostname = this.pageFrom.substring(0, this.pageFrom.indexOf("/"));
-		this.dirTo = dirTo;
-		if (!dirTo.endsWith(fs))
-			this.dirTo = this.dirTo + fs;
+	public MyWget(URL pageFrom, String dirTo, boolean context) {
+		this.pageFrom = pageFrom;
+		this.dirTo = (dirTo.endsWith(fs)) ? dirTo : dirTo.concat(fs);
 		this.context = context;
 	}
 
 	/**
-	 * Schreibe in eine Datei "content/checksum.md5": für jede Datei im Ordner die
+	 * Schreibe in eine Datei "content/checksum.md5": fï¿½r jede Datei im Ordner die
 	 * Checksumme, den Pfad (relativ zu dirTo) und Dateiname.
 	 * Auf diese Weise stimmen die Pfade noch, auch wenn man den content/ Ordner verschiebt oder umbenennt
 	 * 
@@ -90,10 +83,10 @@ public class MyWget {
 			System.out.println("Ordner wurde neu angelegt");
 			break;
 		case 1:
-			System.out.println("Es hat sich nichts geändert");
+			System.out.println("Es hat sich nichts geï¿½ndert");
 			break;
 		case 2:
-			System.out.println("Es hat sich etwas geändert");
+			System.out.println("Es hat sich etwas geï¿½ndert");
 			this.showDifferences();
 			break;
 		default:
@@ -102,7 +95,7 @@ public class MyWget {
 	}
 
 	/**
-	  * Wenn bei getPage Unterschiede in den Checksummen gefunden wurden, können
+	  * Wenn bei getPage Unterschiede in den Checksummen gefunden wurden, kï¿½nnen
 	  * diese beide Dateien mithilfe dieser Funktion verglichen und Unterschiede
 	  * ausgegeben werden.
 	  * 
@@ -169,23 +162,24 @@ public class MyWget {
 	 * @return Dateiname mit Pfad
 	 */
 	public String getTarget() {
+		String noProt = this.pageFrom.getHost().concat(this.pageFrom.getPath());
 		if (this.context) {
-			return new String(this.dirTo + "content" + fs + this.pageFrom).replace("?", "@");
+			return new String(this.dirTo + "content" + fs + noProt).replace("?", "@");
 		} else {
-			return new String(this.dirTo + "content" + fs + this.pageFrom.substring(this.pageFrom.lastIndexOf("/") + 1)).replace("?", "@");
+			return new String(this.dirTo + "content" + fs + noProt.substring(noProt.lastIndexOf("/") + 1)).replace("?", "@");
 		}
 	}
 
 	/**
-	 * Diese Funktion läst den Aufruf aus. Die Inhalte werden im "Content/" Ordner
+	 * Diese Funktion lï¿½st den Aufruf aus. Die Inhalte werden im "Content/" Ordner
 	 * gespeichert, ggf entsteht auch ein "Content_temp/" Ordner als Backup des
 	 * letzten Ordners und in "aufruf.txt" steht, was dort in dem Ordner getan
 	 * wurde.
 	 * <p>
 	 * Falls context==true, wird auch noch eine target.html
-	 * im content/ Ordner erstellt (mit geänderten relativen Links) 
+	 * im content/ Ordner erstellt (mit geï¿½nderten relativen Links) 
 	 * <p>
-	 * Rückgabewert ist:
+	 * Rï¿½ckgabewert ist:
 	 * <p>
 	 * <ul>
 	 * <li>0, falls der Ordner neu angelegt wurde
@@ -193,10 +187,10 @@ public class MyWget {
 	 * <li>2, falls sich etwas geÃ¤ndert hat
 	 * </ul>
 	 * <p>
-	 * Diese Ergebnisse können dann noch mittels explainResult(Status) oder
+	 * Diese Ergebnisse kï¿½nnen dann noch mittels explainResult(Status) oder
 	 * showDifferences() an die Standardausgabe ausgegeben werden.
 	 * 
-	 * @return Status über Änderung
+	 * @return Status ï¿½ber ï¿½nderung
 	 * @throws IOException
 	 */
 	public int getPage() throws IOException {
@@ -210,8 +204,8 @@ public class MyWget {
 		}
 		FileWriter fileWriter = new FileWriter(aufruf);
 		PrintWriter printWriter = new PrintWriter(fileWriter);
-		// Dokumentation über den Aufruf
-		printWriter.println("'" + this.dirTo + "', '" + this.protokoll + this.pageFrom + "', " + this.context);
+		// Dokumentation ï¿½ber den Aufruf
+		printWriter.println("'" + this.dirTo + "', '" + this.pageFrom.getProtocol() + this.pageFrom + "', " + this.context);
 		printWriter.close();
 
 		int ret = 1;
@@ -242,11 +236,11 @@ public class MyWget {
 		if (SystemUtils.IS_OS_LINUX) {
 			if (this.context) {
 				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehÃ¶rt
-				cmd = "wget -p -k -q -N -P " + this.dirTo + "content/ " + this.protokoll + this.pageFrom;
+				cmd = "wget -p -k -q -N -P " + this.dirTo + "content/ " + this.pageFrom;
 			} else {
-				cmd = "wget    -k -q -N -P " + this.dirTo + "content/ " + this.protokoll + this.pageFrom;
+				cmd = "wget    -k -q -N -P " + this.dirTo + "content/ " + this.pageFrom;
 			}
-			// führe den wget Befehl aus
+			// fï¿½hre den wget Befehl aus
 			Runtime run = Runtime.getRuntime();
 			Process pr = run.exec(cmd);
 			try {
@@ -264,12 +258,12 @@ public class MyWget {
 		} else {
 			ProcessBuilder pb = null;
 			if (this.context) {
-				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehört
-				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-p", "-k", "-erobots=off", "-P", this.dirTo + "content" + fs, this.protokoll + this.pageFrom);
+				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehï¿½rt
+				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-p", "-k", "-erobots=off", "-P", this.dirTo + "content" + fs, this.pageFrom.toString());
 			} else {
-				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-k", "-erobots=off", "-P", this.dirTo + "content" + fs, this.protokoll + this.pageFrom);
+				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-k", "-erobots=off", "-P", this.dirTo + "content" + fs, this.pageFrom.toString());
 			}
-			// führe den wget Befehl aus
+			// fï¿½hre den wget Befehl aus
 			pb.redirectErrorStream(true);
 			Process process = pb.start();
 			BufferedReader inStreamReader = new BufferedReader ( new InputStreamReader(process.getInputStream()));
@@ -287,15 +281,15 @@ public class MyWget {
 			Files.copy(target.toPath(), new File(this.dirTo + "content" + fs + "target.html").toPath(),
 					StandardCopyOption.REPLACE_EXISTING);
 			target = new File(this.dirTo + "content" + fs + "target.html");
-			Document doc = Jsoup.parse(target, "CP1252" , this.hostname);//vorher: "ISO-8859-1"
+			Document doc = Jsoup.parse(target, "CP1252" , this.pageFrom.getHost());//vorher: "ISO-8859-1"
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
 			doc.outputSettings().charset("UTF-8");
 			
 			Elements select = doc.select("a");
 			for (Element e : select) {
 				String url = e.attr("href");
-				if (url.contentEquals(this.pageFrom.substring(this.pageFrom.lastIndexOf("/") + 1))) {
-					url = this.protokoll + this.pageFrom;
+				if (url.contentEquals(this.pageFrom.toString().substring(this.pageFrom.toString().lastIndexOf("/") + 1))) {
+					url = this.pageFrom.toString();
 				}
 				e.attr("href", url);
 			}
@@ -303,9 +297,9 @@ public class MyWget {
 			select = doc.select("img");
 			for (Element e : select) {
 				String url = e.attr("src");
-				int up = MyUtils.countOccrences(this.pageFrom, '/') - 1;
+				int up = MyUtils.countOccrences(this.pageFrom.toString(), '/') - 1;
 				if (up > 0) {
-					String[] tokens = pageFrom.split("/");
+					String[] tokens = pageFrom.toString().split("/");
 					for (int i = up; i >= 0; i--) {
 						if (url.startsWith("../")) {
 							url = url.substring(3);
@@ -320,9 +314,9 @@ public class MyWget {
 			select = doc.select("link");
 			for (Element e : select) {
 				String url = e.attr("href");
-				int up = MyUtils.countOccrences(this.pageFrom, '/') - 1;
+				int up = MyUtils.countOccrences(this.pageFrom.toString(), '/') - 1;
 				if (up > 0) {
-					String[] tokens = pageFrom.split("/");
+					String[] tokens = pageFrom.toString().split("/");
 					for (int i = up; i >= 0; i--) {
 						if (url.startsWith("../")) {
 							url = url.substring(3);
@@ -339,7 +333,7 @@ public class MyWget {
 		if (ret == 1) {
 			if (FileUtils.contentEquals(new File(this.dirTo + "content" + fs + "checksum.md5"),
 					new File(this.dirTo + "content_temp" + fs + "checksum.md5"))) {
-				// Falls sich nichts geändert hat...
+				// Falls sich nichts geï¿½ndert hat...
 				File dest = new File(this.dirTo + "content_temp" + fs);
 				if (dest.exists()) {
 					// ...wird die Kopie nicht mehr gebraucht

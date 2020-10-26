@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.ResultSet;
@@ -38,11 +39,14 @@ public class UeberordnungDownload {
 			throws IOException, SQLException, InterruptedException {
 		ResultSet resultSet = null;
 
+		// Get everything from the overview table
 		resultSet = SqlManager.INSTANCE.executeSql("SELECT * FROM ueberordnungen WHERE status=10");
 
 		//limiting work done for testing purpose
 		int Anzahl = 2;
+		
 		while (resultSet.next()) {
+			// For each overview record
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 			Kongress it = new Kongress(resultSet.getString("URL"));
 			// der eigentliche Aufruf
@@ -55,10 +59,10 @@ public class UeberordnungDownload {
 			File kongressFile = new File(myWget.getTarget());
 			Document doc = Jsoup.parse(kongressFile, "CP1252", protokoll + hostname);//
 			Elements elements = doc.getElementById("owner_links").children();
-			List<String> owner_links = new ArrayList<String>();
+			List<URL> owner_links = new ArrayList<>();
 			for (Element listenEintrag : elements) {
 				if (!listenEintrag.hasClass("selected")) {
-					owner_links.add(listenEintrag.getElementsByTag("a").first().attr("href"));
+					owner_links.add(new URL(listenEintrag.getElementsByTag("a").first().attr("href")));
 				}
 			}
 			//... and download them too
@@ -158,7 +162,7 @@ public class UeberordnungDownload {
 				String kongressDir2 = Clean.mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs + "abstractlist"
 						+ ++i;
 				//download the Sessions from the Sessionlist
-				MyWget myWget2 = new MyWget(session.attr("href"), kongressDir2, true);
+				MyWget myWget2 = new MyWget(new URL(session.attr("href")), kongressDir2, true);
 				@SuppressWarnings("unused")
 				int res2 = myWget2.getPage();
 
