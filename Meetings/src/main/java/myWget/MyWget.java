@@ -232,44 +232,19 @@ public class MyWget {
 			JWGet.get(this.protokoll + this.pageFrom, getTarget());
 		}*/
 		
-		String cmd = null;
-		if (SystemUtils.IS_OS_LINUX) {
-			if (this.context) {
-				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu gehört
-				cmd = "wget -p -k -q -N -P " + this.dirTo + "content/ " + this.pageFrom;
-			} else {
-				cmd = "wget    -k -q -N -P " + this.dirTo + "content/ " + this.pageFrom;
-			}
-			// f�hre den wget Befehl aus
-			Runtime run = Runtime.getRuntime();
-			Process pr = run.exec(cmd);
-			try {
-				pr.waitFor();
-				BufferedReader buf = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-
-				String line = "";
-
-				while ((line = buf.readLine()) != null) {
-					System.out.println(line);
-				}
-			} catch (InterruptedException e2) {
-				e2.printStackTrace();
-			}
-		} else {
-			ProcessBuilder pb = null;
-			if (this.context) {
-				// Parameter -p bewirkt, dass auch alles heruntergeladen wird, was dazu geh�rt
-				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-p", "-k", "-erobots=off", "-P", this.dirTo + "content" + fs, this.pageFrom.toString());
-			} else {
-				pb = new ProcessBuilder("C:\\wget-1.20.3-win64\\wget.exe", "-k", "-erobots=off", "-P", this.dirTo + "content" + fs, this.pageFrom.toString());
-			}
-			// f�hre den wget Befehl aus
-			pb.redirectErrorStream(true);
-			Process process = pb.start();
-			BufferedReader inStreamReader = new BufferedReader ( new InputStreamReader(process.getInputStream()));
-			while (inStreamReader.readLine() != null) {
-				// do something with commandline output
-			}
+		String wgetCmd = (SystemUtils.IS_OS_LINUX) ? "wget" : "C:\\wget-1.20.3-win64\\wget.exe";
+		String [] wgetParams = (this.context) ?
+				new String[] {wgetCmd, "-p", "-k", "-q", "-N", "-erobots=off", "-P", this.dirTo.concat("content").concat(fs), this.pageFrom.toString()}:
+				new String[] {wgetCmd, "-p", "-k", "-q", "-N", "-erobots=off", "-P", this.dirTo.concat("content").concat(fs), this.pageFrom.toString()};
+		System.out.println(String.join(" ", wgetParams));
+		ProcessBuilder pb = new ProcessBuilder(wgetParams);
+		// f�hre den wget Befehl aus
+		pb.redirectErrorStream(true);
+		Process process = pb.start();
+		BufferedReader inStreamReader = new BufferedReader ( new InputStreamReader(process.getInputStream()));
+		String line = "";
+		while ((line = inStreamReader.readLine()) != null) {
+			System.out.println(line);
 		}
 
 		this.buildChecksum();
