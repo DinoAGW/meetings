@@ -1,33 +1,49 @@
 package linkDownload;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+//import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 //import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import myWget.MyUtils;
 import myWget.MyWget;
 import utilities.Abstract;
 import utilities.SqlManager;
+import utilities.Utilities;
 
 public class AbstractDownload {
 	static String fs = System.getProperty("file.separator");
 
 	public static void linkDownload(String mainPath, String protokoll, String hostname)
 			throws IOException, SQLException, InterruptedException {
+		String propertypfad = System.getProperty("user.home") + fs + "properties.txt";
+		String password = Utilities.readStringFromProperty(propertypfad, "password");
+		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 		ResultSet resultSet = null;
 
-		resultSet = SqlManager.INSTANCE.executeSql("SELECT * FROM abstracts WHERE status=10");
+		resultSet = sqlManager.executeSql("SELECT * FROM abstracts WHERE status=10");
 
 		int Anzahl = 2 * 1;
 		while (resultSet.next()) {
@@ -73,7 +89,7 @@ public class AbstractDownload {
 			Files.copy(cssFileSrc.toPath(), cssFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 			// Den Fortschritt in der Datenbank vermerken
-			int updated = SqlManager.INSTANCE
+			int updated = sqlManager
 					.executeUpdate("UPDATE abstracts SET Status = 30 WHERE Ab_ID = '" + it.Ab_ID + "_" + it.language + "';");
 //			int updated = 1;// zum testen
 			if (updated != 1)

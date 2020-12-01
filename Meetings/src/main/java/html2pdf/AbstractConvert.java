@@ -25,6 +25,7 @@ import com.itextpdf.pdfa.PdfADocument;
 
 import utilities.Abstract;
 import utilities.SqlManager;
+import utilities.Utilities;
 
 public class AbstractConvert {
 	public static String fs = System.getProperty("file.separator");
@@ -34,9 +35,12 @@ public class AbstractConvert {
 	public static void main(String[] args) throws IOException, SQLException {
 		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Abstracts\\";
 
+		String propertypfad = System.getProperty("user.home") + fs + "properties.txt";
+		String password = Utilities.readStringFromProperty(propertypfad, "password");
+		SqlManager sqlManager = new SqlManager("jdbc:mariadb://localhost/meetings", "root", password);
 		ResultSet resultSet = null;
 
-		resultSet = SqlManager.INSTANCE.executeSql("SELECT * FROM abstracts WHERE status=30");
+		resultSet = sqlManager.executeSql("SELECT * FROM abstracts WHERE status=30");
 
 		int Anzahl = 2 * 1;
 		while (resultSet.next()) {
@@ -54,7 +58,7 @@ public class AbstractConvert {
 			doc.outputSettings().charset("CP1252");
 
 			ConverterProperties properties = new ConverterProperties();
-			properties.setBaseUri(baseDir);// braucht man, weil String ï¿½bergeben wird, statt File
+			properties.setBaseUri(baseDir);// braucht man, weil String übergeben wird, statt File
 
 			OutlineHandler outlineHandler = OutlineHandler.createStandardHandler();
 			properties.setOutlineHandler(outlineHandler);
@@ -78,7 +82,7 @@ public class AbstractConvert {
 			HtmlConverter.convertToPdf(doc.html(), pdf, properties);
 			System.setErr(stderr);
 
-			int updated = SqlManager.INSTANCE
+			int updated = sqlManager
 					.executeUpdate("UPDATE abstracts SET Status = 50 WHERE Ab_ID = '" + it.Ab_ID + "_" + it.language + "';");
 			if (updated != 1)
 				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
