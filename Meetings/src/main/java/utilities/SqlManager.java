@@ -6,23 +6,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public enum SqlManager {
-	INSTANCE;
+public class SqlManager {
+	private Connection connection;
 
-	private static final String sqlConn = "jdbc:h2:mem:";
-	private static Connection connection;
-
-	static {
-		try {
-			connection = DriverManager.getConnection(sqlConn);
-		} catch (SQLException e) {
-			throw new IllegalStateException("Failed to initiate SQL connection", e);
-		}
+	public SqlManager(String jdbc, String name, String password) throws SQLException {
+		this.connection = DriverManager.getConnection(jdbc, name, password);
 	}
 
 	public ResultSet executeSql(String sql) throws SQLException {
 		ResultSet resultSet = null;
-		Statement statement = SqlManager.connection.createStatement();
+		Statement statement = this.connection.createStatement();
 		resultSet = statement.executeQuery(sql);
 		return resultSet;
 	}
@@ -42,12 +35,8 @@ public enum SqlManager {
 	}
 
 	public int executeUpdate(String sql) throws SQLException {
-		Statement statement = SqlManager.connection.createStatement();
+		Statement statement = this.connection.createStatement();
 		int ret = statement.executeUpdate(sql);
 		return ret;
-	}
-	
-	static public Connection getConnection() {
-		return SqlManager.connection;
 	}
 }
