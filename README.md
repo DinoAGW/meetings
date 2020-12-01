@@ -50,20 +50,20 @@ Status of abstracts:
 | 30 | AbstractDownload downloaded the website of the abstract with all of their prerequisites on harddisk  |
 | 50 | AbstractConvert converted the html with their prerequisites to PDF vie iText |
 
-### Folder Overview
+### Folder and File Overview
 
 "/" is written here as the root folder for the project to work in (not the harddisk root Folder). Example given for [this congress](https://www.egms.de/dynamic/en/meetings/maf2020/index.htm)
 | Folder | Purpose |
 | ---: | :--- |
-| /Ueberordnungen/landingPage/ | The target for the first langindPage of GMS Meetings ([GMS landingPage](https://www.egms.de/static/en/meetings/index.htm)) |
-| /Ueberordnungen/kongresse/ | The folder where the landing Page of all Meetings will be saved into subfolders |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/ | The Subfolder for the langindPage of one particular Meeting Overview, for Example /Ueberordnungen/kongresse/maf2020/ (German Version) or /Ueberordnungen/kongresse/maf2020_en/ (english Version) |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{i}/ | The Subfolders for additional information from the links, listed in owner_links, like 0/ for https://www.egms.de/static/en/meetings/maf2020/contact.htm or 1/ for https://www.egms.de/static/en/meetings/maf2020/imprint.htm |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/merge/ | In here, the websites belonging to a Meeting Overview will be merged together |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/merge/content/target.html | The file, where all content of there html Files are merged into (with linkings to its prerequisites) |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/abstractlist{i}/ | Subfolder where one Abstractlist of the Sessionlist is downloaded to |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{kurzID}{languageSpec}.pdf | The PDF Version of the congress Overview |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{Ab_ID}/ | The Destination for the Abstract Download, for example /Ueberordnungen/kongresse/maf2020_en/20maf01/ for https://www.egms.de/static/en/meetings/maf2020/20maf01.shtml |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{Ab_ID}/merge/ | just like the merge folder in the congress overview part |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{Ab_ID}/merge/content/target.html | just like the congress overview part |
-| /Ueberordnungen/kongresse/{kurzID}{languageSpec}/{Ab_ID}/{Ab_ID}{languageSpec}.pdf | The PDF Version of the Abstract |
+| /landingPage/{de\en}/ | The target for the first langindPage of GMS Meetings ([GMS landingPage](https://www.egms.de/static/en/meetings/index.htm)) |
+| /Ueberordnungen/ | The folder where the landing Page of all Meetings will be saved into subfolders |
+| /Ueberordnungen/{kurzID}{languageSpec}/ | The Subfolder for the langindPage of one particular Meeting Overview, for Example /Ueberordnungen/maf2020/ (German Version) or /Ueberordnungen/maf2020_en/ (english Version) |
+| /Ueberordnungen/{kurzID}{languageSpec}/{i}/ | The Subfolders for additional information from the links, listed in owner_links, like 0/ for https://www.egms.de/static/en/meetings/maf2020/contact.htm or 1/ for https://www.egms.de/static/en/meetings/maf2020/imprint.htm |
+| /Ueberordnungen/{kurzID}{languageSpec}/merge/ | In here, the websites belonging to a Meeting Overview will be merged together |
+| /Ueberordnungen/{kurzID}{languageSpec}/merge/content/target.html | The file, where all content of there html Files are merged into (with linkings to its prerequisites) |
+| /Ueberordnungen/{kurzID}{languageSpec}/abstractlist{i}/ | Subfolder where one Abstractlist of the Sessionlist is downloaded to |
+| /Ueberordnungen/{kurzID}{languageSpec}/{kurzID}{languageSpec}.pdf | The PDF Version of the congress Overview |
+| /Abstracts/{kurzID}{languageSpec}/{Ab_ID}/ | The Destination for the Abstract Download, for example /Ueberordnungen/kongresse/maf2020_en/20maf01/ for https://www.egms.de/static/en/meetings/maf2020/20maf01.shtml |
+| /Abstracts/{kurzID}{languageSpec}/{Ab_ID}/merge/ | just like the merge folder in the congress overview part |
+| /Abstracts/{kurzID}{languageSpec}/{Ab_ID}/merge/content/target.html | just like the congress overview part |
+| /Abstracts/{kurzID}{languageSpec}/{Ab_ID}/{Ab_ID}{languageSpec}.pdf | The PDF Version of the Abstract |
