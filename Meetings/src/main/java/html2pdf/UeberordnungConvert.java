@@ -36,17 +36,17 @@ public class UeberordnungConvert {
 
 		ResultSet resultSet = null;
 
-		resultSet = SqlManager.INSTANCE.executeSql("SELECT * FROM ueberordnungen WHERE status=30");
+		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM ueberordnungen WHERE status=30");
 
 		int Anzahl = 2;
 		while (resultSet.next()) {
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 
 			Kongress it = new Kongress(resultSet.getString("URL"));
-			String kongressDir = overviewPath + "kongresse" + fs + it.getPathId() + fs;
-			String baseDir = kongressDir + "merge" + fs + "content" + fs;
-			String from = baseDir + "target.html";
-			String to = kongressDir + it.kurzID + it.languageSpec + ".pdf";
+			String kongressDir = overviewPath.concat(it.getPathId()).concat(fs);
+			String baseDir = kongressDir.concat("merge").concat(fs).concat("content").concat(fs);
+			String from = baseDir.concat("target.html");
+			String to = kongressDir.concat(it.kurzID).concat(it.languageSpec).concat(".pdf");
 
 			Document doc = Jsoup.parse(new File(from), "CP1252", baseDir);
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);

@@ -162,12 +162,26 @@ public class MyWget {
 	 * @return Dateiname mit Pfad
 	 */
 	public String getTarget() {
-		String noProt = this.pageFrom.getHost().concat(this.pageFrom.getPath());
-		if (this.context) {
-			return new String(this.dirTo + "content" + fs + noProt).replace("?", "@");
-		} else {
-			return new String(this.dirTo + "content" + fs + noProt.substring(noProt.lastIndexOf("/") + 1)).replace("?", "@");
+		String ret = new String(this.dirTo).concat("content").concat(fs);
+		System.out.println("URL: ".concat(this.pageFrom.toString()));
+//		System.out.println(this.pageFrom.getHost());
+//		System.out.println(this.pageFrom.getPath());
+//		System.out.println(this.pageFrom.getQuery());
+		String noProt = this.pageFrom.getPath().replace("/", fs);
+		if (this.pageFrom.getQuery() != null) {
+			noProt = noProt.concat((SystemUtils.IS_OS_LINUX) ? "?" : "@");
+			noProt = noProt.concat(this.pageFrom.getQuery());
 		}
+//		System.out.println("noProt: ".concat(noProt));
+//		System.out.println("ret: ".concat(ret));
+		ret = ret.concat((this.context) ? this.pageFrom.getHost().concat(noProt) : noProt.substring(noProt.lastIndexOf("/") + 1)); 
+//		if (this.context) {
+//			return new String(this.dirTo + "content" + fs + noProt).replace("?", "@");
+//		} else {
+//			return new String(this.dirTo + "content" + fs + noProt.substring(noProt.lastIndexOf("/") + 1)).replace("?", "@");
+//		}
+//		System.out.println("ret: ".concat(ret));
+		return ret;
 	}
 
 	/**
@@ -235,7 +249,7 @@ public class MyWget {
 		String wgetCmd = (SystemUtils.IS_OS_LINUX) ? "wget" : "C:\\wget-1.20.3-win64\\wget.exe";
 		String [] wgetParams = (this.context) ?
 				new String[] {wgetCmd, "-p", "-k", "-q", "-N", "-erobots=off", "-P", this.dirTo.concat("content").concat(fs), this.pageFrom.toString()}:
-				new String[] {wgetCmd,       "-k", "-q", "-N", "-erobots=off", "-P", this.dirTo.concat("content").concat(fs), this.pageFrom.toString()};
+				new String[] {wgetCmd, "-k", "-q", "-N", "-erobots=off", "-P", this.dirTo.concat("content").concat(fs), this.pageFrom.toString()};
 		System.out.println(String.join(" ", wgetParams));
 		ProcessBuilder pb = new ProcessBuilder(wgetParams);
 		// f�hre den wget Befehl aus

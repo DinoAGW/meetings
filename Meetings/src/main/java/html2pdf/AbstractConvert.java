@@ -32,22 +32,21 @@ public class AbstractConvert {
 	public static String fs = System.getProperty("file.separator");
 
 	public static void main(String[] args) throws IOException, SQLException {
-		String absPath = Clean.mainPath.concat(fs).concat("Abstracts").concat(fs);
+		String absPath = Clean.mainPath.concat("Abstracts").concat(fs);
 
 		ResultSet resultSet = null;
 
-		resultSet = SqlManager.INSTANCE.executeSql("SELECT * FROM abstracts WHERE status=30");
+		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE status=30");
 
 		int Anzahl = 2 * 1;
 		while (resultSet.next()) {
-			System.out.println("Verarbeite: '" + resultSet.getString("Ue_ID") + "', '" + resultSet.getString("Ab_ID")
-					+ "', '" + resultSet.getString("URL") + "'");
+			System.out.println("Verarbeite: '".concat(resultSet.getString("Ue_ID")).concat("', '").concat(resultSet.getString("Ab_ID")).concat("', '").concat(resultSet.getString("URL")).concat("'"));
 
 			Abstract it = new Abstract(resultSet.getString("URL"));
-			String kongressDir = absPath + "kongresse" + fs + it.getPathId() + fs;
-			String baseDir = kongressDir + "merge" + fs + "content" + fs;
-			String from = baseDir + "target.html";
-			String to = kongressDir + it.Ab_ID + it.languageSpec + ".pdf";
+			String kongressDir = absPath.concat(it.getPathId()).concat(fs);
+			String baseDir = kongressDir.concat("merge").concat(fs).concat("content").concat(fs);
+			String from = baseDir.concat("target.html");
+			String to = kongressDir.concat(it.Ab_ID).concat(it.languageSpec).concat(".pdf");
 
 			Document doc = Jsoup.parse(new File(from), "CP1252", baseDir);
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
@@ -79,10 +78,9 @@ public class AbstractConvert {
 			System.setErr(stderr);
 
 			int updated = SqlManager.INSTANCE
-					.executeUpdate("UPDATE abstracts SET Status = 50 WHERE Ab_ID = '" + it.Ab_ID + "_" + it.language + "';");
+					.executeUpdate("UPDATE abstracts SET Status = 50 WHERE Ab_ID = '".concat(it.Ab_ID).concat("_").concat(it.language).concat("';"));
 			if (updated != 1)
-				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
-						+ it.Ab_ID + "_" + it.language + "', aber es waren: " + updated + ".");
+				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '".concat(it.Ab_ID).concat("_").concat(it.language).concat("', aber es waren: ").concat(Integer.toString(updated)).concat("."));
 
 			if (0 == --Anzahl)
 				break; // Tu nicht zu viel

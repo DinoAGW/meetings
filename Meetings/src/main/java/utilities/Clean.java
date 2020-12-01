@@ -10,13 +10,14 @@ public class Clean {
 
 	public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		//Ordner leeren
+		String landPath = mainPath.concat("landingPage").concat(fs);
+		Utilities.deleteDir(landPath);
+
 		String captPath = mainPath.concat("Ueberordnungen").concat(fs);
-		Utilities.deleteDir(captPath.concat("kongresse"));
-		Utilities.deleteDir(captPath.concat("landingPage"));
-		
+		Utilities.deleteDir(captPath);
+
 		String absPath = mainPath.concat("Abstracts").concat(fs);
-		Utilities.deleteDir(absPath.concat("kongresse"));
-		//Utilities.deleteDir(mainPath + "landingPage");
+		Utilities.deleteDir(absPath);
 
 		//urls Tabelle leeren
 		// String propertypfad = System.getProperty("user.home") + fs + "properties.txt";
@@ -27,7 +28,6 @@ public class Clean {
 			stmt.executeUpdate("CREATE TABLE ueberordnungen (ID VARCHAR(20), URL VARCHAR (200), Status INT );");
 			stmt.executeUpdate("CREATE TABLE abstracts (Ue_ID VARCHAR(20), Ab_ID VARCHAR(20), URL VARCHAR (200), Status INT );");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		System.out.println("Clean Ende.");
