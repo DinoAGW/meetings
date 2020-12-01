@@ -20,7 +20,7 @@ public enum SqlManager {
 		}
 	}
 
-	public ResultSet executeSql(String sql) throws SQLException {
+	public ResultSet executeQuery(String sql) throws SQLException {
 		ResultSet resultSet = null;
 		Statement statement = SqlManager.connection.createStatement();
 		resultSet = statement.executeQuery(sql);

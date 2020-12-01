@@ -36,12 +36,13 @@ public class LinkCrawl {
 	public static void linkCrawl(URL landingPage, String mainPath)
 			throws IOException, SQLException {
 		// lade die Webseite herrunter
-		MyWget myWget = new MyWget(landingPage, mainPath + "landingPage" + fs, false);
+		MyWget myWget = new MyWget(landingPage, mainPath, false);
 		@SuppressWarnings("unused")
 		int res = myWget.getPage();
 		// myWget.explainResult();
 
-		File htmlFile = new File(mainPath + "landingPage" + fs + "content" + fs + "index.htm");
+		String htmlFilePath = mainPath.concat("content").concat(fs).concat("index.htm");
+		File htmlFile = new File(htmlFilePath);
 		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", landingPage.getProtocol() + landingPage.getHost());
 		Element content = doc.getElementById("content");
 		List<Kongress> listNew = new ArrayList<Kongress>();
@@ -68,7 +69,7 @@ public class LinkCrawl {
 		int Anzahl = 1;
 		for (Kongress it : listNew) {
 			resultSet = SqlManager.INSTANCE
-					.executeSql("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "_" + it.language + "'");
+					.executeQuery("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "_" + it.language + "'");
 			// Pr�fe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 			if (resultSet.next()) {
 				// War schon drin
@@ -84,10 +85,10 @@ public class LinkCrawl {
 	}
 
 	public static void main(String[] args) throws IOException, SQLException {
-		String overviewPath = Clean.mainPath.concat("Ueberordnungen").concat(fs);
+		String overviewPath = Clean.mainPath.concat("landingPage").concat(fs);
 
-		linkCrawl(crawlURL("/static/de/meetings/index.htm"), overviewPath);
-		linkCrawl(crawlURL("/static/en/meetings/index.htm"), overviewPath);
+		linkCrawl(crawlURL("/static/de/meetings/index.htm"), overviewPath.concat("de").concat(fs));
+		linkCrawl(crawlURL("/static/en/meetings/index.htm"), overviewPath.concat("en").concat(fs));
 
 		System.out.println("LinkCrawl Ende.");
 	}
