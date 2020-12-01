@@ -1,21 +1,26 @@
 package utilities;
 
-public class Kongress {
-	public String url;
-	public String kurzID;
-	public String language;
-	public String languageSpec;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-	public Kongress(String url) {
-		this.url = new String(url);
+public class Kongress {
+	public final URL url;
+	public final String kurzID;
+	public final String language;
+	public final String languageSpec;
+
+	public Kongress(String url) throws MalformedURLException {
+		this.url = new URL(url);
 		String[] tokens = new String[10];
-		tokens = this.url.split("/");
-		int tokenOffset = (this.url.endsWith("/")) ? 1 : 2;
+		tokens = this.url.toString().split("/");
+		int tokenOffset = (this.url.toString().endsWith("/")) ? 1 : 2;
 		this.kurzID = tokens[tokens.length - tokenOffset];
 		this.language = tokens[tokens.length - 2 - tokenOffset];
-		this.languageSpec = "";
-		if (!this.language.equals("de"))
-			languageSpec += "_" + this.language;
+		this.languageSpec = (this.language.equals("de")) ? "" :	"_".concat(this.language);
+	}
+
+	public String getPathId() {
+		return this.kurzID.concat(this.languageSpec);
 	}
 
 	@Override
@@ -23,5 +28,4 @@ public class Kongress {
 		return "Kongress [url=" + url + ", kurzID=" + kurzID + ", language=" + language + ", languageSpec="
 				+ languageSpec + "]";
 	}
-
 }

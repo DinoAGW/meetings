@@ -23,30 +23,30 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.pdfa.PdfADocument;
 
+import utilities.Clean;
 import utilities.Kongress;
+import utilities.Resources;
 import utilities.SqlManager;
 
 public class UeberordnungConvert {
 	public static String fs = System.getProperty("file.separator");
-	public static final String ICC = "resources/sRGB_v4_ICC_preference_displayclass.icc";
-	public static final String FONT = "resources/OpenSans-Regular.ttf";// wird zurzeit nicht verwendet
 
 	public static void main(String[] args) throws IOException, SQLException {
-		String mainPath = "C:\\Users\\hixel\\workspace\\Meetings\\Ueberordnungen\\";
+		String overviewPath = Clean.mainPath.concat("Ueberordnungen").concat(fs);
 
 		ResultSet resultSet = null;
 
-		resultSet = SqlManager.INSTANCE.executeSql("SELECT * FROM ueberordnungen WHERE status=30");
+		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM ueberordnungen WHERE status=30");
 
 		int Anzahl = 2;
 		while (resultSet.next()) {
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 
 			Kongress it = new Kongress(resultSet.getString("URL"));
-			String kongressDir = mainPath + "kongresse" + fs + it.kurzID + it.languageSpec + fs;
-			String baseDir = kongressDir + "merge" + fs + "content" + fs;
-			String from = baseDir + "target.html";
-			String to = kongressDir + it.kurzID + it.languageSpec + ".pdf";
+			String kongressDir = overviewPath.concat(it.getPathId()).concat(fs);
+			String baseDir = kongressDir.concat("merge").concat(fs).concat("content").concat(fs);
+			String from = baseDir.concat("target.html");
+			String to = kongressDir.concat(it.kurzID).concat(it.languageSpec).concat(".pdf");
 
 			Document doc = Jsoup.parse(new File(from), "CP1252", baseDir);
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
@@ -66,7 +66,7 @@ public class UeberordnungConvert {
 			PdfWriter writer = new PdfWriter(to, new WriterProperties().addXmpMetadata());
 
 			PdfDocument pdf = new PdfADocument(writer, PdfAConformanceLevel.PDF_A_2A, new PdfOutputIntent("Custom", "",
-					"http://www.color.org", "sRGB IEC61966-2.1", new FileInputStream(ICC)));
+					"http://www.color.org", "sRGB IEC61966-2.1", new FileInputStream(Resources.INSTANCE.getDisplayIcc())));
 
 			pdf.setDefaultPageSize(PageSize.A4);
 
