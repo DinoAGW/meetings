@@ -12,8 +12,8 @@ public class testing {
 
 	public static void main(String[] args) throws IOException, SQLException, InterruptedException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		System.out.println("testing Started");
-		System.out.println("Clean");
-		Clean.main(args);
+//		System.out.println("Clean");
+//		Clean.main(args);
 		System.out.println("LinkCrawl");
 		LinkCrawl.main(args);
 		System.out.println("UeberordnungDownload");

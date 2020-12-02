@@ -40,6 +40,17 @@ public class Utilities {
 		if (filePath.exists()) deleteDir(filePath);
 	}
 
+	public static void deleteFile(String filePath) {
+		try {
+			File file = new File(filePath);
+			if(file.exists()) {
+				file.delete();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void deleteDir(File path) {
 		for (File file : path.listFiles()) {
 			if (file.isDirectory())
