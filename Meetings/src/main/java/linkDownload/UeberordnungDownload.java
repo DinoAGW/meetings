@@ -154,11 +154,9 @@ public class UeberordnungDownload {
 			// check if this one css File is the known one and if yes: replace it with a
 			// different one, made for PDF purpose
 			String cssPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de").concat(fs).concat("static").concat(fs).concat("css").concat(fs).concat("gms-framework.css");
-			File cssFile = new File(cssPath);
-			if (!MyUtils.md5_of_file(cssFile).equals("532d9c009619553ea5841742ac59b2df")) {
-				System.err.println("gms-framework.css ist anders, als gewohnt.");
-			}
-			Files.copy(Resources.INSTANCE.getCss().toPath(), cssFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			replaceFiles(Resources.INSTANCE.getCss(), cssPath, "532d9c009619553ea5841742ac59b2df");
+			String logoPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de").concat(fs).concat("static").concat(fs).concat("images").concat(fs).concat("header_logo.png");
+			replaceFiles(Resources.INSTANCE.getLogo(), logoPath, "649a32c9a8e49162d2eb48364caa2f20");
 
 			// The "LandingPage" of the congress always have a sessionlist, with websites,
 			// where the links to the abstracts can be found
@@ -217,6 +215,14 @@ public class UeberordnungDownload {
 				break; // don't do too much (for testing purpose)
 		}
 
+	}
+
+	private static void replaceFiles(File from, String to, String md5Sum) throws IOException {
+		File fromFile = new File(to);
+		if (!MyUtils.md5_of_file(fromFile).equals(md5Sum)) {
+			System.err.println("MD5 Summe stimmt nicht");
+		}
+		Files.copy(from.toPath(), fromFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	}
 
 	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
