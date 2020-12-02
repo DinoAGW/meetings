@@ -286,14 +286,14 @@ public class MyWget {
 			select = doc.select("img");
 			for (Element e : select) {
 				String url = e.attr("src");
-				int up = MyUtils.countOccrences(this.pageFrom.toString(), '/') - 1;
+				int up = MyUtils.countOccrences(this.pageFrom.toString(), '/') - 3;
 				if (up > 0) {
 					String[] tokens = pageFrom.toString().split("/");
 					for (int i = up; i >= 0; i--) {
 						if (url.startsWith("../")) {
 							url = url.substring(3);
 						} else {
-							url = tokens[i] + "/" + url;
+							url = tokens[i+2] + "/" + url;
 						}
 					}
 				}
@@ -303,14 +303,14 @@ public class MyWget {
 			select = doc.select("link");
 			for (Element e : select) {
 				String url = e.attr("href");
-				int up = MyUtils.countOccrences(this.pageFrom.toString(), '/') - 1;
+				int up = MyUtils.countOccrences(this.pageFrom.toString(), '/') - 3;
 				if (up > 0) {
 					String[] tokens = pageFrom.toString().split("/");
 					for (int i = up; i >= 0; i--) {
 						if (url.startsWith("../")) {
 							url = url.substring(3);
 						} else {
-							url = tokens[i] + "/" + url;
+							url = tokens[i+2] + "/" + url;
 						}
 					}
 				}
