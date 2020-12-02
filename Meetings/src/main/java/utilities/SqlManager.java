@@ -13,23 +13,29 @@ public enum SqlManager {
 
 	private static final String sqlConn = "jdbc:h2:file:".concat(filePath);
 	private static Connection connection;
-
+	
 	static {
 		try {
 			connection = DriverManager.getConnection(sqlConn);
 		} catch (SQLException e) {
 			throw new IllegalStateException("Failed to initiate SQL connection", e);
 		}
+		try {
+			executeUpdate("CREATE TABLE IF NOT EXISTS ueberordnungen (ID VARCHAR(20), URL VARCHAR (200), Status INT );");
+			executeUpdate("CREATE TABLE IF NOT EXISTS abstracts (Ue_ID VARCHAR(20), Ab_ID VARCHAR(20), URL VARCHAR (200), Status INT );");
+		} catch (SQLException e) {
+			throw new IllegalStateException("Failed to create Tables", e);
+		}
 	}
 
-	public ResultSet executeQuery(String sql) throws SQLException {
+	public static ResultSet executeQuery(String sql) throws SQLException {
 		ResultSet resultSet = null;
 		Statement statement = SqlManager.connection.createStatement();
 		resultSet = statement.executeQuery(sql);
 		return resultSet;
 	}
 
-	public ResultSet executePreparedSql(String sql) throws SQLException {
+	public static ResultSet executePreparedSql(String sql) throws SQLException {
 		ResultSet resultSet = null;
 		PreparedStatement prepsInsertProduct = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		prepsInsertProduct.execute();
@@ -43,7 +49,7 @@ public enum SqlManager {
 		return resultSet;
 	}
 
-	public int executeUpdate(String sql) throws SQLException {
+	public static int executeUpdate(String sql) throws SQLException {
 		Statement statement = SqlManager.connection.createStatement();
 		int ret = statement.executeUpdate(sql);
 		return ret;
