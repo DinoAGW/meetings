@@ -175,11 +175,6 @@ public class MyWget {
 //		System.out.println("noProt: ".concat(noProt));
 //		System.out.println("ret: ".concat(ret));
 		ret = ret.concat((this.context) ? this.pageFrom.getHost().concat(noProt) : noProt.substring(noProt.lastIndexOf("/") + 1)); 
-//		if (this.context) {
-//			return new String(this.dirTo + "content" + fs + noProt).replace("?", "@");
-//		} else {
-//			return new String(this.dirTo + "content" + fs + noProt.substring(noProt.lastIndexOf("/") + 1)).replace("?", "@");
-//		}
 //		System.out.println("ret: ".concat(ret));
 		return ret;
 	}
@@ -283,39 +278,8 @@ public class MyWget {
 				e.attr("href", url);
 			}
 			// now we process the imgs
-			select = doc.select("img");
-			for (Element e : select) {
-				String url = e.attr("src");
-				int up = MyUtils.countOccrences(this.pageFrom.toString(), '/') - 3;
-				if (up > 0) {
-					String[] tokens = pageFrom.toString().split("/");
-					for (int i = up; i >= 0; i--) {
-						if (url.startsWith("../")) {
-							url = url.substring(3);
-						} else {
-							url = tokens[i+2] + "/" + url;
-						}
-					}
-				}
-				e.attr("src", url);
-			}
-			// now we process the link's
-			select = doc.select("link");
-			for (Element e : select) {
-				String url = e.attr("href");
-				int up = MyUtils.countOccrences(this.pageFrom.toString(), '/') - 3;
-				if (up > 0) {
-					String[] tokens = pageFrom.toString().split("/");
-					for (int i = up; i >= 0; i--) {
-						if (url.startsWith("../")) {
-							url = url.substring(3);
-						} else {
-							url = tokens[i+2] + "/" + url;
-						}
-					}
-				}
-				e.attr("href", url);
-			}
+			adjustHierarchy(doc, "img", "src");
+			adjustHierarchy(doc, "link", "href");
 			FileUtils.writeStringToFile(target, doc.outerHtml(), "CP1252");//"ISO-8859-1"
 		}
 
@@ -337,5 +301,24 @@ public class MyWget {
 		}
 		this.result = ret;
 		return ret;
+	}
+	
+	private void adjustHierarchy(final Document doc, final String eleName, final String attName) {
+		Elements select = doc.select(eleName);
+		for (Element e : select) {
+			String url = e.attr(attName);
+			int up = MyUtils.countOccrences(this.pageFrom.toString(), '/') - 3;
+			if (up > 0) {
+				String[] tokens = pageFrom.toString().split("/");
+				for (int i = up; i >= 0; i--) {
+					if (url.startsWith("../")) {
+						url = url.substring(3);
+					} else {
+						url = tokens[i+2] + "/" + url;
+					}
+				}
+			}
+			e.attr(attName, url);
+		}
 	}
 }
