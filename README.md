@@ -67,3 +67,15 @@ Status of abstracts:
 | /Abstracts/{kurzID}{languageSpec}/{Ab_ID}/merge/ | just like the merge folder in the congress overview part |
 | /Abstracts/{kurzID}{languageSpec}/{Ab_ID}/merge/content/target.html | just like the congress overview part |
 | /Abstracts/{kurzID}{languageSpec}/{Ab_ID}/{Ab_ID}{languageSpec}.pdf | The PDF Version of the Abstract |
+
+### Modules Overview
+
+| Module | Purpose |
+| ---: | :--- |
+| linkCrawl.LinkCrawl | Downloads the LandingPage of the egms.de congresses and writes found congresslinks into database |
+| linkDownload.UeberordnungDownload | Downloads a Congress Overview on harddisk and prepares it to be transformed to PDF |
+| html2pdf.UeberordnungConvert | Transforms Congressoverview to PDF |
+| linkDownload.AbstractDownload | Downloads a Congress Abstract on harddisk and prepares it to be transformed to PDF |
+| html2pdf.AbstractConvert | Transforms Congressabstracts to PDF |
+| utilities.Clean | Cleans the working directory up |
+| testing | Calling Method for the other Modules |
