@@ -10,8 +10,14 @@ import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.Properties;
 
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 public class Utilities {
-	public static String fs = System.getProperty("file.separator");
+	public final static String fs = System.getProperty("file.separator");
+	// private string used as root path for background image replacement
+	private final static String imgRootPath = "www.egms.de/static/images/picto/";
 	
 	public static String readline() throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -51,6 +57,26 @@ public class Utilities {
 		}
 	}
 
+	/**
+	 * Add the external link image child element to all document
+	 * elements with class ".link-ext".
+	 * 
+	 * @param doc the document for image addition
+	 */
+	public static void addExtLinkImages(final Document doc) {
+		appndImgToClss(doc, ".link-ext", "browserfenster-ext.png");
+	}
+
+	/**
+	 * Add the email link image child element to all document
+	 * elements with class ".link-mail".
+	 * 
+	 * @param doc the document for image addition
+	 */
+	public static void addMailLinkImages(final Document doc) {
+		appndImgToClss(doc, ".link-mail", "umschlag.png");
+	}
+	
 	public static void deleteDir(File path) {
 		for (File file : path.listFiles()) {
 			if (file.isDirectory())
@@ -58,5 +84,15 @@ public class Utilities {
 			file.delete();
 		}
 		path.delete();
+	}
+
+
+	private static void appndImgToClss(final Document doc, final String selector, final String imgSrc) {
+		// Use the selector to get the elements
+		Elements extLinks = doc.select(selector);
+		for (Element ele : extLinks) {
+			// Add image child to each element found 
+			ele.appendElement("img").attr("src", imgRootPath.concat(imgSrc));
+		}
 	}
 }
