@@ -1,0 +1,503 @@
+/* ============================================================================== Blockelemente */
+
+h1, h2  { font-weight:bold;   font-size:1.7em; margin:0 0 .5em 0;      /* 1/1.4em entspricht 1em */ }
+h3      { font-weight:bold;   font-size:1.5em; margin:1.2em 0 .5em 0;   /* 1/1.2em entspricht 1em */ }
+h4      { font-weight:bold;   font-size:1.3em; margin:1.2em 0 .5em 0;   /* 1/1.5em entspricht 1em */ }
+h5      { font-weight:normal; font-size:1.3em; margin:0.8em 0 .5em 0;   /* 1/1.5em entspricht 1em */ }
+h6      { font-weight:normal; font-size:1.2em; margin:0.8em 0 .5em 0;   /* 1/1.5em entspricht 1em */ }
+caption { font-weight:bold;   font-size:1.4em; margin-top:1.2em; }
+
+h1, h2, h3, h4, h5, h6, caption { color:#2b4878; }
+
+p, table { margin:0.5em 0;  /* 1/1.5em entspricht 1em */ }
+ul, ol, dl { margin-top:0.5em; margin-bottom:0.5em;  /* 1/1.5em entspricht 1em */ }
+div.indentation { margin:0.5em 0 0.5em 1.5em; }
+
+dd ul, dd ol, dd dl { margin:0; } /*Author's Guidelines, Author's Contract*/
+
+/* ol, ul { margin-left:1.5em; } //margin statt padding? */
+
+dd { margin-left:4.5em; }
+
+p, li, dd, dt, td, th, div.indentation {
+	line-height:1.3em; /* Zeilenabstand in Fließtexten */
+}
+dt { font-weight:bold; }
+
+
+table { empty-cells:show; border-collapse:collapse; caption-side:top; border-color:#e0e0e0; }
+
+table th      { color:#000; text-align:left; vertical-align:top; padding:4px 3px 6px 6px; margin:0; background-color:#e3e3e4; font-weight:bold; }
+table.clear th,
+table th.clear{ background-color:#f2f2f3; }
+table td      { color:#000; text-align:left; vertical-align:top; padding:4px 3px 6px 6px; margin:0; }
+/*table td.alternate, #inhalt table tr.alternate td { background-color:#f0f0f0; }
+table td.highlight, #inhalt table tr.highlight td { font-weight:bold; }*/
+table th p,
+table td p { padding-bottom:0; }
+/* IE-Problem-Fix: Tabellenzelle ohne <p> = Schrift zu gross */
+* html table caption,
+* html table th,
+* html table td { font-size:0.8em; }
+
+hr {
+	border:none;
+	border-top:1px solid #2b4878;
+}
+
+/* ============================================================================== Inlienelemente */
+abbr, acronym, dfn,
+.abbr, .acronym, .dfn  { cursor:help; border-style:none; outline-style: none; text-decoration:none; }
+a abbr, a acronym, a dfn,
+a .abbr, a .acronym, a .dfn { cursor:pointer; }
+
+dfn.mandatorybull { color:#f00; font-weight:bold; border:none; }
+
+.bold   { font-weight:bold; }
+.nowrap { white-space:nowrap; }
+
+/* ============================================================================== Einrückung größerer Abschnitte */
+
+div.indent-section { margin-left:4.5em; margin-right:4.5em; }
+
+/* ============================================================================== Listenvariationen */
+ul.nobullet { list-style-type:none; }
+ul.disc     { list-style-type:disc; }
+ul.circle   { list-style-type:circle; }
+ul.square   { list-style-type:square; }
+ul.li-padding li,
+ol.li-padding li,
+dl.dd-padding dd { padding-bottom:0.5em; }
+
+/* einzeilige Linklisten ohne Listenpunkte */
+ul.linklist   { list-style-type:none; padding:0; }
+ul.linklist a { color:black; text-decoration:none; }
+
+/* ============================================================================== Links, Linklisten */
+
+a:link    { color:#2b4878; text-decoration:underline; }
+a:visited { color:#000; }
+a:link:hover, a:visited:hover { color:#800000; text-decoration:none; }
+/* a:link:hover, a:visited:hover, input:hover { outline:dotted 1px; } */
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { text-decoration:none; }
+h1 a:visited, h2 a:visited, h3 a:visited, h4 a:visited, h5 a:visited, h6 a:visited { color:#2b4878; }
+
+a:link, input.submit, label { cursor:pointer; }
+
+a.anchor {} /* seiteninterne Sprungziele <a name="..." class="anchor"> = ggf. unsichtbar machen falls Kollision mit normalem Link-Layout */
+
+/* Links in Überschriften definiert auf #page, da "#content a.hx_link" überschrieben wird und der Hovereffekt sonst verloren geht */
+#page a.hx_link       { color:#2b4878; text-decoration:none; }
+#page a.hx_link:hover { color:#800000; }
+
+/*a.link-ext         { background:url(../images/picto/browserfenster-ext.png) no-repeat right; padding-right:16px; }*/
+a.link-ext-mainnav { background:url(../images/picto/browserfenster-ext-white.png) no-repeat center; }
+a.link-int         { background:url(../images/picto/browserfenster-int.png) no-repeat right; padding-right:16px; }
+/*a.link-mail        { background:url(../images/picto/umschlag.png)           no-repeat right; padding-right:16px; }*/
+li.link-ext { background:url(../images/picto/browserfenster-ext.png) no-repeat top left; padding-left:18px;  }
+li.link-int { background:url(../images/picto/browserfenster-int.png) no-repeat top left; padding-left:18px;  }
+li.link-mail{ background:url(../images/picto/umschlag.png)           no-repeat top left; padding-left:18px;  }
+
+/*
+a.link-figure { background:url(../images/picto/image__test__v1.png) no-repeat right; padding-right:18px; }
+a.link-table  { background:url(../images/picto/image__test__v2.png) no-repeat right; padding-right:18px; }
+*/
+a.link-noicon { background:none; padding-right:0; } /*Sonderfaelle (z.B. Autorenliste):Decorator aktiv, dennoch kein CSS-Icon*/
+/* link-intRef, link-intAtt */
+
+/* "mehr/vor/zurueck"-Link mit Pfeil zzgl. hover-Farbwechsel*/
+a.more,
+a.more.link-noicon,
+a.next { background-image:url(../images/doublearrow_right.png); background-position:right center; background-repeat:no-repeat; padding-right:16px; }
+a.prev { background-image:url(../images/doublearrow_left.png);  background-position:left center; background-repeat:no-repeat; padding-left:16px; }
+
+.navlist a.more:hover {	background-image:url(../images/doublearrow_right_white.png); }
+
+.navlist a.link-top       { 
+	background-image: url(../images/navlisttoplink.png);
+	background-repeat: no-repeat;
+	background-position: 1em center;
+	padding-left: 2em; }
+.navlist a.link-top:hover {
+	background-image: url(../images/navlisttoplink_white.png);
+}
+
+/* =========================================================================================== Bilder + Spaltenbilder ==*/
+  img { vertical-align:middle; /*text-bottom;*/ }
+a img { border:none; }
+
+#content div.imgfloatleft,
+#content img.imgfloatleft  { float:left;  display:table; margin:5px 5px 5px 0; padding:0; }
+#content div.imgfloatright,
+#content img.imgfloatright { float:right; display:table; margin:5px 0 5px 5px; padding:0; }
+
+
+/* =========================================================================================== Fehler-Box ==*/
+#content div.error    { border:1px solid #990000; border-top:0; margin-bottom:16px; }
+#content div.error h3,
+#content div.error h4 { background-color:#990000; padding:5px 10px 5px 10px; margin:4px 0 0 0; font-weight:bold; font-size:1.0em; color:#ffffff; }
+#content div.error p  {                           padding:10px;                                font-weight:bold; }
+#content div.error ul {                           padding-top:10px; padding-bottom:10px;       font-weight:bold; }
+
+/* #################################################################### Newsliste/Newsdetails ########## */
+#content .newslist-date,
+#content .newsdetail-date   { font-weight:normal; font-size:90%; }
+#content .newsdetail-teaser { font-weight:bold; }
+
+#content .newslist-nav,
+#content .newsdetail-nav { background-color:#E3E3E4; color:black; padding:0.5em; position:relative; margin:2em 0; }
+
+#content .newslist-nav	 { padding-left:6em; padding-right:6em; text-align:center; }
+#content .newslist-nav ul    { list-style-type:none; padding:0; margin:0.25em; display:inline; }
+#content .newslist-nav ul li { display:inline; margin:0; }
+#content .newslist-nav ul li a,
+#content .newslist-nav ul li span { padding:0.25em 0.5em; }
+#content .newslist-nav ul li span { color:white; background-color:#2b4878; }
+#content .newslist-nav a.prev,
+#content .newslist-nav a.next  { position:absolute; top:0.25em; padding-top:0.25em; padding-bottom:0.25em; }
+#content .newslist-nav a.prev  { left:0.5em; padding-right:0.5em; }
+#content .newslist-nav a.next  { right:0.5em; padding-left:0.5em; }
+#content .newslist-nav-page { display: inline; padding-left:1em; margin-left:1em; border-left: 1px solid #2b4878; }
+
+#content .newsdetail-nav { text-align:right; }
+#content .newsdetail-nav a.more { padding-top:0.25em; padding-bottom: 0.25em; padding-left:0.5em; }
+
+/* #################################################################### Übersichtstabelle aller Journals/Meetings ########## */
+table.overview {
+	/*border:none;*/  border-color:#ccc;
+	clear:both;
+	/*width:100%;*/
+}
+table.overview caption {
+	font-weight:bold;
+	text-align:left;
+}
+
+table.overview td, table.overview th {
+	border:none;
+	padding:0.5em;
+	background:none;
+	vertical-align: middle;
+}
+table.overview td.journal_icon {
+	text-align:center;
+	width:80px;
+}
+table.overview td.journal_icon a {
+	display:block;
+}
+table.overview th.journal_title {
+	font-weight:normal;
+}
+table.overview th.journal_title a {
+	/*text-decoration:none;*/
+}
+table.overview td.journal_pubmed {
+	white-space: nowrap;
+}
+table.overview td.journal_organisation {
+}
+
+table.overview td.meeting_date {
+	width:20%;
+}
+table.overview th.meeting_title {
+	font-weight:normal;
+	width:60%;
+}
+table.overview th.meeting_title a {
+	/*text-decoration:none;*/
+}
+table.overview td.meeting_place {
+	width:20%;
+}
+
+/* #################################################################### Ownerrahmen (Owner = Journal, Meeting, Report) ########## */
+#owner {
+	padding:1.5em 0 0 0;
+	position:relative;
+	padding-top:1.5em;
+}
+
+#owner_links_container {
+	border-top:0.5em solid #069;
+	position:absolute; left:0; right:0; top:0;
+}
+* html #owner_links_container {
+	position: static;
+	left:0;
+	right:0;
+	top:0;
+	margin-top: -1.5em;
+	margin-bottom: 1.5em;
+}
+ul#owner_links {
+	clear:both;
+	list-style-type:none;
+	margin:0;  padding:0 0.5em;  border-bottom:1px solid #f2f2f3; /*Rahmen in Hintergrundfarbe fuer IE*/
+	position:absolute; right:0; top:0;
+}
+* html ul#owner_links { top:0.5em; }
+ul#owner_tabs {
+	clear:both;
+	list-style-type:none;
+	margin:0;  padding:0 0.5em;  border-bottom:1px solid #f2f2f3; /*Rahmen in Hintergrundfarbe fuer IE*/
+}
+#owner_tabs_clear {
+	border-bottom:0.5em solid #069;
+	clear:both;
+	margin-bottom:1em;
+	margin-left:-240px;
+}
+
+ul#owner_links li        { float:left;  margin:0 0.25em; }
+ul#owner_tabs  li        { float:right; margin:0 0.25em; }
+ul#owner_links li a { background-color:#e3e3e4; color:black; display:block; text-align:center; text-decoration:none; white-space:nowrap; padding:1px 1em 0.5em 1em; }
+ul#owner_tabs  li a { background-color:#e3e3e4; color:black; display:block; text-align:center; text-decoration:none; white-space:nowrap; padding:0.5em 1em 1px 1em; }
+ul#owner_links li.selected a,
+ul#owner_tabs  li.selected a { background-color:#069; color:white; }
+ul#owner_links li a:hover,
+ul#owner_tabs  li a:hover,
+ul#owner_links li.selected a:hover,
+ul#owner_tabs  li.selected a:hover { background-color:#2b4878; color:white; }
+
+#owner_description {
+	background-position:left center;
+	background-repeat:no-repeat;
+	margin-bottom:0.5em;
+	padding:0 1em 4em 100px;
+	min-height:12em;
+}
+#owner_description *  { margin-left:1em; }
+#owner_description a  { margin-left:0; }
+#owner_description h2 { margin-left:0.625em; /* 1/1.6 (font-size von h2) */ }
+
+/* #################################################################### gms-article-sessionlist spezifisch ######################### */
+p.sessionmininav { font-weight:bold; margin:2em 0; }
+p.sessionmininav a.prev { margin-right:2em; }
+
+/* #################################################################### gms-article-list spezifisch ################################ */
+div.article-list-entry      { line-height:1.5em; margin-top:2em; }
+div.article-list-entry h4   { margin:.2em 0; }
+
+/* #################################################################### gms-article-detail spezifisch ############################## */
+#article {
+	clear:both;
+	padding-right:1em;
+	padding-top:1em;
+	margin-left:-240px;
+	margin-top:1em;
+}
+
+/* ========================================= alle #article linke Spalte= .floatbox (mit .navlist Inhalten) */
+#article .floatbox {
+	background-color:#e3e3e4;
+	border-top:0.25em solid #2b4878;
+	clear:left;
+	float:left;
+	margin:0 0 1em 1em;
+	padding:0.5em 1em;
+	width:180px;
+}
+* html #article .floatbox {
+	margin-left:0.5em;
+}
+#article .floatbox h2,
+#article .floatbox h3 {
+	margin-top:0;
+	font-size:1.2em;
+}
+
+ul.navlist  { margin:0 -1em 0.5em -1em; list-style-type:none; padding:0; }
+div.navlist { margin:0 -1em 0.5em -1em; }
+
+.navlist a {
+	color:black;
+	display:block;
+	font-weight:bold;
+	margin:0.1em 0;
+	padding:0.25em 1em;
+	text-decoration:none;
+}
+.navlist a:hover {
+	background-color:#2b4878;
+	color:white;
+}
+* html .navlist        { padding-bottom:1.2em; }
+* html .navlist a:link { margin-bottom:-1.2em; }
+
+ul.navlist li.space { margin-top:1em; } /* ??? genutzt ??? */
+ul.navlist li a.active {
+	border-left:0.63em solid #800000; /*#f50;*/
+}
+
+/* ========================================= alle #article-Abschnitte: rechte Spalte .content */
+#article .content {
+	margin-left:240px;
+	position:relative;
+}
+
+
+/* ========================================= Artikel-Kopf (Titel, Typ, pdf/xml/email-Links, ggf.Werbebanner) */
+#article_header {
+	clear: left;
+}
+
+#article_header h2 {
+	padding-top:1em;   /* Ueberschrift wird unterhalb des ".subtitle" ausgegeben */
+}
+#article_header .subtitle {
+	color:#585858;
+	font-weight:bold;
+	position:absolute; top:0;
+}
+
+#article_header hr {
+	clear:left;
+}
+
+a.format_pdf, a.format_xml, a.link-send-article {
+	background-position:3px center;
+	background-repeat:no-repeat;
+	padding-left:24px;
+}
+a.format_pdf   { background-image:url(../images/format_pdf.png); }
+a.format_xml   { background-image:url(../images/format_xml.png); }
+a.link-send-article { background-image:url(../images/picto/author-with-mail.png); }
+
+/* ========================================= Banner/Hinweise/Werbung */
+.ad-horizontal {
+	width:100%;
+	margin:1em 1em 2em 0;
+	padding-bottom:1em;
+	border-bottom:1px solid black;
+}
+.ad-vertical {
+	float:right;
+	margin-left:1em;
+}
+.ad-hinweis {
+	color:#7f7f7f;
+	display:block;
+	font-size:0.9em;
+}
+
+/* ========================================= Artikel-Metadatenbereich */
+#article_meta {
+	clear:left;
+	padding-top:1em;
+}
+
+#article_meta ul.metaListOfAuthors { list-style-type:none; margin-bottom:2em; padding-left:24px; }
+#article_meta ul.metaListOfAuthors a { text-decoration:none; }
+#article_meta ul.metaListOfAuthors li { position:relative; margin:0.5em 0; }
+#article_meta ul.metaListOfAuthors li img.bulletpoint { position:absolute; left:-21px; top:1px; }
+#article_meta ul.metaListOfAuthors li span { font-weight:bold; } /*Autorenname fett, egal ob verlinkt oder nicht)*/
+
+#article_meta p.metaSource { }
+#article_meta p.metaTranslation { margin-bottom:5px; padding:4px; border:solid #b49a78; border-width:1px 4px; }
+#article_meta p.metaIdentifier { margin:1em 0; }
+#article_meta p.metaCopyrightNotice { font-size:0.8em; }
+#article_meta p.metaAdditionalDocument { }
+
+#article_meta table.metaTableOfDates { }
+#article_meta table.metaTableOfDates th { padding:0; font-weight:normal; background-color:#f2f2f3; }
+#article_meta table.metaTableOfDates td { padding:0 0 0 1em; }
+/* #article_meta dl.metaListOfDates    { margin:1em 0; }
+#article_meta dl.metaListOfDates dt { width:14em; float:left; font-weight:normal; }
+#article_meta dl.metaListOfDates dd { margin-left:15em; } */
+
+/* ========================================= Artikel-Text (hier: Gliederung/Outline in .floatbox) */
+/* Gliederungs-Box, erweitert .floatbox */
+.outline {
+	margin-top:1em !important;
+}
+.outline .navlist a {
+	font-weight:normal;
+	
+}
+.outline .navlist a.selected {
+	font-weight:bold;
+}
+
+/* Link zum ein/ausblenden bzw. anspringen der Gliederung */
+.outline_link {
+	display:block;
+	left:-220px;
+	position:absolute;
+	top:-2em;
+}
+.outline_link a {
+	background-image:url(../images/plus.png);
+	background-position:right center;
+	background-repeat:no-repeat;
+	color:black;
+	font-weight:bold;
+	padding-right: 20px;
+	text-decoration:none;
+}
+.outline_link a.opened {
+	background-image:url(../images/minus.png);
+}
+
+/* ========================================= Artikel-Text (hier: .content) */
+/* einzelne Textabschnitte zusaetzlich:
+div.contentAbstact
+div.contentTextblock
+div.contentReference
+div.contentAttachment
+div.contentErratum
+*/
+
+#article_text {
+	clear:left;
+	/*margin-top:1em;*/
+	/*padding-top:1em;*/
+}
+
+#article_text hr {
+	clear:left;
+}
+
+/* Schlagwörter */
+.contentAbstract span.metaKeywordsLabel { font-weight:bold; }
+
+/* Liste von Attachments */
+.contentAttachment dl.listOfAttachments dt { width:5.5em; float:left; font-weight:normal; }
+.contentAttachment dl.listOfAttachments dd { margin-left:6.5em;  margin-bottom:.5em; }
+
+/* "Pseudo-Ordered-List" als <ol>-Ersatz vorprozessierter gmsarticle-Textbloecke und fuer weitere Listen */
+.content dl.pseudoOrderedList dt.level1 { margin-left:0; width:2.6em; float:left; font-weight:normal; }
+.content dl.pseudoOrderedList dt.level2 { margin-left:3.1em; width:3.0em; float:left; font-weight:normal; }
+.content dl.pseudoOrderedList dd.level1 { margin-left:3.1em; }
+.content dl.pseudoOrderedList dd.level2 { margin-left:6.6em; }
+/*.content dl.pseudoOrderedList dt.level1 { margin-left:0.5em; width:2.5em; float:left; font-weight:normal; }
+.content dl.pseudoOrderedList dt.level2 { margin-left:3.0em; width:3.5em; float:left; font-weight:normal; }
+.content dl.pseudoOrderedList dd.level1 { margin-left:3.0em; }
+.content dl.pseudoOrderedList dd.level2 { margin-left:6.5em; }*/
+
+
+/* #################################################################### ungenutzt ?! ################################ */
+/*
+#search input.search {
+	background-image:url(../images/search.png);
+	background-position:2px center;
+	background-repeat:no-repeat;
+	display:block;
+	border:1px solid gray;
+	max-height:21px;
+	padding:1px 1px 1px 18px;
+	width:10em;
+}
+#search input.submit {
+	background-color:transparent;
+	background-image:url(../images/doublearrow_right.png);
+	background-position:right center;
+	background-repeat:no-repeat;
+	border:none;
+	margin:0;
+	max-height:21px;
+	padding:0 16px 0 0;
+}
+*/

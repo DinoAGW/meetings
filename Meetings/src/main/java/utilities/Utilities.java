@@ -8,11 +8,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import myWget.MyUtils;
 
 public class Utilities {
 	public final static String fs = System.getProperty("file.separator");
@@ -95,4 +99,13 @@ public class Utilities {
 			ele.appendElement("img").attr("src", imgRootPath.concat(imgSrc));
 		}
 	}
+	
+	public static void replaceFiles(File from, String to, String md5Sum) throws IOException {
+		File toFile = new File(to);
+		if (!MyUtils.md5_of_file(toFile).equals(md5Sum)) {
+			System.err.println("MD5 Summe stimmt nicht");
+		}
+		Files.copy(from.toPath(), toFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+	}
+
 }

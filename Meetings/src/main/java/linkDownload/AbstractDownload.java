@@ -21,6 +21,7 @@ import utilities.Abstract;
 import utilities.Clean;
 import utilities.Resources;
 import utilities.SqlManager;
+import utilities.Utilities;
 
 public class AbstractDownload {
 	static String fs = System.getProperty("file.separator");
@@ -60,6 +61,9 @@ public class AbstractDownload {
 			content.getElementById("page").before(content.getElementById("header"));
 			content.getElementsByTag("script").remove();
 			content.getElementsByClass("floatbox").remove();
+			Utilities.addExtLinkImages(doc);
+			Utilities.addMailLinkImages(doc);
+			
 			String htmlPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("target.html");
 			FileOutputStream fstream = new FileOutputStream(htmlPath);
 			OutputStreamWriter out = new OutputStreamWriter(fstream, "windows-1252");
@@ -67,9 +71,11 @@ public class AbstractDownload {
 			out.close();
 			fstream.close();
 			String cssPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de").concat(fs).concat("static").concat(fs).concat("css").concat(fs).concat("gms-framework.css");
-			replaceFiles(Resources.INSTANCE.getCss(), cssPath, "532d9c009619553ea5841742ac59b2df");
+			Utilities.replaceFiles(Resources.INSTANCE.getCss(), cssPath, "532d9c009619553ea5841742ac59b2df");
 			String logoPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de").concat(fs).concat("static").concat(fs).concat("images").concat(fs).concat("header_logo.png");
-			replaceFiles(Resources.INSTANCE.getLogo(), logoPath, "649a32c9a8e49162d2eb48364caa2f20");
+			Utilities.replaceFiles(Resources.INSTANCE.getLogo(), logoPath, "649a32c9a8e49162d2eb48364caa2f20");
+			String css2Path = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de").concat(fs).concat("static").concat(fs).concat("css").concat(fs).concat("gms-content.css");
+			Utilities.replaceFiles(Resources.INSTANCE.getCss2(), css2Path, "b878eba1c5bc4b50779bebc1b6589ff8");
 
 			// Den Fortschritt in der Datenbank vermerken
 			int updated = SqlManager.INSTANCE
@@ -86,14 +92,7 @@ public class AbstractDownload {
 		}
 
 	}
-	
-	private static void replaceFiles(File from, String to, String md5Sum) throws IOException {
-		File fromFile = new File(to);
-		if (!MyUtils.md5_of_file(fromFile).equals(md5Sum)) {
-			System.err.println("MD5 Summe stimmt nicht");
-		}
-		Files.copy(from.toPath(), fromFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-	}
+
 
 	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
 		String absPath = Clean.mainPath.concat("Abstracts").concat(fs);
