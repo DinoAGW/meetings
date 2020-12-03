@@ -1,5 +1,7 @@
 # meetings
 
+[![Build Status](https://travis-ci.org/DinoAGW/meetings.svg?branch=master)](https://travis-ci.org/github/DinoAGW/meetings "Meetings Travis-CI integration build")
+
 ## Installationsanleitung
 
 1. in Eclipse unter der git Ansicht das Repository Clonen
