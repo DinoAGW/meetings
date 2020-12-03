@@ -72,9 +72,9 @@ img {
 
 /* Kopfbereich, Hintergrund und absolute Positionierung ganz oben */
 #header {
-	background-image:url(../images/header_repeat.png);
+	/*background-image:url(../images/header_repeat.png);
 	background-position:top left;
-	background-repeat:repeat-x;
+	background-repeat:repeat-x;*/
 	height:120px;
 	left:0;
 	position:absolute;
