@@ -7,11 +7,16 @@ import java.net.URL;
 public enum Resources {
 	INSTANCE;
 	
-	private final static String CSS = "de/zbmed/gms-framework.css";
-	private final static String CSS2 = "de/zbmed/gms-content.css";
-	private final static String LOGO = "de/zbmed/header_logo.png";
+	public static final String CSS = "de/zbmed/gms-framework.css";
+	public static final String CSS2 = "de/zbmed/gms-content.css";
+	public static final String LOGO = "de/zbmed/header_logo.png";
 	public static final String ICC = "de/zbmed/sRGB_v4_ICC_preference_displayclass.icc";
 	public static final String FONT = "de/zbmed/OpenSans-Regular.ttf";
+	public static final String HTCSV = "de/zbmed/Kongress_HT.csv";
+	
+	public File getHTCSV() {
+		return getResourceFile(HTCSV);
+	}
 	
 	public File getCss() {
 		return getResourceFile(CSS);
