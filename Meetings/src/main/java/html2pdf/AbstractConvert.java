@@ -32,13 +32,18 @@ public class AbstractConvert {
 	public static String fs = System.getProperty("file.separator");
 
 	public static void main(String[] args) throws IOException, SQLException {
+		abstractConvert();
+		System.out.println("AbstractConvert Ende.");
+	}
+		
+	public static void abstractConvert() throws IOException, SQLException {
 		String absPath = Clean.mainPath.concat("Abstracts").concat(fs);
 
 		ResultSet resultSet = null;
 
 		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE status=30");
 
-		int Anzahl = 2 * 1;
+		int Anzahl = -2 * 1;
 		while (resultSet.next()) {
 			System.out.println("Verarbeite: '".concat(resultSet.getString("Ue_ID")).concat("', '").concat(resultSet.getString("Ab_ID")).concat("', '").concat(resultSet.getString("URL")).concat("'"));
 
@@ -85,8 +90,6 @@ public class AbstractConvert {
 			if (0 == --Anzahl)
 				break; // Tu nicht zu viel
 		}
-
-		System.out.println("AbstractConvert Ende.");
 	}
 
 }

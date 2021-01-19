@@ -9,8 +9,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,16 +17,15 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
 import myWget.MyUtils;
 import myWget.MyWget;
 import utilities.Abstract;
 import utilities.Clean;
+import utilities.Database;
 import utilities.Kongress;
 import utilities.Resources;
 import utilities.SqlManager;
@@ -39,23 +36,23 @@ public class UeberordnungDownload {
 
 	public static void linkDownload(String protokoll, String hostname)
 			throws IOException, SQLException, InterruptedException {
-		ResultSet resultSet = null;
 
 		// Get everything from the overview table
-		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM ueberordnungen WHERE status=10");
+		ResultSet resultSet = Database.getDatabaseWithStatus("ueberordnungen", 10);
 
 		// limiting work done for testing purpose
-		int Anzahl = 2;
+		int Anzahl = -2;
 
 		while (resultSet.next()) {
+			String ID = resultSet.getString("ID");
+			String URL = resultSet.getString("URL");
 			// For each overview record
-			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
-			Kongress it = new Kongress(resultSet.getString("URL"));
+			System.out.println("Verarbeite: '".concat(ID).concat("', '").concat(URL).concat("'"));
+			Kongress it = new Kongress(URL);
 			// der eigentliche Aufruf
 			String kongressDir = Clean.mainPath.concat("Ueberordnungen").concat(fs).concat(it.getPathId()).concat(fs);
 			MyWget myWget = new MyWget(it.url, kongressDir, true);
-			@SuppressWarnings("unused")
-			int res = myWget.getPage();
+			myWget.getPage();
 
 			// Extracting which websites give aditional Infos...
 			File kongressFile = new File(myWget.getTarget());
@@ -168,7 +165,7 @@ public class UeberordnungDownload {
 			Elements sessionlist = content.getElementsByClass("sessionlist").first().getElementsByTag("a");
 			int i = 0;
 			// again: limit for testing purpose
-			int Anzahl2 = 1;
+			int Anzahl2 = -1;
 			// Go through them, to extract the links of the abstracts (not actually for
 			// "landingPage" of the congress download purpose, but because it is needed
 			// later)
@@ -177,8 +174,7 @@ public class UeberordnungDownload {
 						.concat(fs).concat("abstractlist").concat(Integer.toString(++i));
 				// download the Sessions from the Sessionlist
 				MyWget myWget2 = new MyWget(new URL(session.attr("href")), kongressDir2, true);
-				@SuppressWarnings("unused")
-				int res2 = myWget2.getPage();
+				myWget2.getPage();
 
 				File abstractlistFile = new File(myWget2.getTarget());
 				Elements abstractlist = Jsoup.parse(abstractlistFile, "CP1252", protokoll + hostname).child(0)
@@ -190,7 +186,7 @@ public class UeberordnungDownload {
 					ResultSet resultSet2 = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE Ab_ID = '"
 							+ aAbstract.Ab_ID + "_" + aAbstract.language + "'");
 					// Check if the abstract was in the Database before
-					// Pr�fe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
+					// Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 					if (resultSet2.next()) {
 						// skip if yes
 					} else {
@@ -222,12 +218,15 @@ public class UeberordnungDownload {
 
 	}
 
-	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
+	public static void ueberordnungDownload()  throws IOException, SQLException, InterruptedException {
 		String protokoll = "https://";
 		String hostname = "www.egms.de";
 
 		linkDownload(protokoll, hostname);
-
+	}
+	
+	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
+		ueberordnungDownload();
 		System.out.println("UeberordnungDownload Ende.");
 	}
 }

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -22,6 +23,17 @@ public class Utilities {
 	public final static String fs = System.getProperty("file.separator");
 	// private string used as root path for background image replacement
 	private final static String imgRootPath = "www.egms.de/static/images/picto/";
+
+	public static Document getWebsite(String URL) {
+		Document doc = null;
+		try {
+			doc = Jsoup.connect(URL).get();
+		} catch (IOException e) {
+			System.out.println("Jsoup connect failed");
+			e.printStackTrace();
+		}
+		return doc;
+	}
 	
 	public static String readline() throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));

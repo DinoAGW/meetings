@@ -32,13 +32,18 @@ public class UeberordnungConvert {
 	public static String fs = System.getProperty("file.separator");
 
 	public static void main(String[] args) throws IOException, SQLException {
+		ueberordnungConvert();
+		System.out.println("UeberordnungConvert Ende.");
+	}
+	
+	public static void ueberordnungConvert() throws IOException, SQLException {
 		String overviewPath = Clean.mainPath.concat("Ueberordnungen").concat(fs);
 
 		ResultSet resultSet = null;
 
 		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM ueberordnungen WHERE status=30");
 
-		int Anzahl = 2;
+		int Anzahl = -2;
 		while (resultSet.next()) {
 			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
 
@@ -53,7 +58,7 @@ public class UeberordnungConvert {
 			doc.outputSettings().charset("CP1252");
 
 			ConverterProperties properties = new ConverterProperties();
-			properties.setBaseUri(baseDir);// braucht man, weil String �bergeben wird, statt File
+			properties.setBaseUri(baseDir);// braucht man, weil String übergeben wird, statt File
 
 			OutlineHandler outlineHandler = OutlineHandler.createStandardHandler();
 			properties.setOutlineHandler(outlineHandler);
@@ -86,8 +91,6 @@ public class UeberordnungConvert {
 			if (0 == --Anzahl)
 				break; // Tu nicht zu viel
 		}
-
-		System.out.println("UeberordnungConvert Ende.");
 	}
 
 }

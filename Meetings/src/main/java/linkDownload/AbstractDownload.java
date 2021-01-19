@@ -4,17 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-//import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
 import myWget.MyUtils;
 import myWget.MyWget;
 import utilities.Abstract;
@@ -32,7 +27,7 @@ public class AbstractDownload {
 
 		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE status=10");
 
-		int Anzahl = 2 * 1;
+		int Anzahl = -2 * 1;
 		while (resultSet.next()) {
 			System.out.println("Verarbeite: '".concat(resultSet.getString("Ue_ID")).concat("', '").concat(resultSet.getString("Ab_ID")).concat("', '").concat(resultSet.getString("URL")).concat("'"));
 			Abstract it = new Abstract(resultSet.getString("URL"));
@@ -93,15 +88,17 @@ public class AbstractDownload {
 
 	}
 
-
 	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
+		abstractDownload();
+		System.out.println("AbstractDownload Ende.");
+	}
+	
+	public static void abstractDownload() throws IOException, SQLException, InterruptedException {
 		String absPath = Clean.mainPath.concat("Abstracts").concat(fs);
 
 		String protokoll = "https://";
 		String hostname = "www.egms.de";
 
 		linkDownload(absPath, protokoll, hostname);
-
-		System.out.println("AbstractDownload Ende.");
 	}
 }

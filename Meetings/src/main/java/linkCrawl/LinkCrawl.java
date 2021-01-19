@@ -1,52 +1,36 @@
 package linkCrawl;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
 import myWget.MyWget;
 import utilities.Clean;
+import utilities.Database;
 import utilities.Kongress;
 import utilities.SqlManager;
 
 public class LinkCrawl {
 	static String fs = System.getProperty("file.separator");
 
-	@SuppressWarnings("unused")
-	private static void makeDifference(String fileName) throws IOException {
-		FileWriter fileWriter = new FileWriter(fileName, true);
-		BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-		PrintWriter printWriter = new PrintWriter(bufferedWriter);
-		printWriter.println("X");
-		printWriter.close();
-	}
-
-	public static void linkCrawl(URL landingPage, String mainPath)
-			throws IOException, SQLException {
+	public static void linkCrawl(URL landingPage, String lang, String mainPath) throws IOException, SQLException {
 		// lade die Webseite herrunter
 		MyWget myWget = new MyWget(landingPage, mainPath, false);
-		@SuppressWarnings("unused")
-		int res = myWget.getPage();
-		// myWget.explainResult();
+		myWget.getPage();
 
 		String htmlFilePath = mainPath.concat("content").concat(fs).concat("index.htm");
 		File htmlFile = new File(htmlFilePath);
 		Document doc = Jsoup.parse(htmlFile, "ISO-8859-1", landingPage.getProtocol() + landingPage.getHost());
 		Element content = doc.getElementById("content");
 		List<Kongress> listNew = new ArrayList<Kongress>();
-		// F�ge die URLS in eine Liste ein
+		// Füge die URLS in eine Liste ein
 		for (int i = 2; i < content.getElementsByTag("a").size(); i++) {
 			String linRef = content.getElementsByTag("a").get(i).attr("href");
 			if (linRef != null && !linRef.isEmpty()) {
@@ -54,11 +38,11 @@ public class LinkCrawl {
 			}
 		}
 
-		// �berpr�fe ob die kurzIDs ok sind
+		// überprüfe ob die kurzIDs ok sind
 		for (Kongress it : listNew) {
 			for (Kongress it2 : listNew) {
 				if ((it.kurzID.equals(it2.kurzID)) && (it != it2)) {// Ich gehe stark davon aus, dass jede kurzId nur
-																	// ein mal in der Liste gefunden wird.
+					// ein mal in der Liste gefunden wird.
 					System.err.println("Problem mit url " + it.url + " und " + it2.url);
 				}
 			}
@@ -66,36 +50,44 @@ public class LinkCrawl {
 
 		ResultSet resultSet = null;
 
-		int Anzahl = 1;
+		int Anzahl = -1;
 		for (Kongress it : listNew) {
 			resultSet = SqlManager.INSTANCE
-					.executeQuery("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "_" + it.language + "'");
-			// Pr�fe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
+					.executeQuery("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "_" + lang + "'");
+			// Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 			if (resultSet.next()) {
 				// War schon drin
 			} else {
-				// F�ge ein
+				// Füge ein
 				System.out.println("Verarbeite: '" + it.kurzID + "', '" + it.url + "'");
-				SqlManager.INSTANCE.executeUpdate("INSERT INTO ueberordnungen (ID, URL, Status) VALUES ('" + it.kurzID
-						+ "_" + it.language + "', '" + it.url + "', 10);");
+				SqlManager.INSTANCE.executeUpdate("INSERT INTO ueberordnungen (ID, URL, Status) VALUES ('" + it.kurzID + "_"
+						+ lang + "', '" + it.url + "', 10);");
 				if (0 == --Anzahl)
 					break; // tu nicht zu viel
 			}
 		}
 	}
 
-	public static void main(String[] args) throws IOException, SQLException {
+	public static void processBothLanguages() throws IOException, SQLException {
 		String overviewPath = Clean.mainPath.concat("landingPage").concat(fs);
 
-		linkCrawl(crawlURL("/static/de/meetings/index.htm"), overviewPath.concat("de").concat(fs));
-		linkCrawl(crawlURL("/static/en/meetings/index.htm"), overviewPath.concat("en").concat(fs));
+		linkCrawl(crawlURL("/static/de/meetings/index.htm"), "de", overviewPath.concat("de").concat(fs));
+		linkCrawl(crawlURL("/static/en/meetings/index.htm"), "en", overviewPath.concat("en").concat(fs));
+	}
 
+	public static void main(String[] args) throws IOException, SQLException {
+		processBothLanguages();
 		System.out.println("LinkCrawl Ende.");
 	}
-	
+
 	private static URL crawlURL(final String path) throws MalformedURLException {
 		String protokoll = "https://";
 		String hostname = "www.egms.de";
 		return new URL(protokoll.concat(hostname).concat(path));
 	}
+	
+	public static void showWorkDone() throws SQLException {
+		Database.showDatabaseWithStatus("ueberordnungen", 10, "hinzugefügt");
+	}
+	
 }

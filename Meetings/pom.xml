@@ -15,18 +15,18 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-jar-plugin</artifactId>
-              <configuration>
-                <archive>
-                  <manifest>
-                    <addClasspath>true</addClasspath>
-                    <mainClass>testing</mainClass>
-                  </manifest>
-                </archive>
-              </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>testing</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -37,12 +37,12 @@
 			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.199</version>
-            <scope>runtime</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.199</version>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
@@ -72,7 +72,7 @@
 			<artifactId>layout</artifactId>
 			<version>7.1.10</version>
 			<scope>system</scope>
-            <systemPath>${project.basedir}/lib/itext7-layout-7.1.10-SNAPSHOT.jar</systemPath>
+			<systemPath>${project.basedir}/lib/itext7-layout-7.1.10-SNAPSHOT.jar</systemPath>
 		</dependency>
 		<!-- Kommt von ConvertHtmlToPDF2 -->
 		<!-- https://mvnrepository.com/artifact/com.itextpdf/html2pdf -->
@@ -95,7 +95,13 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.6.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.exlibris</groupId>
+			<artifactId>sdk</artifactId>
+			<version>6.3.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/dps-sdk-6.3.0.jar</systemPath>
+		</dependency>
 	</dependencies>
 
 </project>

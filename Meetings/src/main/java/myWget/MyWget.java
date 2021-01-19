@@ -34,10 +34,10 @@ public class MyWget {
 				this.makeMD5s(fileEntry, printWriter);
 			}
 		} else if (!file.getPath().endsWith("checksum.md5")) {
-			// F�ge die jeweilige Datei mit Pfad hinzu, aber relativ zum content Ordner,
+			// Füge die jeweilige Datei mit Pfad hinzu, aber relativ zum content Ordner,
 			// also ohne den dirTo Pfad und ohne die 8 "content/" Zeichen.
 			printWriter.println(MyUtils.md5_of_file(file) + "  " + file.getPath().substring(this.dirTo.length() + 8));
-			// l�sst sich dann auch mittels #md5sum -c checksum.md5 �berpr�fen
+			// lässt sich dann auch mittels #md5sum -c checksum.md5 überprüfen
 		}
 	}
 
@@ -83,10 +83,10 @@ public class MyWget {
 			System.out.println("Ordner wurde neu angelegt");
 			break;
 		case 1:
-			System.out.println("Es hat sich nichts ge�ndert");
+			System.out.println("Es hat sich nichts geändert");
 			break;
 		case 2:
-			System.out.println("Es hat sich etwas ge�ndert");
+			System.out.println("Es hat sich etwas geändert");
 			this.showDifferences();
 			break;
 		default:
@@ -95,7 +95,7 @@ public class MyWget {
 	}
 
 	/**
-	  * Wenn bei getPage Unterschiede in den Checksummen gefunden wurden, k�nnen
+	  * Wenn bei getPage Unterschiede in den Checksummen gefunden wurden, können
 	  * diese beide Dateien mithilfe dieser Funktion verglichen und Unterschiede
 	  * ausgegeben werden.
 	  * 
@@ -163,7 +163,7 @@ public class MyWget {
 	 */
 	public String getTarget() {
 		String ret = new String(this.dirTo).concat("content").concat(fs);
-		System.out.println("URL: ".concat(this.pageFrom.toString()));
+//		System.out.println("URL: ".concat(this.pageFrom.toString()));
 //		System.out.println(this.pageFrom.getHost());
 //		System.out.println(this.pageFrom.getPath());
 //		System.out.println(this.pageFrom.getQuery());
@@ -180,15 +180,15 @@ public class MyWget {
 	}
 
 	/**
-	 * Diese Funktion l�st den Aufruf aus. Die Inhalte werden im "Content/" Ordner
+	 * Diese Funktion löst den Aufruf aus. Die Inhalte werden im "Content/" Ordner
 	 * gespeichert, ggf entsteht auch ein "Content_temp/" Ordner als Backup des
 	 * letzten Ordners und in "aufruf.txt" steht, was dort in dem Ordner getan
 	 * wurde.
 	 * <p>
 	 * Falls context==true, wird auch noch eine target.html
-	 * im content/ Ordner erstellt (mit ge�nderten relativen Links) 
+	 * im content/ Ordner erstellt (mit geänderten relativen Links) 
 	 * <p>
-	 * R�ckgabewert ist:
+	 * Rückgabewert ist:
 	 * <p>
 	 * <ul>
 	 * <li>0, falls der Ordner neu angelegt wurde
@@ -196,10 +196,10 @@ public class MyWget {
 	 * <li>2, falls sich etwas geändert hat
 	 * </ul>
 	 * <p>
-	 * Diese Ergebnisse k�nnen dann noch mittels explainResult(Status) oder
+	 * Diese Ergebnisse können dann noch mittels explainResult(Status) oder
 	 * showDifferences() an die Standardausgabe ausgegeben werden.
 	 * 
-	 * @return Status �ber �nderung
+	 * @return Status über Änderung
 	 * @throws IOException
 	 */
 	public int getPage() throws IOException {
@@ -213,7 +213,7 @@ public class MyWget {
 		}
 		FileWriter fileWriter = new FileWriter(aufruf);
 		PrintWriter printWriter = new PrintWriter(fileWriter);
-		// Dokumentation �ber den Aufruf
+		// Dokumentation über den Aufruf
 		printWriter.println("'" + this.dirTo + "', '" + this.pageFrom.getProtocol() + this.pageFrom + "', " + this.context);
 		printWriter.close();
 
@@ -245,9 +245,9 @@ public class MyWget {
 		String [] wgetParams = (this.context) ?
 				new String[] {wgetCmd, "-p", "-k", "-q", "-N", "-erobots=off", "-P", this.dirTo.concat("content").concat(fs), this.pageFrom.toString()}:
 				new String[] {wgetCmd, "-k", "-q", "-N", "-erobots=off", "-P", this.dirTo.concat("content").concat(fs), this.pageFrom.toString()};
-		System.out.println(String.join(" ", wgetParams));
+//		System.out.println(String.join(" ", wgetParams));
 		ProcessBuilder pb = new ProcessBuilder(wgetParams);
-		// f�hre den wget Befehl aus
+		// führe den wget Befehl aus
 		pb.redirectErrorStream(true);
 		Process process = pb.start();
 		BufferedReader inStreamReader = new BufferedReader ( new InputStreamReader(process.getInputStream()));
@@ -286,7 +286,7 @@ public class MyWget {
 		if (ret == 1) {
 			if (FileUtils.contentEquals(new File(this.dirTo + "content" + fs + "checksum.md5"),
 					new File(this.dirTo + "content_temp" + fs + "checksum.md5"))) {
-				// Falls sich nichts ge�ndert hat...
+				// Falls sich nichts geändert hat...
 				File dest = new File(this.dirTo + "content_temp" + fs);
 				if (dest.exists()) {
 					// ...wird die Kopie nicht mehr gebraucht
