@@ -8,19 +8,31 @@ public class Kongress {
 	public final String kurzID;
 	public final String language;
 	public final String languageSpec;
+	
+	public static String url2kuerzel(URL UrlUrl) {
+		return url2kuerzel(UrlUrl.toString());
+	}
+		
+	public static String url2kuerzel(String StringUrl) {
+		String[] tokens = new String[10];
+		tokens = StringUrl.split("/");
+		int tokenOffset = (StringUrl.endsWith("/")) ? 1 : 2;
+		return tokens[tokens.length - tokenOffset];
+	}
+
+	public static String url2language(String StringUrl) {
+		String[] tokens = new String[10];
+		tokens = StringUrl.split("/");
+		int tokenOffset = (StringUrl.endsWith("/")) ? 1 : 2;
+		return tokens[tokens.length - 2 - tokenOffset];
+		
+	}
 
 	public Kongress(String url) throws MalformedURLException {
 		this.url = new URL(url);
-		String[] tokens = new String[10];
-		tokens = this.url.toString().split("/");
-		int tokenOffset = (this.url.toString().endsWith("/")) ? 1 : 2;
-		this.kurzID = tokens[tokens.length - tokenOffset];
-		this.language = tokens[tokens.length - 2 - tokenOffset];
+		this.kurzID = url2kuerzel(url);
+		this.language = url2language(url);
 		this.languageSpec = (this.language.equals("de")) ? "" :	"_".concat(this.language);
-	}
-
-	public String getPathId() {
-		return this.kurzID.concat(this.languageSpec);
 	}
 
 	@Override

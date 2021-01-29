@@ -22,8 +22,4 @@ public class Abstract {
 		this.language = tokens[tokens.length - 4];
 		this.languageSpec = (this.language.equals("de")) ? "" : "_".concat(this.language);
 	}
-
-	public String getPathId() {
-		return this.Ue_ID.concat(this.languageSpec).concat(fs).concat(this.Ab_ID); 
-	}
 }

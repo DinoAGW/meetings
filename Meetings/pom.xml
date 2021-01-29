@@ -66,6 +66,12 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.10</version>
 		</dependency>
+		<!-- Kommt von MyWget -->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
 		<!-- Kommt von ConvertHtmlToPDF2 -->
 		<dependency>
 			<groupId>com.itextpdf</groupId>
@@ -102,6 +108,50 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/dps-sdk-6.3.0.jar</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>com.exlibris</groupId>
+			<artifactId>olderSdk</artifactId>
+			<version>6.2.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/dps-sdk-6.2.0.jar</systemPath>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.xmlbeans/xmlbeans -->
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/dom4j/dom4j -->
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/jaxen/jaxen -->
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/xalan/xalan -->
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.7.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl -->
+		<dependency>
+			<groupId>net.sourceforge.jexcelapi</groupId>
+			<artifactId>jxl</artifactId>
+			<version>2.6.12</version>
+		</dependency>
+
 	</dependencies>
 
 </project>

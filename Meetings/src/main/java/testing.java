@@ -8,10 +8,12 @@ import linkDownload.AbstractDownload;
 import linkDownload.UeberordnungDownload;
 import utilities.Clean;
 import utilities.Database;
+import utilities.HtKuerzelDatenbank;
 
+@SuppressWarnings("unused")
 public class testing {
 
-	public static void main(String[] args) throws IOException, SQLException, InterruptedException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public static void main(String[] args) throws Exception {
 		System.out.println("testing Started");
 //		System.out.println("Clean");
 //		Clean.main(args);
@@ -25,7 +27,9 @@ public class testing {
 //		AbstractDownload.main(args);
 //		System.out.println("AbstractConvert");
 //		AbstractConvert.main(args);
-		Database.showDatabaseWithStatus("ueberordnungen", 10, "");
+//		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
+//		System.out.println(HtKuerzelDatenbank.kuerzel2ht("hno2016"));
+//		System.out.println(HtKuerzelDatenbank.kuerzel2ht("hnod2016"));
 		System.out.println("testing Ende");
 	}
 

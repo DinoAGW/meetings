@@ -24,7 +24,7 @@ import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.pdfa.PdfADocument;
 
 import utilities.Abstract;
-import utilities.Clean;
+import utilities.Drive;
 import utilities.Resources;
 import utilities.SqlManager;
 
@@ -35,9 +35,9 @@ public class AbstractConvert {
 		abstractConvert();
 		System.out.println("AbstractConvert Ende.");
 	}
-		
+
 	public static void abstractConvert() throws IOException, SQLException {
-		String absPath = Clean.mainPath.concat("Abstracts").concat(fs);
+		String absPath = Drive.absPath;
 
 		ResultSet resultSet = null;
 
@@ -45,10 +45,14 @@ public class AbstractConvert {
 
 		int Anzahl = -2 * 1;
 		while (resultSet.next()) {
-			System.out.println("Verarbeite: '".concat(resultSet.getString("Ue_ID")).concat("', '").concat(resultSet.getString("Ab_ID")).concat("', '").concat(resultSet.getString("URL")).concat("'"));
-
-			Abstract it = new Abstract(resultSet.getString("URL"));
-			String kongressDir = absPath.concat(it.getPathId()).concat(fs);
+			String Ue_ID = resultSet.getString("Ue_ID");
+			String Ab_ID = resultSet.getString("Ab_ID");
+			String URL = resultSet.getString("URL");
+			String LANG = resultSet.getString("LANG");
+			System.out.println("Verarbeite: '".concat(Ue_ID).concat("', '").concat(Ab_ID).concat("', '").concat(URL)
+					.concat("', '").concat(LANG).concat("'"));
+			Abstract it = new Abstract(URL);
+			String kongressDir = absPath.concat(it.Ue_ID).concat("_").concat(LANG).concat(fs).concat(Ab_ID).concat(fs);
 			String baseDir = kongressDir.concat("merge").concat(fs).concat("content").concat(fs);
 			String from = baseDir.concat("target.html");
 			String to = kongressDir.concat(it.Ab_ID).concat(it.languageSpec).concat(".pdf");
@@ -58,14 +62,14 @@ public class AbstractConvert {
 			doc.outputSettings().charset("CP1252");
 
 			ConverterProperties properties = new ConverterProperties();
-			properties.setBaseUri(baseDir);// braucht man, weil String �bergeben wird, statt File
+			properties.setBaseUri(baseDir);// braucht man, weil String übergeben wird, statt File
 
 			OutlineHandler outlineHandler = OutlineHandler.createStandardHandler();
 			properties.setOutlineHandler(outlineHandler);
 
 			DefaultFontProvider fontProvider = new DefaultFontProvider(false, true, false);// register... StandardPdf,
-																							// ShippedFree, System
-																							// ...Fonts
+			// ShippedFree, System
+			// ...Fonts
 			properties.setFontProvider(fontProvider);
 
 			PdfWriter writer = new PdfWriter(to, new WriterProperties().addXmpMetadata());
@@ -82,10 +86,12 @@ public class AbstractConvert {
 			HtmlConverter.convertToPdf(doc.html(), pdf, properties);
 			System.setErr(stderr);
 
-			int updated = SqlManager.INSTANCE
-					.executeUpdate("UPDATE abstracts SET Status = 50 WHERE Ab_ID = '".concat(it.Ab_ID).concat("_").concat(it.language).concat("';"));
+			int updated = SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET Status = 50 WHERE Ab_ID = '"
+					.concat(it.Ab_ID).concat("' AND LANG = '").concat(LANG).concat("';"));
 			if (updated != 1)
-				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '".concat(it.Ab_ID).concat("_").concat(it.language).concat("', aber es waren: ").concat(Integer.toString(updated)).concat("."));
+				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID = '"
+						.concat(it.Ab_ID).concat("' und LANG = '").concat(LANG).concat("', aber es waren: ")
+						.concat(Integer.toString(updated)).concat("."));
 
 			if (0 == --Anzahl)
 				break; // Tu nicht zu viel

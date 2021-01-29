@@ -9,9 +9,7 @@ import java.sql.Statement;
 public enum SqlManager {
 	INSTANCE;
 
-	private static final String filePath = Clean.mainPath.concat("database");
-
-	private static final String sqlConn = "jdbc:h2:file:".concat(filePath);
+	private static final String sqlConn = "jdbc:h2:file:".concat(Drive.dbPath);
 	private static Connection connection;
 	
 	static {
@@ -55,6 +53,6 @@ public enum SqlManager {
 	}
 
 	public String getDbFilepath() {
-		return SqlManager.filePath;
+		return Drive.dbPath;
 	}
 }

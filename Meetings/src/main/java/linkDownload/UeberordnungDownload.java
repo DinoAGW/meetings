@@ -24,8 +24,8 @@ import org.jsoup.select.Elements;
 import myWget.MyUtils;
 import myWget.MyWget;
 import utilities.Abstract;
-import utilities.Clean;
 import utilities.Database;
+import utilities.Drive;
 import utilities.Kongress;
 import utilities.Resources;
 import utilities.SqlManager;
@@ -33,6 +33,9 @@ import utilities.Utilities;
 
 public class UeberordnungDownload {
 	static String fs = System.getProperty("file.separator");
+	
+	private static final int overviewsToGo = -1;
+	private static final int abstractsToGo = 1;
 
 	public static void linkDownload(String protokoll, String hostname)
 			throws IOException, SQLException, InterruptedException {
@@ -41,16 +44,19 @@ public class UeberordnungDownload {
 		ResultSet resultSet = Database.getDatabaseWithStatus("ueberordnungen", 10);
 
 		// limiting work done for testing purpose
-		int Anzahl = -2;
+		int Anzahl = 2*overviewsToGo;
 
 		while (resultSet.next()) {
 			String ID = resultSet.getString("ID");
 			String URL = resultSet.getString("URL");
+			String LANG = resultSet.getString("LANG");
 			// For each overview record
-			System.out.println("Verarbeite: '".concat(ID).concat("', '").concat(URL).concat("'"));
+			System.out
+					.println("Verarbeite: '".concat(ID).concat("', '").concat(URL).concat("', '").concat(LANG).concat("'"));
 			Kongress it = new Kongress(URL);
 			// der eigentliche Aufruf
-			String kongressDir = Clean.mainPath.concat("Ueberordnungen").concat(fs).concat(it.getPathId()).concat(fs);
+			String kongressDir = Drive.captPath.concat(it.kurzID).concat("_")
+					.concat(LANG).concat(fs);
 			MyWget myWget = new MyWget(it.url, kongressDir, true);
 			myWget.getPage();
 
@@ -69,8 +75,8 @@ public class UeberordnungDownload {
 			String[] contentPath = new String[owner_links.size()];
 			for (int i = 0; i < owner_links.size(); i++) {
 				// System.out.println("herunterladen: " + owner_links.get(i));
-				contentPath[i] = Clean.mainPath.concat("Ueberordnungen").concat(fs).concat(it.getPathId()).concat(fs)
-						.concat(Integer.toString(i)).concat(fs);
+				contentPath[i] = Drive.captPath.concat(it.kurzID).concat("_")
+						.concat(LANG).concat(fs).concat(Integer.toString(i)).concat(fs);
 				contentMyWget[i] = new MyWget(owner_links.get(i), contentPath[i], true);
 				contentMyWget[i].getPage();
 			}
@@ -99,14 +105,16 @@ public class UeberordnungDownload {
 			}
 			br.close();
 			for (int i = 0; i < owner_links.size(); i++) {
-				String checksumPath = kongressDir.concat(Integer.toString(i)).concat(fs).concat("content").concat(fs).concat("checksum.md5");
+				String checksumPath = kongressDir.concat(Integer.toString(i)).concat(fs).concat("content").concat(fs)
+						.concat("checksum.md5");
 				br = new BufferedReader(new FileReader(new File(checksumPath)));
 				while ((line = br.readLine()) != null) {
 					lines.add(line);
 				}
 				br.close();
 			}
-			String checksumPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("checksum.md5");
+			String checksumPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs)
+					.concat("checksum.md5");
 			BufferedWriter bw = new BufferedWriter(new FileWriter(new File(checksumPath)));
 			Iterator<String> it2 = lines.iterator();
 			while (it2.hasNext()) {
@@ -144,7 +152,7 @@ public class UeberordnungDownload {
 			Utilities.addExtLinkImages(doc);
 			Utilities.addMailLinkImages(doc);
 			// and save it to harddisk
-			String mergePath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("target.html"); 
+			String mergePath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("target.html");
 			FileOutputStream fstream = new FileOutputStream(mergePath);
 			OutputStreamWriter out = new OutputStreamWriter(fstream, "windows-1252");
 			out.append(doc.html());
@@ -153,11 +161,14 @@ public class UeberordnungDownload {
 
 			// check if this one css File is the known one and if yes: replace it with a
 			// different one, made for PDF purpose
-			String cssPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de").concat(fs).concat("static").concat(fs).concat("css").concat(fs).concat("gms-framework.css");
+			String cssPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de")
+					.concat(fs).concat("static").concat(fs).concat("css").concat(fs).concat("gms-framework.css");
 			Utilities.replaceFiles(Resources.INSTANCE.getCss(), cssPath, "532d9c009619553ea5841742ac59b2df");
-			String logoPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de").concat(fs).concat("static").concat(fs).concat("images").concat(fs).concat("header_logo.png");
+			String logoPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de")
+					.concat(fs).concat("static").concat(fs).concat("images").concat(fs).concat("header_logo.png");
 			Utilities.replaceFiles(Resources.INSTANCE.getLogo(), logoPath, "649a32c9a8e49162d2eb48364caa2f20");
-			String css2Path = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de").concat(fs).concat("static").concat(fs).concat("css").concat(fs).concat("gms-content.css");
+			String css2Path = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de")
+					.concat(fs).concat("static").concat(fs).concat("css").concat(fs).concat("gms-content.css");
 			Utilities.replaceFiles(Resources.INSTANCE.getCss2(), css2Path, "b878eba1c5bc4b50779bebc1b6589ff8");
 
 			// The "LandingPage" of the congress always have a sessionlist, with websites,
@@ -165,13 +176,13 @@ public class UeberordnungDownload {
 			Elements sessionlist = content.getElementsByClass("sessionlist").first().getElementsByTag("a");
 			int i = 0;
 			// again: limit for testing purpose
-			int Anzahl2 = -1;
+			int Anzahl2 = abstractsToGo;
 			// Go through them, to extract the links of the abstracts (not actually for
 			// "landingPage" of the congress download purpose, but because it is needed
 			// later)
 			for (Element session : sessionlist) {
-				String kongressDir2 = Clean.mainPath.concat("Ueberordnungen").concat(fs).concat(it.getPathId())
-						.concat(fs).concat("abstractlist").concat(Integer.toString(++i));
+				String kongressDir2 = Drive.captPath.concat(it.kurzID).concat("_")
+						.concat(LANG).concat(fs).concat("abstractlist").concat(Integer.toString(++i));
 				// download the Sessions from the Sessionlist
 				MyWget myWget2 = new MyWget(new URL(session.attr("href")), kongressDir2, true);
 				myWget2.getPage();
@@ -183,17 +194,16 @@ public class UeberordnungDownload {
 				// go through the abstracts in a session
 				for (Element abstractElement : abstractlist) {
 					Abstract aAbstract = new Abstract(abstractElement.attr("href"));
-					ResultSet resultSet2 = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE Ab_ID = '"
-							+ aAbstract.Ab_ID + "_" + aAbstract.language + "'");
+					ResultSet resultSet2 = SqlManager.INSTANCE.executeQuery(
+							"SELECT * FROM abstracts WHERE Ab_ID = '" + aAbstract.Ab_ID + "' AND LANG = '" + LANG + "'");
 					// Check if the abstract was in the Database before
 					// Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 					if (resultSet2.next()) {
 						// skip if yes
 					} else {
 						// otherwise insert it
-						SqlManager.INSTANCE.executeUpdate("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, Status) VALUES ('"
-								+ aAbstract.Ue_ID + "_" + aAbstract.language + "', '" + aAbstract.Ab_ID + "_"
-								+ aAbstract.language + "', '" + aAbstract.url + "', 10);");
+						SqlManager.INSTANCE.executeUpdate("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('"
+								+ aAbstract.Ue_ID + "', '" + aAbstract.Ab_ID + "', '" + aAbstract.url + "', '" + LANG + "', 10);");
 						if (0 == --Anzahl2)
 							break; // don't do too much (for testing purpose)
 					}
@@ -204,10 +214,10 @@ public class UeberordnungDownload {
 
 			// assign this congress as downloaded
 			int updated = SqlManager.INSTANCE.executeUpdate(
-					"UPDATE ueberordnungen SET Status = 30 WHERE ID = '" + it.kurzID + "_" + it.language + "';");
+					"UPDATE ueberordnungen SET Status = 30 WHERE ID = '" + it.kurzID + "' AND LANG = '" + LANG + "';");
 			if (updated != 1)
-				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
-						+ it.kurzID + "_" + it.language + "', aber es waren: " + updated + ".");
+				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '" + it.kurzID
+						+ "_" + it.language + "', aber es waren: " + updated + ".");
 			// For less Traffic, wait after every congress
 			System.out.flush();
 			TimeUnit.SECONDS.sleep(1);
@@ -218,13 +228,13 @@ public class UeberordnungDownload {
 
 	}
 
-	public static void ueberordnungDownload()  throws IOException, SQLException, InterruptedException {
+	public static void ueberordnungDownload() throws IOException, SQLException, InterruptedException {
 		String protokoll = "https://";
 		String hostname = "www.egms.de";
 
 		linkDownload(protokoll, hostname);
 	}
-	
+
 	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
 		ueberordnungDownload();
 		System.out.println("UeberordnungDownload Ende.");

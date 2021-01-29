@@ -102,7 +102,6 @@ public class Utilities {
 		path.delete();
 	}
 
-
 	private static void appndImgToClss(final Document doc, final String selector, final String imgSrc) {
 		// Use the selector to get the elements
 		Elements extLinks = doc.select(selector);

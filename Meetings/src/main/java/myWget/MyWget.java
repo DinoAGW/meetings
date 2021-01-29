@@ -30,7 +30,7 @@ public class MyWget {
 	private void makeMD5s(File file, PrintWriter printWriter) throws IOException {
 		if (file.isDirectory()) {
 			for (File fileEntry : file.listFiles()) {
-				// nutze den printWriter auch f�r den rekursiven Aufruf nach
+				// nutze den printWriter auch für den rekursiven Aufruf nach
 				this.makeMD5s(fileEntry, printWriter);
 			}
 		} else if (!file.getPath().endsWith("checksum.md5")) {
@@ -56,7 +56,7 @@ public class MyWget {
 	}
 
 	/**
-	 * Schreibe in eine Datei "content/checksum.md5": f�r jede Datei im Ordner die
+	 * Schreibe in eine Datei "content/checksum.md5": für jede Datei im Ordner die
 	 * Checksumme, den Pfad (relativ zu dirTo) und Dateiname.
 	 * Auf diese Weise stimmen die Pfade noch, auch wenn man den content/ Ordner verschiebt oder umbenennt
 	 * 

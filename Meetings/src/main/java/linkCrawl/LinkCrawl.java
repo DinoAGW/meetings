@@ -12,15 +12,15 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import myWget.MyWget;
-import utilities.Clean;
 import utilities.Database;
+import utilities.Drive;
 import utilities.Kongress;
 import utilities.SqlManager;
 
 public class LinkCrawl {
 	static String fs = System.getProperty("file.separator");
 
-	public static void linkCrawl(URL landingPage, String lang, String mainPath) throws IOException, SQLException {
+	public static void linkCrawl(URL landingPage, String LANG, String mainPath) throws IOException, SQLException {
 		// lade die Webseite herrunter
 		MyWget myWget = new MyWget(landingPage, mainPath, false);
 		myWget.getPage();
@@ -53,15 +53,15 @@ public class LinkCrawl {
 		int Anzahl = -1;
 		for (Kongress it : listNew) {
 			resultSet = SqlManager.INSTANCE
-					.executeQuery("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "_" + lang + "'");
+					.executeQuery("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "' AND LANG = '" + LANG + "';");
 			// Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 			if (resultSet.next()) {
 				// War schon drin
 			} else {
 				// Füge ein
-				System.out.println("Verarbeite: '" + it.kurzID + "', '" + it.url + "'");
-				SqlManager.INSTANCE.executeUpdate("INSERT INTO ueberordnungen (ID, URL, Status) VALUES ('" + it.kurzID + "_"
-						+ lang + "', '" + it.url + "', 10);");
+//				System.out.println("Verarbeite: '" + it.kurzID + "', '" + it.url + "'");
+				SqlManager.INSTANCE.executeUpdate("INSERT INTO ueberordnungen (ID, URL, LANG, Status) VALUES ('" + it.kurzID + "', '"
+						+ it.url + "', '" + LANG + "', 10);");
 				if (0 == --Anzahl)
 					break; // tu nicht zu viel
 			}
@@ -69,7 +69,7 @@ public class LinkCrawl {
 	}
 
 	public static void processBothLanguages() throws IOException, SQLException {
-		String overviewPath = Clean.mainPath.concat("landingPage").concat(fs);
+		String overviewPath = Drive.landPath;
 
 		linkCrawl(crawlURL("/static/de/meetings/index.htm"), "de", overviewPath.concat("de").concat(fs));
 		linkCrawl(crawlURL("/static/en/meetings/index.htm"), "en", overviewPath.concat("en").concat(fs));
@@ -86,8 +86,8 @@ public class LinkCrawl {
 		return new URL(protokoll.concat(hostname).concat(path));
 	}
 	
-	public static void showWorkDone() throws SQLException {
-		Database.showDatabaseWithStatus("ueberordnungen", 10, "hinzugefügt");
+	public static void printWorkDone() throws SQLException {
+		Database.printDatabaseWithStatus("ueberordnungen", 10, "hinzugefügt");
 	}
 	
 }

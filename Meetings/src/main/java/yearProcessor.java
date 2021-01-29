@@ -7,7 +7,7 @@ import html2pdf.UeberordnungConvert;
 import linkCrawl.LinkCrawl;
 import linkDownload.AbstractDownload;
 import linkDownload.UeberordnungDownload;
-import metadata.MetadataParser;
+import metadata.UeberordnungMetadataParser;
 import utilities.Clean;
 import utilities.Database;
 import utilities.SqlManager;
@@ -19,7 +19,7 @@ public class yearProcessor {
 
 	private static String processHT(String HT) throws Exception {
 		System.out.println(HT);
-		return MetadataParser.okeanos2Database(HT);
+		return UeberordnungMetadataParser.okeanos2Database(HT);
 	}
 	
 	private static void syncToYear(String csvFilePath) throws Exception {
@@ -45,8 +45,7 @@ public class yearProcessor {
 		//Lösche Überordnungen die nicht in diesem Jahr vorkommen
 		while (resultSet.next()) {
 			String ID = resultSet.getString("ID");
-			String kurzID = ID.substring(0, ID.length()-3);
-			if (!IDs.contains(kurzID)) {
+			if (!IDs.contains(ID)) {
 //				System.out.println("Alle Einträge mit der ID='".concat(kurzID).concat("' werden wieder gelöscht"));
 				Statement stmt;
 				stmt = SqlManager.INSTANCE.getConnection().createStatement();
@@ -64,9 +63,10 @@ public class yearProcessor {
 		System.out.println("LinkCrawl");
 		LinkCrawl.processBothLanguages();
 		System.out.println("syncToYear");
-		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_test.csv";
+		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_test2.csv";
 //		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2016.csv";
 		syncToYear(csvFilePath);
+//		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
 		System.out.println("UeberordnungDownload");
 		UeberordnungDownload.ueberordnungDownload();
 		System.out.println("UeberordnungConvert");
@@ -75,6 +75,10 @@ public class yearProcessor {
 		AbstractDownload.abstractDownload();
 		System.out.println("AbstractConvert");
 		AbstractConvert.abstractConvert();
+		System.out.println("Überordnung csv2Database");
+		UeberordnungMetadataParser.csv2Database(csvFilePath);
+		System.out.println("Überordnungen packen");
+		SIP.UeberordnungPacker.databaseWorker();
 		System.out.println("yearProcessor.main Ende");
 	}
 
