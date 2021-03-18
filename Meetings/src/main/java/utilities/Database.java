@@ -21,9 +21,12 @@ public class Database {
 		}
 	}
 
+	/*
+	 * entnehme der Datenbank <database> alle Einträge mit Status <status>
+	 */
 	public static ResultSet getDatabaseWithStatus(String database, int status) throws SQLException {
-		return SqlManager.INSTANCE
-				.executeQuery("SELECT * FROM ".concat(database).concat(" WHERE status = ").concat(Integer.toString(status)));
+		return SqlManager.INSTANCE.executeQuery(
+				"SELECT * FROM ".concat(database).concat(" WHERE status = ").concat(Integer.toString(status)));
 	}
 
 	public static ResultSet getMetadataFor(String column, String equals) throws SQLException {
@@ -43,7 +46,24 @@ public class Database {
 		}
 	}
 
-	public static void insertIntoMetadataDatabase(String HT, String ID, String xPathKey, String value) throws SQLException {
+	public static void printMetadataFor(String column, String equals, String nachwort) throws SQLException {
+		ResultSet resultSet = getMetadataFor(column, equals);
+		while (resultSet.next()) {
+			String HT = resultSet.getString("HT");
+			String ID = resultSet.getString("ID");
+			String xPathKey = resultSet.getString("xPathKey");
+			String value = resultSet.getString("value");
+			String message = "Eintrag HT = '".concat(HT).concat("', ID = '").concat(ID).concat("', xPathKey = '")
+					.concat(xPathKey).concat("', value = '").concat(value).concat("'");
+			if (nachwort != null && nachwort != "") {
+				message = message.concat(" ").concat(nachwort);
+			}
+			System.out.println(message);
+		}
+	}
+
+	public static void insertIntoMetadataDatabase(String HT, String ID, String xPathKey, String value)
+			throws SQLException {
 		Statement stmt;
 		stmt = SqlManager.INSTANCE.getConnection().createStatement();
 		String update = "INSERT INTO metadata ( HT, ID, xPathKey, value ) VALUES ('".concat(HT).concat("', '").concat(ID)

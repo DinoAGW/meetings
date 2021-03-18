@@ -34,7 +34,7 @@ public class Utilities {
 		}
 		return doc;
 	}
-	
+
 	public static String readline() throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		String ausgelesen = in.readLine();

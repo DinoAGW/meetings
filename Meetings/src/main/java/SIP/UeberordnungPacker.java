@@ -9,11 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.xmlbeans.XmlOptions;
 import org.jsoup.nodes.Document;
-
 import com.exlibris.core.sdk.consts.Enum;
 import com.exlibris.core.sdk.formatting.DublinCore;
 import com.exlibris.core.sdk.utils.FileUtil;
@@ -25,6 +23,7 @@ import com.exlibris.dps.sdk.deposit.IEParserFactory;
 import gov.loc.mets.FileType;
 import gov.loc.mets.MetsDocument;
 import gov.loc.mets.MetsType.FileSec.FileGrp;
+import okeanos.UeberordnungMetadataDownloader;
 import utilities.Database;
 import utilities.Drive;
 import utilities.HtKuerzelDatenbank;
@@ -33,6 +32,9 @@ import utilities.Utilities;
 
 public class UeberordnungPacker {
 	static final String fs = System.getProperty("file.separator");
+	
+	final static String rosettaInstance = "dev";
+	final static int materialflowID = 76661659;
 
 	public static void processSIP(String subDirectoryName, String HT, String ID) throws Exception {
 		final String filesRootFolder = subDirectoryName.concat(fs).concat("content").concat(fs).concat("streams")
@@ -70,14 +72,31 @@ public class UeberordnungPacker {
 		for (int i = 0; i < files.length; i++) {
 
 			//add file and dnx metadata on file
-			String mimeType = "application/pdf";
+			String mimeType = null;
+			if (files[i].getName().endsWith(".pdf")) {
+				mimeType = "application/pdf";
+			} else if (files[i].getName().endsWith(".xml")) {
+				mimeType = "text/xml";
+			} else {
+				System.err.println("Dateiendung nicht erkannt: ".concat(files[i].getName()));
+				throw new Exception();
+			}
 			FileType fileType = ie.addNewFile(fGrp, mimeType, files[i].getName(), "file " + i);//TODO was ist das?
 
 			// add dnx - A new DNX is constructed and added on the file level
 			DnxDocument dnx = ie.getFileDnx(fileType.getID());
 			DnxDocumentHelper fileDocumentHelper = new DnxDocumentHelper(dnx);
-			fileDocumentHelper.getGeneralFileCharacteristics().setLabel(files[i].getName());
-			//TODO ist das richtig?
+			if (files[i].getName().equals("Abstractband.pdf")) {
+				fileDocumentHelper.getGeneralFileCharacteristics().setLabel("Abstractband");
+			} else if (files[i].getName().equals("SRU.xml")) {
+				fileDocumentHelper.getGeneralFileCharacteristics().setLabel("SRU Metadaten");
+			} else {
+				String dateiname = files[i].getName();
+				dateiname = dateiname.substring(0, dateiname.lastIndexOf("."));
+				fileDocumentHelper.getGeneralFileCharacteristics().setLabel(dateiname);
+			}
+			
+			//TODO ist der OriginalPath richtig?
 			fileDocumentHelper.getGeneralFileCharacteristics()
 					.setFileOriginalPath(files[i].getAbsolutePath().substring(subDirectoryName.length()));
 			ie.setFileDnx(fileDocumentHelper.getDocument(), fileType.getID());
@@ -115,16 +134,15 @@ public class UeberordnungPacker {
 	}
 
 	public static void databaseWorker() throws Exception {
-		final String rosettaInstance = "dev";
-		final int materialflowID = 76661659;
-
 		ResultSet results = SqlManager.INSTANCE
 				.executeQuery("SELECT * FROM ueberordnungen WHERE status = 50 AND LANG = 'de';");
 		while (results.next()) {
 			String ID = results.getString("ID");
 			String aURL = results.getString("URL");
+			
+			String HT = HtKuerzelDatenbank.kuerzel2ht(ID);
 
-			String preSipDir = Drive.getPreSipDir(ID);
+			String preSipDir = Drive.getKongressPreSipDir(ID);
 			File destDir = new File(preSipDir.concat("content").concat(fs).concat("streams").concat(fs));
 			//			if (!destDir.exists()) {
 			destDir.mkdirs();
@@ -132,21 +150,23 @@ public class UeberordnungPacker {
 
 			Document kongressDoc = Utilities.getWebsite(aURL);
 			String abstractbandUrl = kongressDoc.getElementById("owner_tabs")
-					.getElementsByAttributeValueContaining("href", "Abstractband.pdf").first().attr("href");
+					.getElementsByAttributeValueContaining("href", ".pdf").first().attr("href");
 			if (abstractbandUrl != null) {
 				abstractbandUrl = "https://www.egms.de".concat(abstractbandUrl);
 				System.out.println(abstractbandUrl);
 				FileUtils.copyURLToFile(new URL(abstractbandUrl), new File(preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("Abstractband.pdf")));
 			}
 			
-			Files.copy(Paths.get(Drive.getKongressPDF(ID, "de")), Paths.get(Drive.getPreSipPdf(ID, "de")),
+			Files.copy(Paths.get(Drive.getKongressPDF(ID, "de")), Paths.get(Drive.getKongressPreSipPdf(ID, "de")),
 					StandardCopyOption.REPLACE_EXISTING);
-			Files.copy(Paths.get(Drive.getKongressPDF(ID, "en")), Paths.get(Drive.getPreSipPdf(ID, "en")),
+			Files.copy(Paths.get(Drive.getKongressPDF(ID, "en")), Paths.get(Drive.getKongressPreSipPdf(ID, "en")),
 					StandardCopyOption.REPLACE_EXISTING);
+			String metadataURL = UeberordnungMetadataDownloader.ht2okeanos(HT);
+			FileUtils.copyURLToFile(new URL(metadataURL), new File (Drive.getUeberordnungPreSipXml(ID)));
 			processSIP(preSipDir, HtKuerzelDatenbank.kuerzel2ht(ID), ID);
-			File sipDir = new File(Drive.getSipDir(rosettaInstance, materialflowID, ID));
+			File sipDir = new File(Drive.getKongressSipDir(rosettaInstance, materialflowID, ID));
 			sipDir.mkdirs();
-			Drive.move(new File(Drive.getPreSipDir(ID)), sipDir);
+			Drive.move(new File(Drive.getKongressPreSipDir(ID)), sipDir);
 			int updated = SqlManager.INSTANCE
 					.executeUpdate("UPDATE ueberordnungen SET status = 70 WHERE ID = '".concat(ID).concat("';"));
 			if (updated != 2) {

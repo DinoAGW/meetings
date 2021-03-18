@@ -7,10 +7,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.html2pdf.attach.impl.OutlineHandler;
@@ -22,8 +20,6 @@ import com.itextpdf.kernel.pdf.PdfOutputIntent;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.pdfa.PdfADocument;
-
-import utilities.Abstract;
 import utilities.Drive;
 import utilities.Resources;
 import utilities.SqlManager;
@@ -37,8 +33,6 @@ public class AbstractConvert {
 	}
 
 	public static void abstractConvert() throws IOException, SQLException {
-		String absPath = Drive.absPath;
-
 		ResultSet resultSet = null;
 
 		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE status=30");
@@ -51,11 +45,9 @@ public class AbstractConvert {
 			String LANG = resultSet.getString("LANG");
 			System.out.println("Verarbeite: '".concat(Ue_ID).concat("', '").concat(Ab_ID).concat("', '").concat(URL)
 					.concat("', '").concat(LANG).concat("'"));
-			Abstract it = new Abstract(URL);
-			String kongressDir = absPath.concat(it.Ue_ID).concat("_").concat(LANG).concat(fs).concat(Ab_ID).concat(fs);
-			String baseDir = kongressDir.concat("merge").concat(fs).concat("content").concat(fs);
-			String from = baseDir.concat("target.html");
-			String to = kongressDir.concat(it.Ab_ID).concat(it.languageSpec).concat(".pdf");
+			String baseDir = Drive.getAbstractsMergeDir(Ue_ID, Ab_ID, LANG);
+			String from = Drive.getAbstractsMergeHtml(Ue_ID, Ab_ID, LANG);
+			String to = Drive.getAbstractPDF(Ue_ID, Ab_ID, LANG);
 
 			Document doc = Jsoup.parse(new File(from), "CP1252", baseDir);
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
@@ -87,10 +79,10 @@ public class AbstractConvert {
 			System.setErr(stderr);
 
 			int updated = SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET Status = 50 WHERE Ab_ID = '"
-					.concat(it.Ab_ID).concat("' AND LANG = '").concat(LANG).concat("';"));
+					.concat(Ab_ID).concat("' AND LANG = '").concat(LANG).concat("';"));
 			if (updated != 1)
 				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID = '"
-						.concat(it.Ab_ID).concat("' und LANG = '").concat(LANG).concat("', aber es waren: ")
+						.concat(Ab_ID).concat("' und LANG = '").concat(LANG).concat("', aber es waren: ")
 						.concat(Integer.toString(updated)).concat("."));
 
 			if (0 == --Anzahl)
