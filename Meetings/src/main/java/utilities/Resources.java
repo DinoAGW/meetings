@@ -12,11 +12,6 @@ public enum Resources {
 	public static final String LOGO = "de/zbmed/header_logo.png";
 	public static final String ICC = "de/zbmed/sRGB_v4_ICC_preference_displayclass.icc";
 	public static final String FONT = "de/zbmed/OpenSans-Regular.ttf";
-	public static final String HTCSV = "de/zbmed/Kongress_HT.csv";
-	
-	public File getHTCSV() {
-		return getResourceFile(HTCSV);
-	}
 	
 	public File getCss() {
 		return getResourceFile(CSS);

@@ -15,18 +15,18 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-jar-plugin</artifactId>
-              <configuration>
-                <archive>
-                  <manifest>
-                    <addClasspath>true</addClasspath>
-                    <mainClass>testing</mainClass>
-                  </manifest>
-                </archive>
-              </configuration>
-            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>testing</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -37,12 +37,12 @@
 			<version>4.13.1</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.199</version>
-            <scope>runtime</scope>
-        </dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.199</version>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
@@ -66,20 +66,28 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.10</version>
 		</dependency>
+		<!-- Kommt von MyWget -->
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
 		<!-- Kommt von ConvertHtmlToPDF2 -->
+		<!-- <dependency> <groupId>com.itextpdf</groupId> <artifactId>layout</artifactId> 
+			<version>7.1.10</version> <scope>system</scope> <systemPath>${project.basedir}/lib/itext7-layout-7.1.10-SNAPSHOT.jar</systemPath> 
+			</dependency> -->
+		<!-- https://mvnrepository.com/artifact/com.itextpdf/layout -->
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>layout</artifactId>
-			<version>7.1.10</version>
-			<scope>system</scope>
-            <systemPath>${project.basedir}/lib/itext7-layout-7.1.10-SNAPSHOT.jar</systemPath>
+			<version>7.1.14</version>
 		</dependency>
 		<!-- Kommt von ConvertHtmlToPDF2 -->
 		<!-- https://mvnrepository.com/artifact/com.itextpdf/html2pdf -->
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>html2pdf</artifactId>
-			<version>2.1.6</version>
+			<version>3.0.3</version>
 			<!-- <exclusions> <exclusion> <groupId>com.itextpdf</groupId> <artifactId>layout</artifactId> 
 				</exclusion> </exclusions> -->
 		</dependency>
@@ -87,13 +95,63 @@
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>pdfa</artifactId>
-			<version>7.1.9</version>
+			<version>7.1.14</version>
 		</dependency>
 		<!-- Kommt von ConvertHtmlToPDF2 -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.exlibris</groupId>
+			<artifactId>sdk</artifactId>
+			<version>6.3.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/dps-sdk-6.3.0.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.exlibris</groupId>
+			<artifactId>olderSdk</artifactId>
+			<version>6.2.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/dps-sdk-6.2.0.jar</systemPath>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.xmlbeans/xmlbeans -->
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/dom4j/dom4j -->
+		<dependency>
+			<groupId>dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/jaxen/jaxen -->
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/xalan/xalan -->
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+			<version>2.7.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl -->
+		<dependency>
+			<groupId>net.sourceforge.jexcelapi</groupId>
+			<artifactId>jxl</artifactId>
+			<version>2.6.12</version>
 		</dependency>
 
 	</dependencies>

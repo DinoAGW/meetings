@@ -4,21 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-//import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-
 import myWget.MyUtils;
 import myWget.MyWget;
 import utilities.Abstract;
-import utilities.Clean;
+import utilities.Drive;
 import utilities.Resources;
 import utilities.SqlManager;
 import utilities.Utilities;
@@ -26,18 +21,22 @@ import utilities.Utilities;
 public class AbstractDownload {
 	static String fs = System.getProperty("file.separator");
 
-	public static void linkDownload(String mainPath, String protokoll, String hostname)
+	public static void linkDownload(String absPath, String protokoll, String hostname)
 			throws IOException, SQLException, InterruptedException {
 		ResultSet resultSet = null;
 
 		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE status=10");
 
-		int Anzahl = 2 * 1;
+		int Anzahl = -2 * 1;
 		while (resultSet.next()) {
-			System.out.println("Verarbeite: '".concat(resultSet.getString("Ue_ID")).concat("', '").concat(resultSet.getString("Ab_ID")).concat("', '").concat(resultSet.getString("URL")).concat("'"));
-			Abstract it = new Abstract(resultSet.getString("URL"));
+			String Ue_ID = resultSet.getString("Ue_ID");
+			String Ab_ID = resultSet.getString("Ab_ID");
+			String URL = resultSet.getString("URL");
+			String LANG = resultSet.getString("LANG");
+			System.out.println("Verarbeite: '".concat(Ue_ID).concat("', '").concat(Ab_ID).concat("', '").concat(URL).concat("', '").concat(LANG).concat("'"));
+			Abstract it = new Abstract(URL);
 			// der eigentliche Aufruf
-			String kongressDir = mainPath.concat(it.getPathId()).concat(fs);
+			String kongressDir = absPath.concat(it.Ue_ID).concat("_").concat(LANG).concat(fs).concat(Ab_ID).concat(fs);
 			MyWget myWget = new MyWget(it.url, kongressDir, true);
 			@SuppressWarnings("unused")
 			int res = myWget.getPage();
@@ -79,10 +78,10 @@ public class AbstractDownload {
 
 			// Den Fortschritt in der Datenbank vermerken
 			int updated = SqlManager.INSTANCE
-					.executeUpdate("UPDATE abstracts SET Status = 30 WHERE Ab_ID = '".concat(it.Ab_ID).concat("_").concat(it.language).concat("';"));
+					.executeUpdate("UPDATE abstracts SET Status = 30 WHERE Ab_ID = '".concat(it.Ab_ID).concat("' AND LANG = '").concat(LANG).concat("';"));
 //			int updated = 1;// zum testen
 			if (updated != 1)
-				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '".concat(it.Ab_ID).concat("_").concat(it.language).concat("', aber es waren: ").concat(Integer.toString(updated)).concat("."));
+				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID = '".concat(it.Ab_ID).concat("' und LANG = '").concat(it.language).concat("', aber es waren: ").concat(Integer.toString(updated)).concat("."));
 			// Nicht zu schnell eine Anfrage nach der Anderen
 			System.out.flush();
 			TimeUnit.SECONDS.sleep(1);
@@ -93,15 +92,17 @@ public class AbstractDownload {
 
 	}
 
-
 	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
-		String absPath = Clean.mainPath.concat("Abstracts").concat(fs);
+		abstractDownload();
+		System.out.println("AbstractDownload Ende.");
+	}
+	
+	public static void abstractDownload() throws IOException, SQLException, InterruptedException {
+		String absPath = Drive.absPath;
 
 		String protokoll = "https://";
 		String hostname = "www.egms.de";
 
 		linkDownload(absPath, protokoll, hostname);
-
-		System.out.println("AbstractDownload Ende.");
 	}
 }

@@ -23,37 +23,41 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.pdfa.PdfADocument;
 
-import utilities.Clean;
+import utilities.Database;
+import utilities.Drive;
 import utilities.Kongress;
 import utilities.Resources;
 import utilities.SqlManager;
 
 public class UeberordnungConvert {
-	public static String fs = System.getProperty("file.separator");
 
 	public static void main(String[] args) throws IOException, SQLException {
-		String overviewPath = Clean.mainPath.concat("Ueberordnungen").concat(fs);
+		ueberordnungConvert();
+		System.out.println("UeberordnungConvert Ende.");
+	}
+	
+	public static void ueberordnungConvert() throws IOException, SQLException {
 
-		ResultSet resultSet = null;
+		ResultSet resultSet = Database.getDatabaseWithStatus("ueberordnungen", 30);
 
-		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM ueberordnungen WHERE status=30");
-
-		int Anzahl = 2;
+		int Anzahl = -2;
 		while (resultSet.next()) {
-			System.out.println("Verarbeite: '" + resultSet.getString("ID") + "', '" + resultSet.getString("URL") + "'");
+			String ID = resultSet.getString("ID");
+			String URL = resultSet.getString("URL");
+			String LANG = resultSet.getString("LANG");
+			System.out.println("Verarbeite: '" + ID + "', '" + URL + "', '" + LANG + "'");
 
-			Kongress it = new Kongress(resultSet.getString("URL"));
-			String kongressDir = overviewPath.concat(it.getPathId()).concat(fs);
-			String baseDir = kongressDir.concat("merge").concat(fs).concat("content").concat(fs);
-			String from = baseDir.concat("target.html");
-			String to = kongressDir.concat(it.kurzID).concat(it.languageSpec).concat(".pdf");
+			Kongress it = new Kongress(URL);
+			String baseDir = Drive.getKongressMergeDir(it.kurzID, LANG);
+			String from = Drive.getKongressMergeHtml(it.kurzID, LANG);
+			String to = Drive.getKongressPDF(it.kurzID, LANG);
 
 			Document doc = Jsoup.parse(new File(from), "CP1252", baseDir);
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
 			doc.outputSettings().charset("CP1252");
 
 			ConverterProperties properties = new ConverterProperties();
-			properties.setBaseUri(baseDir);// braucht man, weil String �bergeben wird, statt File
+			properties.setBaseUri(baseDir);// braucht man, weil String übergeben wird, statt File
 
 			OutlineHandler outlineHandler = OutlineHandler.createStandardHandler();
 			properties.setOutlineHandler(outlineHandler);
@@ -78,7 +82,7 @@ public class UeberordnungConvert {
 			System.setErr(stderr);
 
 			int updated = SqlManager.INSTANCE.executeUpdate(
-					"UPDATE ueberordnungen SET Status = 50 WHERE ID = '" + it.kurzID + "_" + it.language + "';");
+					"UPDATE ueberordnungen SET Status = 50 WHERE ID = '" + it.kurzID + "' AND LANG = '" + it.language + "';");
 			if (updated != 1)
 				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
 						+ it.kurzID + "_" + it.language + "', aber es waren: " + updated + ".");
@@ -86,8 +90,6 @@ public class UeberordnungConvert {
 			if (0 == --Anzahl)
 				break; // Tu nicht zu viel
 		}
-
-		System.out.println("UeberordnungConvert Ende.");
 	}
 
 }
