@@ -1,6 +1,8 @@
 package SIP;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -8,10 +10,23 @@ import java.nio.file.StandardCopyOption;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.xmlbeans.XmlOptions;
 import org.jsoup.nodes.Document;
+import org.xml.sax.InputSource;
+
+import com.exlibris.core.infra.common.util.IOUtil;
 import com.exlibris.core.sdk.consts.Enum;
 import com.exlibris.core.sdk.formatting.DublinCore;
 import com.exlibris.core.sdk.utils.FileUtil;
@@ -36,6 +51,12 @@ public class UeberordnungPacker {
 	final static String rosettaInstance = "dev";
 	final static int materialflowID = 76661659;
 
+	private static final String ROSETTA_METS_SCHEMA = "http://www.exlibrisgroup.com/xsd/dps/rosettaMets";
+	private static final String METS_SCHEMA = "http://www.loc.gov/METS/";
+	private static final String XML_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
+	private static final String XML_SCHEMA_REPLACEMENT = "http://www.exlibrisgroup.com/XMLSchema-instance";
+	private static final String ROSETTA_METS_XSD = "mets_rosetta.xsd";
+	
 	public static void processSIP(String subDirectoryName, String HT, String ID) throws Exception {
 		final String filesRootFolder = subDirectoryName.concat(fs).concat("content").concat(fs).concat("streams")
 				.concat(fs);
@@ -105,6 +126,7 @@ public class UeberordnungPacker {
 		ie.generateChecksum(filesRootFolder, Enum.FixityType.MD5.toString());
 		ie.updateSize(filesRootFolder);
 
+		//cms Enrichment verankern
 		DnxDocument ieDnx = DnxDocumentFactory.getInstance().createDnxDocument();
 		DnxDocumentHelper ieDnxHelper = new DnxDocumentHelper(ieDnx);
 		DnxDocumentHelper.CMS cms = ieDnxHelper.new CMS();
@@ -122,6 +144,43 @@ public class UeberordnungPacker {
 		opt.setSavePrettyPrint();
 		String xmlMetsContent = metsDoc.xmlText(opt);
 		FileUtil.writeFile(ieXML, xmlMetsContent);
+		
+		//Need to replace manually the namespace with Rosetta Mets schema in order to pass validation against mets_rosetta.xsd
+		String xmlRosettaMetsContent = xmlMetsContent.replaceAll(XML_SCHEMA, XML_SCHEMA_REPLACEMENT);
+		xmlRosettaMetsContent = xmlMetsContent.replaceAll(METS_SCHEMA, ROSETTA_METS_SCHEMA);
+
+		validateXML(ieXML.getAbsolutePath(), xmlRosettaMetsContent, ROSETTA_METS_XSD);
+	}
+
+	private static void validateXML(String fileFullName, String xml, String xsdName) throws Exception {
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(true);
+			factory.setSchema(getSchema(xsdName));
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			builder.parse(new InputSource(new StringReader(xml)));
+		} catch (Exception e) {
+			System.out.println("XML '" + fileFullName + "' doesn't pass validation by :" + xsdName
+					+ " with the following validation error: " + e.getMessage());
+		}
+	}
+
+	private static Schema getSchema(String xsdName) throws Exception {
+		Map<String, Schema> schemas = new HashMap<String, Schema>();
+		if (schemas.get(xsdName) == null) {
+			InputStream inputStream = null;
+			try {
+				File xsd = new File("src/xsd/mets_rosetta.xsd");
+				Source xsdFile = new StreamSource(xsd);
+				SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/XML/XMLSchema/v1.1");
+				schemas.put(xsdName, schemaFactory.newSchema(xsdFile));
+			} catch (Exception e) {
+				System.out.println("Failed to create Schema with following error: " + e.getMessage());
+			} finally {
+				IOUtil.closeQuietly(inputStream);
+			}
+		}
+		return schemas.get(xsdName);
 	}
 
 	private static void addDcMetadata(DublinCore dc, String HT) throws SQLException {
