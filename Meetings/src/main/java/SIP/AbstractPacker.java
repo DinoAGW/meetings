@@ -29,7 +29,9 @@ import org.xml.sax.InputSource;
 
 import com.exlibris.core.infra.common.util.IOUtil;
 import com.exlibris.core.sdk.consts.Enum;
+import com.exlibris.core.sdk.consts.Enum.UsageType;
 import com.exlibris.core.sdk.formatting.DublinCore;
+import com.exlibris.core.sdk.parser.IEParserException;
 import com.exlibris.core.sdk.utils.FileUtil;
 import com.exlibris.digitool.common.dnx.DnxDocument;
 import com.exlibris.digitool.common.dnx.DnxDocumentFactory;
@@ -39,32 +41,30 @@ import com.exlibris.dps.sdk.deposit.IEParserFactory;
 import gov.loc.mets.FileType;
 import gov.loc.mets.MetsDocument;
 import gov.loc.mets.MetsType.FileSec.FileGrp;
+import net.lingala.zip4j.ZipFile;
 import utilities.Drive;
 import utilities.SqlManager;
 import utilities.Utilities;
 
 public class AbstractPacker {
 	static final String fs = System.getProperty("file.separator");
-	
+
 	final static String rosettaInstance = "dev";
-	final static int materialflowID = 76661659;
+	final static String materialflowID = "76661659";
+	final static String producerId = "2049290";
 
 	private static final String ROSETTA_METS_SCHEMA = "http://www.exlibrisgroup.com/xsd/dps/rosettaMets";
 	private static final String METS_SCHEMA = "http://www.loc.gov/METS/";
 	private static final String XML_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
 	private static final String XML_SCHEMA_REPLACEMENT = "http://www.exlibrisgroup.com/XMLSchema-instance";
 	private static final String ROSETTA_METS_XSD = "mets_rosetta.xsd";
-	
+
 	public static void processSIP(String subDirectoryName, String Ab_ID, String URL) throws Exception {
-		final String filesRootFolder = subDirectoryName.concat(fs).concat("content").concat(fs).concat("streams")
+		final String filesRootFolder = subDirectoryName.concat("content").concat(fs).concat("streams")
 				.concat(fs);
-		final String IEfullFileName = subDirectoryName.concat(fs).concat("content").concat(fs).concat("ie1.xml");
+		final String IEfullFileName = subDirectoryName.concat("content").concat(fs).concat("ie1.xml");
 
 		//		org.apache.log4j.helpers.LogLog.setQuietMode(true);
-
-		//list of files we are depositing
-		File streamDir = new File(filesRootFolder);
-		File[] files = streamDir.listFiles();
 
 		//create parser
 		IEParser ie = IEParserFactory.create();
@@ -75,48 +75,59 @@ public class AbstractPacker {
 		ie.setIEDublinCore(dc);
 		List<FileGrp> fGrpList = new ArrayList<FileGrp>();
 
-		@SuppressWarnings("deprecation")
-		FileGrp fGrp = ie.addNewFileGrp(Enum.UsageType.VIEW, Enum.PreservationType.PRESERVATION_MASTER);
+		FileGrp fGrp1 = makeFileGroup(ie, Enum.UsageType.VIEW, "PRESERVATION_MASTER", "1", Ab_ID.concat("_original"));
+		fGrpList.add(fGrp1);
+		FileGrp fGrp2 = makeFileGroup(ie, Enum.UsageType.VIEW, "PRE_INGEST_MODIFIED_MASTER", "1",
+				Ab_ID.concat("_htmlForPdf"));
+		fGrpList.add(fGrp2);
+		FileGrp fGrp3 = makeFileGroup(ie, Enum.UsageType.VIEW, "MODIFIED_MASTER", "1", Ab_ID.concat("_pdf"));
+		fGrpList.add(fGrp3);
 
-		DnxDocument dnxDocument = ie.getFileGrpDnx(fGrp.getID());
-		DnxDocumentHelper documentHelper = new DnxDocumentHelper(dnxDocument);
-		documentHelper.getGeneralRepCharacteristics().setRevisionNumber("1");
-		documentHelper.getGeneralRepCharacteristics().setLabel(Ab_ID);
+		List<File> dirs = new ArrayList<>();
+		dirs.add(new File(filesRootFolder));
 
-		ie.setFileGrpDnx(documentHelper.getDocument(), fGrp.getID());
+		for (int i = 0; i < dirs.size(); i++) {
+			for (File file : dirs.get(i).listFiles()) {
+				if (file.isDirectory()) {
+					dirs.add(file);
+				} else {
+					String mimeType = endung2mime(file.getName());
+					FileGrp fGrp = null;
+					if (file.getAbsolutePath().startsWith(filesRootFolder.concat("1_Master"))) {
+						fGrp = fGrp1;
+					} else if (file.getAbsolutePath().startsWith(filesRootFolder.concat("SOURCE_MD"))) {
+						fGrp = fGrp1;
+					} else if (file.getAbsolutePath().startsWith(filesRootFolder.concat("2_derivedFrom1"))) {
+						fGrp = fGrp2;
+					} else if (file.getAbsolutePath().startsWith(filesRootFolder.concat("3_derivedFrom2"))) {
+						fGrp = fGrp3;
+					} else {
+						System.err.println("Start '".concat(file.getAbsolutePath()).concat("' nicht erkannt"));
+						System.out.println("Zum Vergleich: '" + filesRootFolder.concat("SOURCE_MD") + "'");
+						throw new Exception();
+					}
+					FileType fileType = ie.addNewFile(fGrp, mimeType,
+							file.getAbsolutePath().substring(filesRootFolder.length()), "was ist das?");
 
-		fGrpList.add(fGrp);
-		System.out.println("Directory: " + streamDir.getAbsolutePath() + " with " + files.length + " Files");
+					// add dnx - A new DNX is constructed and added on the file level
+					DnxDocument dnx = ie.getFileDnx(fileType.getID());
+					DnxDocumentHelper fileDocumentHelper = new DnxDocumentHelper(dnx);
 
-		for (int i = 0; i < files.length; i++) {
-			//add file and dnx metadata on file
-			String mimeType = null;
-			if (files[i].getName().endsWith(".pdf")) {
-				mimeType = "application/pdf";
-			} else if (files[i].getName().endsWith(".xml")) {
-				mimeType = "text/xml";
-			} else {
-				System.err.println("Dateiendung nicht erkannt: ".concat(files[i].getName()));
-				throw new Exception();
+					if (file.getName().equals("OAI.xml")) {
+						fileDocumentHelper.getGeneralFileCharacteristics().setLabel("OAI Metadaten");
+					} else if (file.getName().equals(Ab_ID.concat(".xml"))) {
+						fileDocumentHelper.getGeneralFileCharacteristics().setLabel(Ab_ID.concat(" Metadaten"));
+					} else {
+						String dateiname = file.getName();
+						dateiname = dateiname.substring(0, dateiname.lastIndexOf("."));
+						fileDocumentHelper.getGeneralFileCharacteristics().setLabel(dateiname);
+					}
+
+					fileDocumentHelper.getGeneralFileCharacteristics()
+							.setFileOriginalPath(file.getAbsolutePath().substring(subDirectoryName.length()));
+					ie.setFileDnx(fileDocumentHelper.getDocument(), fileType.getID());
+				}
 			}
-			FileType fileType = ie.addNewFile(fGrp, mimeType, files[i].getName(), "file " + i);//TODO was ist das letzte Argument?
-
-			// add dnx - A new DNX is constructed and added on the file level
-			DnxDocument dnx = ie.getFileDnx(fileType.getID());
-			DnxDocumentHelper fileDocumentHelper = new DnxDocumentHelper(dnx);
-			if (files[i].getName().equals("OAI.xml")) {
-				fileDocumentHelper.getGeneralFileCharacteristics().setLabel("OAI Metadaten");
-			} else if (files[i].getName().equals(Ab_ID.concat(".xml"))) {
-				fileDocumentHelper.getGeneralFileCharacteristics().setLabel(Ab_ID.concat(" Metadaten"));
-			} else {
-				String dateiname = files[i].getName();
-				dateiname = dateiname.substring(0, dateiname.lastIndexOf("."));
-				fileDocumentHelper.getGeneralFileCharacteristics().setLabel(dateiname);
-			}
-			//TODO ist der OriginalPath richtig?
-			fileDocumentHelper.getGeneralFileCharacteristics()
-					.setFileOriginalPath(files[i].getAbsolutePath().substring(subDirectoryName.length()));
-			ie.setFileDnx(fileDocumentHelper.getDocument(), fileType.getID());
 		}
 
 		ie.generateChecksum(filesRootFolder, Enum.FixityType.MD5.toString());
@@ -136,12 +147,38 @@ public class AbstractPacker {
 		opt.setSavePrettyPrint();
 		String xmlMetsContent = metsDoc.xmlText(opt);
 		FileUtil.writeFile(ieXML, xmlMetsContent);
-		
+
 		//Need to replace manually the namespace with Rosetta Mets schema in order to pass validation against mets_rosetta.xsd
 		String xmlRosettaMetsContent = xmlMetsContent.replaceAll(XML_SCHEMA, XML_SCHEMA_REPLACEMENT);
 		xmlRosettaMetsContent = xmlMetsContent.replaceAll(METS_SCHEMA, ROSETTA_METS_SCHEMA);
 
 		validateXML(ieXML.getAbsolutePath(), xmlRosettaMetsContent, ROSETTA_METS_XSD);
+	}
+
+	private static String endung2mime(String dateiname) throws Exception {
+		String mimeType = null;
+		if (dateiname.endsWith(".pdf")) {
+			mimeType = "application/pdf";
+		} else if (dateiname.endsWith(".xml")) {
+			mimeType = "text/xml";
+		} else if (dateiname.endsWith(".zip")) {
+			mimeType = "application/zip";
+		} else {
+			System.err.println("Dateiendung nicht erkannt: ".concat(dateiname));
+			throw new Exception();
+		}
+		return mimeType;
+	}
+
+	private static FileGrp makeFileGroup(IEParser ie, UsageType usageType, String preservationType,
+			String revisionNumber, String label) throws IEParserException {
+		FileGrp fGrp = ie.addNewFileGrp(usageType, preservationType);
+		DnxDocument dnxDocument = ie.getFileGrpDnx(fGrp.getID());
+		DnxDocumentHelper documentHelper = new DnxDocumentHelper(dnxDocument);
+		documentHelper.getGeneralRepCharacteristics().setRevisionNumber(revisionNumber);
+		documentHelper.getGeneralRepCharacteristics().setLabel(label);
+		ie.setFileGrpDnx(documentHelper.getDocument(), fGrp.getID());
+		return fGrp;
 	}
 
 	private static void validateXML(String fileFullName, String xml, String xsdName) throws Exception {
@@ -174,26 +211,26 @@ public class AbstractPacker {
 		}
 		return schemas.get(xsdName);
 	}
-	
+
 	private static String url2md(String URL) throws Exception {
 		if (!URL.endsWith(".shtml")) {
 			System.err.println("URL endet nicht auf .shtml: '".concat(URL).concat("'"));
 			throw new Exception();
 		}
-		if (URL.indexOf("/de/")==-1) {
+		if (URL.indexOf("/de/") == -1) {
 			System.err.println("URL hat kein /de/: ".concat(URL));
 			throw new Exception();
 		}
-		if (URL.indexOf("/de/")!=URL.lastIndexOf("/de/")) {
+		if (URL.indexOf("/de/") != URL.lastIndexOf("/de/")) {
 			System.err.println("URL hat mehr als ein /de/: ".concat(URL));
 			throw new Exception();
 		}
 		return URL.replace(".shtml", ".xml").replace("/de/", "/xml/");
 	}
-	
-	private static String kuerzel2oai (String Kuerzel) {
+
+	private static String kuerzel2oai(String Kuerzel) {
 		return "https://portal.dimdi.de/oai-gms/OAIHandler?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai:oai-gms.dimdi.de:GM"
-		.concat(Kuerzel);
+				.concat(Kuerzel);
 	}
 
 	private static void addDcMetadata(DublinCore dc, String URL) throws Exception {
@@ -296,18 +333,45 @@ public class AbstractPacker {
 				Utilities.deleteDir(destDir);
 			}
 			destDir.mkdirs();
+			new File(
+					preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("3_derivedFrom2").concat(fs))
+							.mkdir();
 
 			Files.copy(Paths.get(Drive.getAbstractPDF(Ue_ID, Ab_ID, "de")),
 					Paths.get(Drive.getAbstractPreSipPdf(Ue_ID, Ab_ID, "de")), StandardCopyOption.REPLACE_EXISTING);
 			Files.copy(Paths.get(Drive.getAbstractPDF(Ue_ID, Ab_ID, "en")),
 					Paths.get(Drive.getAbstractPreSipPdf(Ue_ID, Ab_ID, "en")), StandardCopyOption.REPLACE_EXISTING);
 			String metadataURL = url2md(aURL);
-			FileUtils.copyURLToFile(new URL(metadataURL), new File (Drive.getAbstractPreSipWebXml(Ue_ID, Ab_ID)));
-			FileUtils.copyURLToFile(new URL(kuerzel2oai(Ab_ID)), new File (Drive.getAbstractPreSipOaiXml(Ue_ID, Ab_ID)));
+			FileUtils.copyURLToFile(new URL(metadataURL), new File(Drive.getAbstractPreSipWebXml(Ue_ID, Ab_ID)));
+			FileUtils.copyURLToFile(new URL(kuerzel2oai(Ab_ID)), new File(Drive.getAbstractPreSipOaiXml(Ue_ID, Ab_ID)));
+
+			// add originals as zip
+			String destString = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("1_Master")
+					.concat(fs);
+			new File(destString).mkdir();
+			String fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("original").concat(fs);
+			new ZipFile(destString.concat("OriginalHtml_de.zip")).addFolder(new File(fromString));
+			fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "en").concat("original").concat(fs);
+			new ZipFile(destString.concat("OriginalHtml_en.zip")).addFolder(new File(fromString));
+
+			// add merged content as zip
+			destString = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("2_derivedFrom1")
+					.concat(fs);
+			new File(destString).mkdir();
+			fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("merge").concat(fs);
+			new ZipFile(destString.concat("HtmlForPdf_de.zip")).addFolder(new File(fromString));
+			fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "en").concat("merge").concat(fs);
+			new ZipFile(destString.concat("HtmlForPdf_en.zip")).addFolder(new File(fromString));
+
+			// finish completion of SIP
 			processSIP(preSipDir, Ab_ID, aURL);
-			File sipDir = new File(Drive.getAbstractSipDir(rosettaInstance, materialflowID, Ue_ID, Ab_ID));
+
+			// move finished SIP to SIP-Directory
+			File sipDir = new File(Drive.getAbstractSipDir(rosettaInstance, materialflowID, producerId, Ue_ID, Ab_ID));
 			sipDir.mkdirs();
 			Drive.move(new File(Drive.getAbstractPreSipDir(Ue_ID, Ab_ID)), sipDir);
+
+			// update Status
 			int updated = SqlManager.INSTANCE
 					.executeUpdate("UPDATE abstracts SET status = 70 WHERE Ab_ID = '".concat(Ab_ID).concat("';"));
 			if (updated != 2) {
@@ -322,7 +386,7 @@ public class AbstractPacker {
 		//		String HT = "HT020488506";
 		//		String ID = "gma2016";
 		//		processSIP(filesRootFolder, HT, ID);
-		String sipString = Drive.getAbstractSipDir(rosettaInstance, materialflowID, "gma2016", "16gma001");
+		String sipString = Drive.getAbstractSipDir(rosettaInstance, materialflowID, producerId, "gma2016", "16gma001");
 		File sipFile = new File(sipString);
 		if (sipFile.exists()) {
 			Utilities.deleteDir(sipString);

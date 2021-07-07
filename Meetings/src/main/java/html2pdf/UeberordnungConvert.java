@@ -30,6 +30,7 @@ import utilities.Resources;
 import utilities.SqlManager;
 
 public class UeberordnungConvert {
+	static String fs = System.getProperty("file.separator");
 
 	public static void main(String[] args) throws IOException, SQLException {
 		ueberordnungConvert();
@@ -67,6 +68,8 @@ public class UeberordnungConvert {
 																							// ...Fonts
 			properties.setFontProvider(fontProvider);
 
+			File destDir = new File(to.substring(0, to.lastIndexOf(fs)));
+			destDir.mkdirs();
 			PdfWriter writer = new PdfWriter(to, new WriterProperties().addXmpMetadata());
 
 			PdfDocument pdf = new PdfADocument(writer, PdfAConformanceLevel.PDF_A_2A, new PdfOutputIntent("Custom", "",

@@ -27,7 +27,7 @@ public class Drive {
 		String kongressDir = getKongressDir(Kuerzel, LANG);
 		return kongressDir.concat(Kuerzel).concat("_").concat(LANG).concat(".pdf");
 	}
-	
+
 	public static String getAbstractPDF(String Ue_ID, String Ab_ID, String LANG) {
 		String kongressDir = getAbstractDir(Ue_ID, Ab_ID, LANG);
 		return kongressDir.concat(Ab_ID).concat(LANG).concat(".pdf");
@@ -35,29 +35,29 @@ public class Drive {
 
 	public static String getKongressPreSipPdf(String Kuerzel, String LANG) {
 		String preSipDir = getKongressPreSipDir(Kuerzel);
-		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat(Kuerzel).concat("_")
-				.concat(LANG).concat(".pdf");
+		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("3_derivedFrom2").concat(fs)
+				.concat(Kuerzel).concat("_").concat(LANG).concat(".pdf");
 	}
 
 	public static String getAbstractPreSipPdf(String Ue_ID, String Ab_ID, String LANG) {
 		String preSipDir = getAbstractPreSipDir(Ue_ID, Ab_ID);
-		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat(Ab_ID).concat("_")
-				.concat(LANG).concat(".pdf");
+		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("3_derivedFrom2").concat(fs)
+				.concat(Ab_ID).concat("_").concat(LANG).concat(".pdf");
 	}
-	
+
 	public static String getUeberordnungPreSipXml(String Kuerzel) {
 		String preSipDir = getKongressPreSipDir(Kuerzel);
-		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SRU.xml");
+		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SOURCE_MD").concat(fs).concat("SRU.xml");
 	}
-	
+
 	public static String getAbstractPreSipWebXml(String Ue_ID, String Ab_ID) {
 		String preSipDir = getAbstractPreSipDir(Ue_ID, Ab_ID);
-		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat(Ab_ID).concat(".xml");
+		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SOURCE_MD").concat(fs).concat(Ab_ID).concat(".xml");
 	}
 
 	public static String getAbstractPreSipOaiXml(String Ue_ID, String Ab_ID) {
 		String preSipDir = getAbstractPreSipDir(Ue_ID, Ab_ID);
-		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("OAI.xml");
+		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SOURCE_MD").concat(fs).concat("OAI.xml");
 	}
 
 	public static String getKongressPreSipDir(String Kuerzel) {
@@ -67,7 +67,7 @@ public class Drive {
 	public static String getAbstractPreSipDir(String Ue_ID, String Ab_ID) {
 		return sipPath.concat("preSIPs").concat(fs).concat(Ue_ID.concat("_").concat(Ab_ID)).concat(fs);
 	}
-	
+
 	public static String getKongressMergeDir(String Kuerzel, String LANG) {
 		String kongressDir = getKongressDir(Kuerzel, LANG);
 		return kongressDir.concat("merge").concat(fs).concat("content").concat(fs);
@@ -88,14 +88,14 @@ public class Drive {
 		return baseDir.concat("target.html");
 	}
 
-	public static String getKongressSipDir(String rosettaInstance, int materialflowID, String Kuerzel) {
-		return sipPath.concat(rosettaInstance).concat(fs).concat(Integer.toString(materialflowID)).concat(fs)
-				.concat(Kuerzel).concat(fs);
+	public static String getKongressSipDir(String rosettaInstance, String materialflowID, String producerId, String Kuerzel) {
+		return sipPath.concat(rosettaInstance).concat(fs).concat(materialflowID).concat(fs)
+				.concat(producerId).concat(fs).concat(Kuerzel).concat(fs);
 	}
-	
-	public static String getAbstractSipDir(String rosettaInstance, int materialflowID, String Ue_ID, String Ab_ID) {
-		return sipPath.concat(rosettaInstance).concat(fs).concat(Integer.toString(materialflowID)).concat(fs)
-				.concat(Ue_ID.concat("_").concat(Ab_ID)).concat(fs);
+
+	public static String getAbstractSipDir(String rosettaInstance, String materialflowID, String producerId, String Ue_ID, String Ab_ID) {
+		return sipPath.concat(rosettaInstance).concat(fs).concat(materialflowID).concat(fs)
+				.concat(producerId).concat(fs).concat(Ue_ID.concat("_").concat(Ab_ID)).concat(fs);
 	}
 
 	public static void move(File from, File to) throws IOException {

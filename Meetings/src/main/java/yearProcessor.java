@@ -66,12 +66,15 @@ public class yearProcessor {
 		System.out.println("LinkCrawl");
 		LinkCrawl.processBothLanguages();
 		System.out.println("syncToYear");
-		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_test2.csv";
+		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_test3.csv";
 		//		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2016.csv";
 		syncToYear(csvFilePath);
 		//		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
 		System.out.println("UeberordnungDownload");
 		UeberordnungDownload.ueberordnungDownload();
+		
+		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='09ri10';");
+		
 		System.out.println("UeberordnungConvert");
 		UeberordnungConvert.ueberordnungConvert();
 		System.out.println("AbstractDownload");
