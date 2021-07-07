@@ -35,7 +35,7 @@ public class UeberordnungMetadataExtractor {
 		NodeList nodes = doc.getElementsByTagName("identifier");
 		for (int i = 0; i < nodes.getLength(); ++i) {
 			if (nodes.item(i).getTextContent().startsWith("http")) {
-				//dc.addElement("dc:identifier@dcterms:URI", nodes.item(i).getTextContent());
+				dc.addElement("dc:identifier@dcterms:URI", nodes.item(i).getTextContent());
 			} else {
 				dc.addElement("dc:identifier", nodes.item(i).getTextContent());
 			}
