@@ -35,7 +35,7 @@ public class UeberordnungDownload {
 	static String fs = System.getProperty("file.separator");
 	
 	private static final int overviewsToGo = -1;
-	private static final int abstractsToGo = 1;
+	private static final int abstractsToGo = -1;
 
 	public static void linkDownload(String protokoll, String hostname)
 			throws IOException, SQLException, InterruptedException {
@@ -57,7 +57,7 @@ public class UeberordnungDownload {
 			// der eigentliche Aufruf
 			String kongressDir = Drive.captPath.concat(it.kurzID).concat("_")
 					.concat(LANG).concat(fs);
-			MyWget myWget = new MyWget(it.url, kongressDir, true);
+			MyWget myWget = new MyWget(it.url, kongressDir.concat("original").concat(fs), true);
 			myWget.getPage();
 
 			// Extracting which websites give aditional Infos...
@@ -76,7 +76,7 @@ public class UeberordnungDownload {
 			for (int i = 0; i < owner_links.size(); i++) {
 				// System.out.println("herunterladen: " + owner_links.get(i));
 				contentPath[i] = Drive.captPath.concat(it.kurzID).concat("_")
-						.concat(LANG).concat(fs).concat(Integer.toString(i)).concat(fs);
+						.concat(LANG).concat(fs).concat("original").concat(fs).concat("owner_links").concat(fs).concat(Integer.toString(i)).concat(fs);
 				contentMyWget[i] = new MyWget(owner_links.get(i), contentPath[i], true);
 				contentMyWget[i].getPage();
 			}
@@ -88,7 +88,7 @@ public class UeberordnungDownload {
 			if (dest.exists()) {
 				MyUtils.deleteDirectory(dest);
 			}
-			MyUtils.copyFolder(new File(kongressDir.concat("content").concat(fs).concat(hostname).concat(fs)), dest);
+			MyUtils.copyFolder(new File(kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat(hostname).concat(fs)), dest);
 			for (int i = 0; i < owner_links.size(); i++) {
 				String source = contentPath[i].concat("content").concat(fs).concat(hostname).concat(fs);
 				MyUtils.copyFolder(new File(source), dest);
@@ -98,14 +98,14 @@ public class UeberordnungDownload {
 			// standard)
 			SortedSet<String> lines = new TreeSet<>();
 			BufferedReader br = new BufferedReader(
-					new FileReader(new File(kongressDir + "content" + fs + "checksum.md5")));
+					new FileReader(new File(kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat("checksum.md5"))));
 			String line;
 			while ((line = br.readLine()) != null) {
 				lines.add(line);
 			}
 			br.close();
 			for (int i = 0; i < owner_links.size(); i++) {
-				String checksumPath = kongressDir.concat(Integer.toString(i)).concat(fs).concat("content").concat(fs)
+				String checksumPath = kongressDir.concat("original").concat(fs).concat("owner_links").concat(fs).concat(Integer.toString(i)).concat(fs).concat("content").concat(fs)
 						.concat("checksum.md5");
 				br = new BufferedReader(new FileReader(new File(checksumPath)));
 				while ((line = br.readLine()) != null) {
@@ -123,7 +123,7 @@ public class UeberordnungDownload {
 			bw.close();
 
 			// take the "landingpage" of the congress
-			String htmlPath = kongressDir.concat("content").concat(fs).concat("target.html");
+			String htmlPath = kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat("target.html");
 			File htmlFile = new File(htmlPath);
 			doc = Jsoup.parse(htmlFile, "CP1252", protokoll + hostname);
 
@@ -182,7 +182,7 @@ public class UeberordnungDownload {
 			// later)
 			for (Element session : sessionlist) {
 				String kongressDir2 = Drive.captPath.concat(it.kurzID).concat("_")
-						.concat(LANG).concat(fs).concat("abstractlist").concat(Integer.toString(++i));
+						.concat(LANG).concat(fs).concat("original").concat(fs).concat("abstractlists").concat(fs).concat(Integer.toString(++i));
 				// download the Sessions from the Sessionlist
 				MyWget myWget2 = new MyWget(new URL(session.attr("href")), kongressDir2, true);
 				myWget2.getPage();

@@ -36,8 +36,8 @@ public class AbstractDownload {
 			System.out.println("Verarbeite: '".concat(Ue_ID).concat("', '").concat(Ab_ID).concat("', '").concat(URL).concat("', '").concat(LANG).concat("'"));
 			Abstract it = new Abstract(URL);
 			// der eigentliche Aufruf
-			String kongressDir = absPath.concat(it.Ue_ID).concat("_").concat(LANG).concat(fs).concat(Ab_ID).concat(fs);
-			MyWget myWget = new MyWget(it.url, kongressDir, true);
+			String kongressDir = Drive.getAbstractDir(it.Ue_ID, Ab_ID, LANG);
+			MyWget myWget = new MyWget(it.url, kongressDir.concat("original").concat(fs), true);
 			@SuppressWarnings("unused")
 			int res = myWget.getPage();
 			String destPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat(hostname).concat(fs);
@@ -45,10 +45,10 @@ public class AbstractDownload {
 			if (dest.exists()) {
 				MyUtils.deleteDirectory(dest);
 			}
-			String sourcePath = kongressDir.concat("content").concat(fs).concat(hostname).concat(fs);
+			String sourcePath = kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat(hostname).concat(fs);
 			MyUtils.copyFolder(new File(sourcePath), dest);
 
-			File kongressFile = new File(kongressDir.concat("content").concat(fs).concat("target.html"));
+			File kongressFile = new File(kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat("target.html"));
 			Document doc = Jsoup.parse(kongressFile, "CP1252", protokoll.concat(hostname));
 			// doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
 			// doc.outputSettings().charset("UTF-8");

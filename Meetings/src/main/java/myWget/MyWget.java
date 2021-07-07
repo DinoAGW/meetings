@@ -214,7 +214,7 @@ public class MyWget {
 		FileWriter fileWriter = new FileWriter(aufruf);
 		PrintWriter printWriter = new PrintWriter(fileWriter);
 		// Dokumentation über den Aufruf
-		printWriter.println("'" + this.dirTo + "', '" + this.pageFrom.getProtocol() + this.pageFrom + "', " + this.context);
+		printWriter.println("'" + this.dirTo + "', '" + this.pageFrom + "', " + this.context);
 		printWriter.close();
 
 		int ret = 1;
