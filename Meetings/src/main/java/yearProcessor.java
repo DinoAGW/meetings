@@ -70,10 +70,16 @@ public class yearProcessor {
 		//		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2016.csv";
 		syncToYear(csvFilePath);
 		//		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
+		
+//		SqlManager.INSTANCE.executeUpdate("DELETE FROM ueberordnungen WHERE ID!='ri2009';");
+		SqlManager.INSTANCE.executeUpdate("DELETE FROM ueberordnungen WHERE ID!='gma2010';");
+		
 		System.out.println("UeberordnungDownload");
 		UeberordnungDownload.ueberordnungDownload();
 		
-		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='09ri10';");
+//		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='09ri10';");
+		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='10gma146';");
+//		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='11iis03';");
 		
 		System.out.println("UeberordnungConvert");
 		UeberordnungConvert.ueberordnungConvert();

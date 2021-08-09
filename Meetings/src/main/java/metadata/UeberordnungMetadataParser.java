@@ -56,7 +56,7 @@ public class UeberordnungMetadataParser {
 		Elements identifierElements = doc.select("identifier");
 		
 		for (Element identifierElement : identifierElements) {
-			String xPathKey = identifierElement.text().startsWith("http") ? "dc:identifier@dcterms:URI" : "dc:identifier";
+			String xPathKey = identifierElement.text().startsWith("http") ? "dcterms:URI" : "dc:identifier";
 			insertIntoMetadata(HT, ID, xPathKey, identifierElement.text());
 		}
 

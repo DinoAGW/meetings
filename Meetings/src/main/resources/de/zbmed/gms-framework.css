@@ -90,10 +90,10 @@ img {
 	width:210px;
 }
 
-/* Inhaltsbereich inkl. Mehrspaltigkeit [TODO überarbeiten, sobald Inhalte da sind -- petsch 03.08.09] */
+/* Inhaltsbereich inkl. Mehrspaltigkeit [TODO ï¿½berarbeiten, sobald Inhalte da sind -- petsch 03.08.09] */
 #content {
 	/*padding-left:240px;*/
-	padding-top:130px;
+	/*padding-top:130px;*/
 }
 #content .einespalte   { margin:0; }
 #content .linkespalte  { float:left;  width:48%;  margin:0 4px 0 0; }
@@ -117,7 +117,7 @@ ul#navigation a {
 }
 
 ul#navigation li {
-	border-bottom:1px solid #f2f2f3; /* Rahme in body-Hintergrundfarbe, sonst macht IE6 große Abstände... */	
+	border-bottom:1px solid #f2f2f3; /* Rahme in body-Hintergrundfarbe, sonst macht IE6 groï¿½e Abstï¿½nde... */	
 	line-height:2em;
 	margin:0 0 1em 0;
 }
@@ -147,7 +147,7 @@ ul#navigation li ul {
 	padding:0;
 }
 
-/* IE6 braucht Border, sonst werden Abstände viel zu groß dargestellt */
+/* IE6 braucht Border, sonst werden Abstï¿½nde viel zu groï¿½ dargestellt */
 * html ul#navigation li ul li {
 	border-bottom-width:1px;
 }
@@ -214,7 +214,7 @@ ul#navigation li ul li a:hover {
 }
 
 /* #################################################################### portal_service ############################### */
-/* #################################################################### Verwendung überprüfen ?! ################################ */
+/* #################################################################### Verwendung ï¿½berprï¿½fen ?! ################################ */
 #portal_service {
 	width:auto;
 }

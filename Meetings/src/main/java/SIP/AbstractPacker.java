@@ -36,6 +36,7 @@ import com.exlibris.core.sdk.utils.FileUtil;
 import com.exlibris.digitool.common.dnx.DnxDocument;
 import com.exlibris.digitool.common.dnx.DnxDocumentFactory;
 import com.exlibris.digitool.common.dnx.DnxDocumentHelper;
+import com.exlibris.digitool.common.dnx.DnxDocumentHelper.PreservationLevel;
 import com.exlibris.dps.sdk.deposit.IEParser;
 import com.exlibris.dps.sdk.deposit.IEParserFactory;
 import gov.loc.mets.FileType;
@@ -44,6 +45,7 @@ import gov.loc.mets.MetsType.FileSec.FileGrp;
 import net.lingala.zip4j.ZipFile;
 import utilities.Drive;
 import utilities.SqlManager;
+import utilities.Tar;
 import utilities.Utilities;
 
 public class AbstractPacker {
@@ -59,9 +61,8 @@ public class AbstractPacker {
 	private static final String XML_SCHEMA_REPLACEMENT = "http://www.exlibrisgroup.com/XMLSchema-instance";
 	private static final String ROSETTA_METS_XSD = "mets_rosetta.xsd";
 
-	public static void processSIP(String subDirectoryName, String Ab_ID, String URL) throws Exception {
-		final String filesRootFolder = subDirectoryName.concat("content").concat(fs).concat("streams")
-				.concat(fs);
+	public static void processSIP(String subDirectoryName, String Ue_ID, String Ab_ID, String URL) throws Exception {
+		final String filesRootFolder = subDirectoryName.concat("content").concat(fs).concat("streams").concat(fs);
 		final String IEfullFileName = subDirectoryName.concat("content").concat(fs).concat("ie1.xml");
 
 		//		org.apache.log4j.helpers.LogLog.setQuietMode(true);
@@ -71,7 +72,7 @@ public class AbstractPacker {
 
 		// add ie dc
 		DublinCore dc = ie.getDublinCoreParser();
-		addDcMetadata(dc, URL);
+		addDcMetadata(dc, URL, Ue_ID);
 		ie.setIEDublinCore(dc);
 		List<FileGrp> fGrpList = new ArrayList<FileGrp>();
 
@@ -125,6 +126,13 @@ public class AbstractPacker {
 
 					fileDocumentHelper.getGeneralFileCharacteristics()
 							.setFileOriginalPath(file.getAbsolutePath().substring(subDirectoryName.length()));
+
+//					if (file.getName().endsWith(".tar")) {
+//						PreservationLevel pLevel = fileDocumentHelper.new PreservationLevel();
+//						pLevel.setPreservationLevelValue("Bitstream Preservation");
+//						fileDocumentHelper.setPreservationLevel(pLevel);
+//					}
+
 					ie.setFileDnx(fileDocumentHelper.getDocument(), fileType.getID());
 				}
 			}
@@ -146,11 +154,11 @@ public class AbstractPacker {
 		XmlOptions opt = new XmlOptions();
 		opt.setSavePrettyPrint();
 		String xmlMetsContent = metsDoc.xmlText(opt);
-		FileUtil.writeFile(ieXML, xmlMetsContent);
 
 		//Need to replace manually the namespace with Rosetta Mets schema in order to pass validation against mets_rosetta.xsd
 		String xmlRosettaMetsContent = xmlMetsContent.replaceAll(XML_SCHEMA, XML_SCHEMA_REPLACEMENT);
 		xmlRosettaMetsContent = xmlMetsContent.replaceAll(METS_SCHEMA, ROSETTA_METS_SCHEMA);
+		FileUtil.writeFile(ieXML, xmlRosettaMetsContent);
 
 		validateXML(ieXML.getAbsolutePath(), xmlRosettaMetsContent, ROSETTA_METS_XSD);
 	}
@@ -163,6 +171,12 @@ public class AbstractPacker {
 			mimeType = "text/xml";
 		} else if (dateiname.endsWith(".zip")) {
 			mimeType = "application/zip";
+		} else if (dateiname.endsWith(".tar")) {
+			mimeType = "application/x-tar";
+		} else if (dateiname.endsWith(".png")) {
+			mimeType = "image/png";
+		} else if (dateiname.endsWith(".avi")) {
+			mimeType = "video/x-msvideo";
 		} else {
 			System.err.println("Dateiendung nicht erkannt: ".concat(dateiname));
 			throw new Exception();
@@ -233,7 +247,7 @@ public class AbstractPacker {
 				.concat(Kuerzel);
 	}
 
-	private static void addDcMetadata(DublinCore dc, String URL) throws Exception {
+	private static void addDcMetadata(DublinCore dc, String URL, String Ue_ID) throws Exception {
 		String metadataURL = url2md(URL);
 		Document abstractDoc = Utilities.getWebsite(metadataURL);
 		if (abstractDoc == null) {
@@ -280,7 +294,7 @@ public class AbstractPacker {
 			}
 			String lastname = elems.first().text();
 			dc.addElement("dc:creator", lastname.concat(", ").concat(firstname));
-			dc.addElement("dc:relation@dcterms:isPartOf", URL);
+			dc.addElement("dcterms:isPartOf", "German Medical Science/Meetings/".concat(Ue_ID));
 		}
 
 		int letzterSlash = URL.lastIndexOf("/");
@@ -312,7 +326,7 @@ public class AbstractPacker {
 				String value = mdElem.text().replace(";", ",");
 				dc.addElement("dc:publisher", value);
 			} else if (mdElem.tagName().contentEquals("dc:date")) {
-				dc.addElement("dc:date@dcterms:issued", mdElem.text());
+				dc.addElement("dcterms:issued", mdElem.text());
 			} else {
 				dc.addElement(mdElem.tagName(), mdElem.text());
 			}
@@ -328,48 +342,60 @@ public class AbstractPacker {
 			String aURL = results.getString("URL");
 
 			String preSipDir = Drive.getAbstractPreSipDir(Ue_ID, Ab_ID);
+			String master = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("1_Master")
+					.concat(fs);
+			String preIngestModifiedMaster = preSipDir.concat("content").concat(fs).concat("streams").concat(fs)
+					.concat("2_derivedFrom1").concat(fs);
+			String modifiedMaster = preSipDir.concat("content").concat(fs).concat("streams").concat(fs)
+					.concat("3_derivedFrom2").concat(fs);
 			File destDir = new File(preSipDir.concat("content").concat(fs).concat("streams").concat(fs));
 			if (destDir.exists()) {
 				Utilities.deleteDir(destDir);
 			}
 			destDir.mkdirs();
-			new File(
-					preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("3_derivedFrom2").concat(fs))
-							.mkdir();
+			new File(master).mkdir();
+			new File(preIngestModifiedMaster).mkdir();
+			new File(modifiedMaster).mkdir();
 
 			Files.copy(Paths.get(Drive.getAbstractPDF(Ue_ID, Ab_ID, "de")),
 					Paths.get(Drive.getAbstractPreSipPdf(Ue_ID, Ab_ID, "de")), StandardCopyOption.REPLACE_EXISTING);
 			Files.copy(Paths.get(Drive.getAbstractPDF(Ue_ID, Ab_ID, "en")),
 					Paths.get(Drive.getAbstractPreSipPdf(Ue_ID, Ab_ID, "en")), StandardCopyOption.REPLACE_EXISTING);
+			Drive.copy(new File(Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("Supplementals").concat(fs)),
+					new File(master.concat("Supplementals").concat(fs)));
+			Drive.copy(new File(Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("Supplementals").concat(fs)),
+					new File(preIngestModifiedMaster.concat("Supplementals").concat(fs)));
+			Drive.copy(new File(Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("Supplementals").concat(fs)),
+					new File(modifiedMaster.concat("Supplementals").concat(fs)));
+
 			String metadataURL = url2md(aURL);
 			FileUtils.copyURLToFile(new URL(metadataURL), new File(Drive.getAbstractPreSipWebXml(Ue_ID, Ab_ID)));
 			FileUtils.copyURLToFile(new URL(kuerzel2oai(Ab_ID)), new File(Drive.getAbstractPreSipOaiXml(Ue_ID, Ab_ID)));
 
 			// add originals as zip
-			String destString = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("1_Master")
-					.concat(fs);
-			new File(destString).mkdir();
 			String fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("original").concat(fs);
-			new ZipFile(destString.concat("OriginalHtml_de.zip")).addFolder(new File(fromString));
+			Tar.createTar(fromString, fromString, master.concat("OriginalHtml_de.tar"));
+			//			new ZipFile(master.concat("OriginalHtml_de.zip")).addFolder(new File(fromString));
 			fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "en").concat("original").concat(fs);
-			new ZipFile(destString.concat("OriginalHtml_en.zip")).addFolder(new File(fromString));
+			//			new ZipFile(master.concat("OriginalHtml_en.zip")).addFolder(new File(fromString));
+			Tar.createTar(fromString, fromString, master.concat("OriginalHtml_en.tar"));
 
 			// add merged content as zip
-			destString = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("2_derivedFrom1")
-					.concat(fs);
-			new File(destString).mkdir();
+
 			fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("merge").concat(fs);
-			new ZipFile(destString.concat("HtmlForPdf_de.zip")).addFolder(new File(fromString));
+			//			new ZipFile(preIngestModifiedMaster.concat("HtmlForPdf_de.zip")).addFolder(new File(fromString));
+			Tar.createTar(fromString, fromString, preIngestModifiedMaster.concat("HtmlForPdf_de.tar"));
 			fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "en").concat("merge").concat(fs);
-			new ZipFile(destString.concat("HtmlForPdf_en.zip")).addFolder(new File(fromString));
+			//			new ZipFile(preIngestModifiedMaster.concat("HtmlForPdf_en.zip")).addFolder(new File(fromString));
+			Tar.createTar(fromString, fromString, preIngestModifiedMaster.concat("HtmlForPdf_en.tar"));
 
 			// finish completion of SIP
-			processSIP(preSipDir, Ab_ID, aURL);
+			processSIP(preSipDir, Ue_ID, Ab_ID, aURL);
 
 			// move finished SIP to SIP-Directory
 			File sipDir = new File(Drive.getAbstractSipDir(rosettaInstance, materialflowID, producerId, Ue_ID, Ab_ID));
 			sipDir.mkdirs();
-			Drive.move(new File(Drive.getAbstractPreSipDir(Ue_ID, Ab_ID)), sipDir);
+			Drive.move(new File(preSipDir), sipDir);
 
 			// update Status
 			int updated = SqlManager.INSTANCE
@@ -391,7 +417,8 @@ public class AbstractPacker {
 		if (sipFile.exists()) {
 			Utilities.deleteDir(sipString);
 		}
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 50 WHERE Ab_ID = '16gma001';");
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 50 WHERE Ab_ID = '09ri10';");
 		databaseWorker();
+		System.out.println("AbstractPacker Ende");
 	}
 }

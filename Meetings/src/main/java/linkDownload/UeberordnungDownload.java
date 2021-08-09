@@ -135,6 +135,7 @@ public class UeberordnungDownload {
 			content.getElementsByClass("hidden_navigation").first().remove();
 			content.getElementById("page").before(content.getElementById("header"));
 			content.getElementsByTag("script").remove();
+			content.getElementById("page").child(0).before("<div style=\"height:130px;\"></div>");
 			Document[] newDoc = new Document[10];
 			Element[] newElement = new Element[10];
 			// adding the content from the websites with further Information to this

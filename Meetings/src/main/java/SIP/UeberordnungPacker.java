@@ -37,6 +37,7 @@ import com.exlibris.core.sdk.utils.FileUtil;
 import com.exlibris.digitool.common.dnx.DnxDocument;
 import com.exlibris.digitool.common.dnx.DnxDocumentFactory;
 import com.exlibris.digitool.common.dnx.DnxDocumentHelper;
+import com.exlibris.digitool.common.dnx.DnxDocumentHelper.PreservationLevel;
 import com.exlibris.dps.sdk.deposit.IEParser;
 import com.exlibris.dps.sdk.deposit.IEParserFactory;
 import gov.loc.mets.FileType;
@@ -48,6 +49,7 @@ import utilities.Database;
 import utilities.Drive;
 import utilities.HtKuerzelDatenbank;
 import utilities.SqlManager;
+import utilities.Tar;
 import utilities.Utilities;
 
 public class UeberordnungPacker {
@@ -57,8 +59,8 @@ public class UeberordnungPacker {
 	final static String materialflowID = "76661659";
 	final static String producerId = "2049290";
 
-	private static final String ROSETTA_METS_SCHEMA = "http://www.exlibrisgroup.com/xsd/dps/rosettaMets";
 	private static final String METS_SCHEMA = "http://www.loc.gov/METS/";
+	private static final String ROSETTA_METS_SCHEMA = "http://www.exlibrisgroup.com/xsd/dps/rosettaMets";
 	private static final String XML_SCHEMA = "http://www.w3.org/2001/XMLSchema-instance";
 	private static final String XML_SCHEMA_REPLACEMENT = "http://www.exlibrisgroup.com/XMLSchema-instance";
 	private static final String ROSETTA_METS_XSD = "mets_rosetta.xsd";
@@ -71,6 +73,7 @@ public class UeberordnungPacker {
 
 		//create parser
 		IEParser ie = IEParserFactory.create();
+		//		ie.setIeSourceMd(, arg1);
 
 		// add ie dc
 		DublinCore dc = ie.getDublinCoreParser();
@@ -131,6 +134,13 @@ public class UeberordnungPacker {
 
 					fileDocumentHelper.getGeneralFileCharacteristics()
 							.setFileOriginalPath(file.getAbsolutePath().substring(subDirectoryName.length()));
+
+					//					if (file.getName().endsWith(".tar")) {
+					//						PreservationLevel pLevel = fileDocumentHelper.new PreservationLevel();
+					//						pLevel.setPreservationLevelValue("Bitstream Preservation");
+					//						fileDocumentHelper.setPreservationLevel(pLevel);
+					//					}
+
 					ie.setFileDnx(fileDocumentHelper.getDocument(), fileType.getID());
 				}
 			}
@@ -155,11 +165,10 @@ public class UeberordnungPacker {
 		XmlOptions opt = new XmlOptions();
 		opt.setSavePrettyPrint();
 		String xmlMetsContent = metsDoc.xmlText(opt);
-		FileUtil.writeFile(ieXML, xmlMetsContent);
-
 		//Need to replace manually the namespace with Rosetta Mets schema in order to pass validation against mets_rosetta.xsd
 		String xmlRosettaMetsContent = xmlMetsContent.replaceAll(XML_SCHEMA, XML_SCHEMA_REPLACEMENT);
 		xmlRosettaMetsContent = xmlMetsContent.replaceAll(METS_SCHEMA, ROSETTA_METS_SCHEMA);
+		FileUtil.writeFile(ieXML, xmlRosettaMetsContent);
 
 		validateXML(ieXML.getAbsolutePath(), xmlRosettaMetsContent, ROSETTA_METS_XSD);
 	}
@@ -183,6 +192,8 @@ public class UeberordnungPacker {
 			mimeType = "text/xml";
 		} else if (dateiname.endsWith(".zip")) {
 			mimeType = "application/zip";
+		} else if (dateiname.endsWith(".tar")) {
+			mimeType = "application/x-tar";
 		} else {
 			System.err.println("Dateiendung nicht erkannt: ".concat(dateiname));
 			throw new Exception();
@@ -259,8 +270,15 @@ public class UeberordnungPacker {
 			if (abstractbandUrl != null) {
 				abstractbandUrl = "https://www.egms.de".concat(abstractbandUrl);
 				System.out.println(abstractbandUrl);
-				FileUtils.copyURLToFile(new URL(abstractbandUrl), new File(
-						preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("Abstractband.pdf")));
+				String destination = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("1_Master")
+						.concat(fs).concat("Supplementals").concat(fs).concat("Abstractband.pdf");
+				FileUtils.copyURLToFile(new URL(abstractbandUrl), new File(destination));
+				String destination2 = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("2_derivedFrom1").concat(fs)
+						.concat("Supplementals").concat(fs).concat("Abstractband.pdf");
+				FileUtils.copyFile(new File(destination), new File(destination2));
+				destination2 = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("3_derivedFrom2").concat(fs)
+						.concat("Supplementals").concat(fs).concat("Abstractband.pdf");
+				FileUtils.copyFile(new File(destination), new File(destination2));
 			}
 
 			String destString = Drive.getKongressPreSipPdf(ID, "");
@@ -279,18 +297,22 @@ public class UeberordnungPacker {
 					.concat("1_Master").concat(fs);
 			new File(destString).mkdirs();
 			String fromString = Drive.getKongressDir(ID, "de").concat("original").concat(fs);
-			new ZipFile(destString.concat("OriginalHtml_de.zip")).addFolder(new File(fromString));
+			//			new ZipFile(destString.concat("OriginalHtml_de.zip")).addFolder(new File(fromString));
+			Tar.createTar(fromString, fromString, destString.concat("OriginalHtml_de.tar"));
 			fromString = Drive.getKongressDir(ID, "en").concat("original").concat(fs);
-			new ZipFile(destString.concat("OriginalHtml_en.zip")).addFolder(new File(fromString));
+			//			new ZipFile(destString.concat("OriginalHtml_en.zip")).addFolder(new File(fromString));
+			Tar.createTar(fromString, fromString, destString.concat("OriginalHtml_en.tar"));
 
 			// add merged content as zip
 			destString = Drive.getKongressPreSipDir(ID).concat("content").concat(fs).concat("streams").concat(fs)
 					.concat("2_derivedFrom1").concat(fs);
 			new File(destString).mkdirs();
 			fromString = Drive.getKongressDir(ID, "de").concat("merge").concat(fs);
-			new ZipFile(destString.concat("HtmlForPdf_de.zip")).addFolder(new File(fromString));
+			//			new ZipFile(destString.concat("HtmlForPdf_de.zip")).addFolder(new File(fromString));
+			Tar.createTar(fromString, fromString, destString.concat("HtmlForPdf_de.tar"));
 			fromString = Drive.getKongressDir(ID, "en").concat("merge").concat(fs);
-			new ZipFile(destString.concat("HtmlForPdf_en.zip")).addFolder(new File(fromString));
+			//			new ZipFile(destString.concat("HtmlForPdf_en.zip")).addFolder(new File(fromString));
+			Tar.createTar(fromString, fromString, destString.concat("HtmlForPdf_en.tar"));
 
 			// finish completion of SIP
 			processSIP(preSipDir, HtKuerzelDatenbank.kuerzel2ht(ID), ID);

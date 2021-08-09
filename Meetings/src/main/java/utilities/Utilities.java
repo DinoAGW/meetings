@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Properties;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -24,6 +25,30 @@ public class Utilities {
 	// private string used as root path for background image replacement
 	private final static String imgRootPath = "www.egms.de/static/images/picto/";
 
+	public static Process simpleDownload(String urlFrom, String to, boolean context) throws IOException {
+		String wgetCmd = (SystemUtils.IS_OS_LINUX) ? "wget" : "C:\\wget-1.20.3-win64\\wget.exe";
+		String [] wgetParams = (context) ?
+				new String[] {wgetCmd, "-p", "-k", "-q", "-N", "-erobots=off", "-P", to, urlFrom}:
+				new String[] {wgetCmd, "-k", "-q", "-N", "-erobots=off", "-P", to, urlFrom};
+		ProcessBuilder pb = new ProcessBuilder(wgetParams);
+		pb.redirectErrorStream(true);
+		// führe den wget Befehl aus
+		Process process = pb.start();
+		return process;
+	}
+	
+	public static Process downloadUrlToFile(String urlFrom, String to) throws IOException {
+		new File(to.substring(0, to.lastIndexOf("/"))).mkdirs();
+		String wgetCmd = (SystemUtils.IS_OS_LINUX) ? "wget" : "C:\\wget-1.20.3-win64\\wget.exe";
+		String [] wgetParams = new String[] {wgetCmd, "-k", "-q", "-N", "-erobots=off", "-O", to, urlFrom};
+//		System.out.println(String.join(" ", wgetParams));
+		ProcessBuilder pb = new ProcessBuilder(wgetParams);
+		pb.redirectErrorStream(true);
+		// führe den wget Befehl aus
+		Process process = pb.start();
+		return process;
+	}
+	
 	public static Document getWebsite(String URL) {
 		Document doc = null;
 		try {
