@@ -28,6 +28,7 @@ public class AbstractConvert {
 	public static String fs = System.getProperty("file.separator");
 
 	public static void main(String[] args) throws IOException, SQLException {
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET Status = 30 WHERE Ab_ID = '09ri10' AND LANG = 'de';");
 		abstractConvert();
 		System.out.println("AbstractConvert Ende.");
 	}

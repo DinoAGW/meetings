@@ -100,7 +100,6 @@ public class Drive {
 
 	public static void move(File from, File to) throws IOException {
 		if (from.isDirectory()) {
-			//			System.out.println("moving Directory from '".concat(from.getPath()).concat("' to '").concat(to.getPath()).concat("'"));
 			if (!to.exists()) {
 				to.mkdir();
 			}
@@ -111,8 +110,21 @@ public class Drive {
 			}
 			from.delete();
 		} else {
-			//			System.out.println("moving File from '".concat(from.getPath()).concat("' to '").concat(to.getPath()).concat("'"));
 			Files.move(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+	}
+	public static void copy(File from, File to) throws IOException {
+		if (from.isDirectory()) {
+			if (!to.exists()) {
+				to.mkdir();
+			}
+			for (File file : from.listFiles()) {
+				String rel = file.getPath().substring(from.getPath().length());
+				String target = to.getPath().concat(rel);
+				copy(file, new File(target));
+			}
+		} else {
+			Files.copy(from.toPath(), to.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		}
 	}
 }

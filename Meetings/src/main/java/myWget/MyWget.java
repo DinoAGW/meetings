@@ -20,6 +20,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import utilities.Utilities;
+
 public class MyWget {
 	private String fs = System.getProperty("file.separator");
 	private final URL pageFrom;
@@ -245,10 +247,9 @@ public class MyWget {
 		String [] wgetParams = (this.context) ?
 				new String[] {wgetCmd, "-p", "-k", "-q", "-N", "-erobots=off", "-P", this.dirTo.concat("content").concat(fs), this.pageFrom.toString()}:
 				new String[] {wgetCmd, "-k", "-q", "-N", "-erobots=off", "-P", this.dirTo.concat("content").concat(fs), this.pageFrom.toString()};
-//		System.out.println(String.join(" ", wgetParams));
 		ProcessBuilder pb = new ProcessBuilder(wgetParams);
-		// führe den wget Befehl aus
 		pb.redirectErrorStream(true);
+		// führe den wget Befehl aus
 		Process process = pb.start();
 		BufferedReader inStreamReader = new BufferedReader ( new InputStreamReader(process.getInputStream()));
 		String line = "";
