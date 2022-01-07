@@ -53,18 +53,12 @@ public class UeberordnungMetadataParser {
 		String ID = Kongress.url2kuerzel(URL);
 		HtKuerzelDatenbank.insertIntoHtKuerzelDatenbank(HT, ID);
 		
-		Elements identifierElements = doc.select("identifier");
-		
-		for (Element identifierElement : identifierElements) {
-			String xPathKey = identifierElement.text().startsWith("http") ? "dcterms:URI" : "dc:identifier";
-			insertIntoMetadata(HT, ID, xPathKey, identifierElement.text());
-		}
-
+		insertSelectIntoMetadata(doc, HT, ID, "identifier", "dc:identifier");
 		insertSelectIntoMetadata(doc, HT, ID, "title", "dc:title");
 		insertSelectIntoMetadata(doc, HT, ID, "creator", "dc:creator");
 		insertSelectIntoMetadata(doc, HT, ID, "publisher", "dc:publisher");
 		insertSelectIntoMetadata(doc, HT, ID, "date", "dc:date");
-		insertIntoMetadata(HT, ID, "dc:type", "conference object");
+		insertIntoMetadata(HT, ID, "dc:type", "conferenceObject");
 		insertIntoMetadata(HT, ID, "dc:format", "1 Online-Ressource");
 		
 		return ID;

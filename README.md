@@ -29,6 +29,8 @@ Status of congresslinks:
 | 10 | LinkCrawl took the URL from the GMS Landingpage and inserted it into the table |
 | 30 | UeberordnungDownload downloaded all Websites for the congress Overview and performed a merge of some of them (and maintain connection to their prerequisites) |
 | 50 | Convert transformed the merge html with their prerequisites to a PDF via iText |
+| 65 | SipPacker packed SIP, but at least one file is invalid |
+| 70 | SipPacker packed SIP successfully and transfered to exchange Folder for MetsIngester |
 
 Status of abstracts:
 | Status | Meaning |
@@ -36,6 +38,8 @@ Status of abstracts:
 | 10 | UeberordnungDownload found the link in a Sessionlist of the congress overview and inserted it into the table |
 | 30 | AbstractDownload downloaded the website of the abstract with all of their prerequisites on harddisk  |
 | 50 | AbstractConvert converted the html with their prerequisites to PDF vie iText |
+| 65 | SipPacker packed SIP, but at least one file is invalid |
+| 70 | SipPacker packed SIP successfully and transfered to exchange Folder for MetsIngester |
 
 ### Folder and File Overview
 

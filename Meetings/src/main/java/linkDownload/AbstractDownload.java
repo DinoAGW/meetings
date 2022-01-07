@@ -73,6 +73,7 @@ public class AbstractDownload {
 			processTables(content, kongressDir, LANG);
 			processAttachments(content, kongressDir, LANG);
 			content.getElementById("page").child(0).before("<div style=\"height:130px;\"></div>");
+			ersetzeNbspInTitle(doc);
 
 			String htmlPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("target.html");
 			FileOutputStream fstream = new FileOutputStream(htmlPath);
@@ -108,6 +109,41 @@ public class AbstractDownload {
 
 	}
 
+	public static void ersetzeNbspInTitle(final Document doc) throws Exception {
+		Element elem = doc.head();
+		if (elem == null) {
+			System.err.println("Dokument hat kein head");
+			throw new Exception();
+		}
+		elem = elem.getElementsByTag("title").first();
+		if (elem == null) {
+			System.err.println("Head hat kein title");
+			throw new Exception();
+		}
+		//ersetze Text durch whitespace normalisierte Version
+		elem.text(elem.text().replace("\u00A0", " "));
+		
+		elem = doc.head().getElementsByAttributeValue("name", "DC.Title").first();
+		if (elem == null) {
+			System.err.println("Head hat kein DC.Title");
+			throw new Exception();
+		}
+		//ersetze Text durch whitespace normalisierte Version
+		elem.attr("content", elem.attr("content").replace("\u00A0", " "));
+		
+		elem = doc.getElementById("owner_description");
+		if (elem == null) {
+			System.err.println("Dokument hat keine owner_description");
+			throw new Exception();
+		}
+		elem = elem.getElementsByTag("h2").first();
+		if (elem == null) {
+			System.err.println("owner_description hat kein h2");
+			throw new Exception();
+		}
+		elem.text(elem.text().replace("\u00A0", " "));
+	}
+	
 	private static void processFigures(Element content, String abstractDir, String LANG) throws IOException {
 		Elements figureLinks = content.getElementsByClass("link-figure");
 		int figuresIncluded = 0;
@@ -202,13 +238,6 @@ public class AbstractDownload {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET Status = 10 WHERE Ab_ID = '11iis03' AND LANG = 'de';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET Status = 10 WHERE Ab_ID = '09ri10' AND LANG = 'de';");
-		abstractDownload();
-		System.out.println("AbstractDownload Ende.");
-	}
-
 	public static void abstractDownload() throws Exception {
 		String absPath = Drive.absPath;
 
@@ -216,5 +245,28 @@ public class AbstractDownload {
 		String hostname = "www.egms.de";
 
 		linkDownload(absPath, protokoll, hostname);
+	}
+
+	public static void main(String[] args) throws Exception {
+//		String UeO = "dav2016";String Ab = "16dav01";String LANG="de";
+		String UeO = "dav2018";String Ab = "18dav83";String LANG="de";
+		boolean zuBearbeiten = false; boolean bothLanguages = true;
+		
+		if (bothLanguages) {
+			if (zuBearbeiten) {
+				SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 10 WHERE Ue_ID = '" + UeO + "' AND Ab_ID = '" + Ab + "';");
+			} else {
+				SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 11 WHERE Ue_ID = '" + UeO + "' AND Ab_ID = '" + Ab + "';");
+			}
+		} else {
+			if (zuBearbeiten) {
+				SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 10 WHERE Ue_ID = '" + UeO + "' AND Ab_ID = '" + Ab + "' AND LANG = '" + LANG + "';");
+			} else {
+				SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 11 WHERE Ue_ID = '" + UeO + "' AND Ab_ID = '" + Ab + "' AND LANG = '" + LANG + "';");
+			}
+		}
+		
+		abstractDownload();
+		System.out.println("AbstractDownload Ende.");
 	}
 }

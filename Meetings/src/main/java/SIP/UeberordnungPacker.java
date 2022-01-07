@@ -16,7 +16,12 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -48,9 +53,11 @@ import okeanos.UeberordnungMetadataDownloader;
 import utilities.Database;
 import utilities.Drive;
 import utilities.HtKuerzelDatenbank;
+import utilities.Jhove;
 import utilities.SqlManager;
 import utilities.Tar;
 import utilities.Utilities;
+import utilities.VeraPDF;
 
 public class UeberordnungPacker {
 	static final String fs = System.getProperty("file.separator");
@@ -65,9 +72,12 @@ public class UeberordnungPacker {
 	private static final String XML_SCHEMA_REPLACEMENT = "http://www.exlibrisgroup.com/XMLSchema-instance";
 	private static final String ROSETTA_METS_XSD = "mets_rosetta.xsd";
 
-	public static void processSIP(String subDirectoryName, String HT, String ID) throws Exception {
+	public static boolean processSIP(String subDirectoryName, String HT, String ID) throws Exception {
 		final String filesRootFolder = subDirectoryName.concat("content").concat(fs).concat("streams").concat(fs);
 		final String IEfullFileName = subDirectoryName.concat(fs).concat("content").concat(fs).concat("ie1.xml");
+
+		System.out.println(
+				"Verarbeite: '".concat(HT).concat("', '").concat(ID).concat("', '").concat(subDirectoryName).concat("'."));
 
 		//		org.apache.log4j.helpers.LogLog.setQuietMode(true);
 
@@ -89,6 +99,14 @@ public class UeberordnungPacker {
 		FileGrp fGrp3 = makeFileGroup(ie, Enum.UsageType.VIEW, "MODIFIED_MASTER", "1", ID.concat("_pdf"));
 		fGrpList.add(fGrp3);
 
+		//prepare validation
+		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+		org.w3c.dom.Document xmlDocument = documentBuilder.newDocument();
+		org.w3c.dom.Element rootElement = xmlDocument.createElement("JHOVE_Validationsergebnisse");
+		xmlDocument.appendChild(rootElement);
+		boolean isAllValid = true;
+
 		List<File> dirs = new ArrayList<>();
 		dirs.add(new File(filesRootFolder));
 
@@ -106,7 +124,7 @@ public class UeberordnungPacker {
 					FileGrp fGrp = null;
 					if (file.getAbsolutePath().startsWith(filesRootFolder.concat("1_Master"))) {
 						fGrp = fGrp1;
-					} else if (file.getAbsolutePath().startsWith(filesRootFolder.concat("SOURCE_MD"))) {
+					} else if (file.getAbsolutePath().startsWith(filesRootFolder.concat("SourceMD"))) {
 						fGrp = fGrp1;
 					} else if (file.getAbsolutePath().startsWith(filesRootFolder.concat("2_derivedFrom1"))) {
 						fGrp = fGrp2;
@@ -142,9 +160,28 @@ public class UeberordnungPacker {
 					//					}
 
 					ie.setFileDnx(fileDocumentHelper.getDocument(), fileType.getID());
+
+					//validate File
+					boolean inclVeraPdf = file.getAbsolutePath().contentEquals(Drive.getKongressPreSipPdf(ID, "de"))
+							|| file.getAbsolutePath().contentEquals(Drive.getKongressPreSipPdf(ID, "en"));
+					if (!isValid(file, xmlDocument, rootElement, subDirectoryName, inclVeraPdf)) {
+						System.err.println("invalide Datei: '" + file.getAbsolutePath() + "'");
+						isAllValid = false;
+					}
 				}
 			}
 		}
+
+		//write validationresults
+		DOMSource domSource = new DOMSource(xmlDocument);
+		File fileOutput = new File(filesRootFolder.concat("SourceMD").concat(fs).concat("JHOVE.xml"));
+		StreamResult streamresult = new StreamResult(fileOutput);
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer serializer = tf.newTransformer();
+		serializer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		serializer.setOutputProperty(OutputKeys.INDENT, "yes");
+		serializer.transform(domSource, streamresult);
+
 		ie.generateChecksum(filesRootFolder, Enum.FixityType.MD5.toString());
 		ie.updateSize(filesRootFolder);
 
@@ -170,7 +207,62 @@ public class UeberordnungPacker {
 		xmlRosettaMetsContent = xmlMetsContent.replaceAll(METS_SCHEMA, ROSETTA_METS_SCHEMA);
 		FileUtil.writeFile(ieXML, xmlRosettaMetsContent);
 
-		validateXML(ieXML.getAbsolutePath(), xmlRosettaMetsContent, ROSETTA_METS_XSD);
+		//validateXML(ieXML.getAbsolutePath(), xmlRosettaMetsContent, ROSETTA_METS_XSD);
+		return isAllValid;
+	}
+
+	private static boolean isValid(File file, org.w3c.dom.Document xmlDocument, org.w3c.dom.Element rootElement,
+			String subDirectoryName, boolean inclVeraPdf) throws Exception {
+		String extension = file.getName();
+		if (extension.lastIndexOf(".") > 0) {
+			extension = extension.substring(extension.lastIndexOf(".") + 1).toLowerCase();
+		} else {
+			return true;
+		}
+		if (extension.equalsIgnoreCase("pdf")) {
+			return validate(file, extension, "PDF-hul", xmlDocument, rootElement, subDirectoryName, false, inclVeraPdf);
+		} else if (extension.equalsIgnoreCase("xml")) {
+			return validate(file, extension, "XML-hul", xmlDocument, rootElement, subDirectoryName, true, inclVeraPdf);
+		} else if (extension.equalsIgnoreCase("png")) {
+			return validate(file, extension, "PNG-gdm", xmlDocument, rootElement, subDirectoryName, false, inclVeraPdf);
+		}
+		return true;
+	}
+
+	private static boolean validate(File file, String extension, String JhoveModul, org.w3c.dom.Document xmlDocument,
+			org.w3c.dom.Element rootElement, String subDirectoryName, boolean justWellFormed, boolean inclVeraPdf)
+			throws Exception {
+		boolean ret;
+		String result = Jhove.jhove(JhoveModul, file.getAbsolutePath());
+		org.w3c.dom.Element validationsErgebnis = xmlDocument.createElement("ValidationsErgebnis");
+		validationsErgebnis.setAttribute("Datei", file.getAbsolutePath().substring(subDirectoryName.length()));
+		validationsErgebnis.setAttribute("Validator", "JHOVE");
+		validationsErgebnis.setAttribute("Extension", extension);
+		validationsErgebnis.setAttribute("JhoveModul", JhoveModul);
+		String anonymizedResult = result.replace(subDirectoryName, "");
+		validationsErgebnis.setTextContent(anonymizedResult);
+		rootElement.appendChild(validationsErgebnis);
+		if (justWellFormed) {
+			ret = Jhove.wellFormed(result);
+		} else {
+			ret = Jhove.wellFormedAndValid(result);
+		}
+		if (ret && inclVeraPdf) {
+			result = VeraPDF.veraPDF("2b", file.getAbsolutePath());
+			validationsErgebnis = xmlDocument.createElement("ValidationsErgebnis");
+			validationsErgebnis.setAttribute("Datei", file.getAbsolutePath().substring(subDirectoryName.length()));
+			validationsErgebnis.setAttribute("Validator", "VeraPDF");
+			validationsErgebnis.setAttribute("Flavour", "2b");
+			anonymizedResult = result.replace(subDirectoryName, "");
+			validationsErgebnis.setTextContent(anonymizedResult);
+			rootElement.appendChild(validationsErgebnis);
+			if (justWellFormed) {
+				ret = VeraPDF.singleWellFormedAndValid(result);
+			} else {
+				ret = VeraPDF.singleWellFormedAndValid(result);
+			}
+		}
+		return ret;
 	}
 
 	private static FileGrp makeFileGroup(IEParser ie, UsageType usageType, String preservationType,
@@ -273,11 +365,11 @@ public class UeberordnungPacker {
 				String destination = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("1_Master")
 						.concat(fs).concat("Supplementals").concat(fs).concat("Abstractband.pdf");
 				FileUtils.copyURLToFile(new URL(abstractbandUrl), new File(destination));
-				String destination2 = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("2_derivedFrom1").concat(fs)
-						.concat("Supplementals").concat(fs).concat("Abstractband.pdf");
+				String destination2 = preSipDir.concat("content").concat(fs).concat("streams").concat(fs)
+						.concat("2_derivedFrom1").concat(fs).concat("Supplementals").concat(fs).concat("Abstractband.pdf");
 				FileUtils.copyFile(new File(destination), new File(destination2));
-				destination2 = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("3_derivedFrom2").concat(fs)
-						.concat("Supplementals").concat(fs).concat("Abstractband.pdf");
+				destination2 = preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("3_derivedFrom2")
+						.concat(fs).concat("Supplementals").concat(fs).concat("Abstractband.pdf");
 				FileUtils.copyFile(new File(destination), new File(destination2));
 			}
 
@@ -315,19 +407,39 @@ public class UeberordnungPacker {
 			Tar.createTar(fromString, fromString, destString.concat("HtmlForPdf_en.tar"));
 
 			// finish completion of SIP
-			processSIP(preSipDir, HtKuerzelDatenbank.kuerzel2ht(ID), ID);
+			boolean isAllValid = processSIP(preSipDir, HtKuerzelDatenbank.kuerzel2ht(ID), ID);
 
-			// move finished SIP to SIP-Directory
-			File sipDir = new File(Drive.getKongressSipDir(rosettaInstance, materialflowID, producerId, ID));
-			sipDir.mkdirs();
-			Drive.move(new File(Drive.getKongressPreSipDir(ID)), sipDir);
+			if (isAllValid) {
+				// move finished SIP to SIP-Directory
+				File sipDir = new File(Drive.getKongressSipDir(rosettaInstance, materialflowID, producerId, ID));
+				if (sipDir.exists())
+					sipDir.delete();
+				sipDir.mkdirs();
+				Drive.move(new File(Drive.getKongressPreSipDir(ID)), sipDir);
 
-			// update Status
-			int updated = SqlManager.INSTANCE
-					.executeUpdate("UPDATE ueberordnungen SET status = 70 WHERE ID = '".concat(ID).concat("';"));
-			if (updated != 2) {
-				System.err.println("Es sollte sich nun genau zwei Zeilen aktualisiert haben unter dem Kürzel '" + ID
-						+ "', aber es waren: " + updated + ".");
+				// update Status
+				int updated = SqlManager.INSTANCE
+						.executeUpdate("UPDATE ueberordnungen SET status = 70 WHERE ID = '".concat(ID).concat("';"));
+				if (updated != 2) {
+					System.err.println("Es sollte sich nun genau zwei Zeilen aktualisiert haben unter dem Kürzel '" + ID
+							+ "', aber es waren: " + updated + ".");
+				}
+			} else {
+				// move finished SIP to SIP-Directory
+				System.err.println("SIP invalide");
+				File sipDir = new File(Drive.getInvalidKongressSipDir(rosettaInstance, materialflowID, producerId, ID));
+				if (sipDir.exists())
+					sipDir.delete();
+				sipDir.mkdirs();
+				Drive.move(new File(Drive.getKongressPreSipDir(ID)), sipDir);
+
+				// update Status
+				int updated = SqlManager.INSTANCE
+						.executeUpdate("UPDATE ueberordnungen SET status = 65 WHERE ID = '".concat(ID).concat("';"));
+				if (updated != 2) {
+					System.err.println("Es sollte sich nun genau zwei Zeilen aktualisiert haben unter dem Kürzel '" + ID
+							+ "', aber es waren: " + updated + ".");
+				}
 			}
 		}
 	}
@@ -337,7 +449,7 @@ public class UeberordnungPacker {
 		//		String HT = "HT020488506";
 		//		String ID = "gma2016";
 		//		processSIP(filesRootFolder, HT, ID);
-		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 50 WHERE ID = 'ri2009';");
+		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 50 WHERE ID = 'dav2016';");
 		databaseWorker();
 		System.out.println("UeberordnungPacker Ende");
 	}

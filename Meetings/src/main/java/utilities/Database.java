@@ -8,16 +8,39 @@ public class Database {
 
 	public static void printDatabaseWithStatus(String database, int status, String nachwort) throws SQLException {
 		ResultSet resultSet = getDatabaseWithStatus(database, status);
+		int count = 0;
 		while (resultSet.next()) {
-			String ID = resultSet.getString("ID");
-			String URL = resultSet.getString("URL");
-			String LANG = resultSet.getString("LANG");
-			String message = "Eintrag ID='".concat(ID).concat("', URL='").concat(URL).concat("', LANG ='").concat(LANG)
-					.concat("'");
-			if (nachwort != null && nachwort != "") {
-				message = message.concat(" ").concat(nachwort);
+			if (database.contentEquals("ueberordnungen")) {
+				String ID = resultSet.getString("ID");
+				String URL = resultSet.getString("URL");
+				String LANG = resultSet.getString("LANG");
+				String message = "Eintrag ID='".concat(ID).concat("', URL='").concat(URL).concat("', LANG ='").concat(LANG)
+						.concat("'");
+				if (nachwort != null && nachwort != "") {
+					message = message.concat(" ").concat(nachwort);
+				}
+				System.out.println(message);
+			} else if (database.contentEquals("abstracts")) {
+				++count;
+				String Ue_ID = resultSet.getString("Ue_ID");
+				String Ab_ID = resultSet.getString("Ab_ID");
+				String URL = resultSet.getString("URL");
+				String LANG = resultSet.getString("LANG");
+				int Status = resultSet.getInt("Status");
+				String message = Integer.toString(count) + " | Ue_ID='" + Ue_ID + "' | Ab_ID='" + Ab_ID + "' | LANG='" + LANG + "' | Status=" + Status + " | " + nachwort;
+				System.out.println(message);
+			} else if (database.contentEquals("sonderfaelle")) {
+				++count;
+				String Ue_ID = resultSet.getString("Ue_ID");
+				String Ab_ID = resultSet.getString("Ab_ID");
+				String URL = resultSet.getString("URL");
+				String LANG = resultSet.getString("LANG");
+				int Status = resultSet.getInt("Status");
+				String message = Integer.toString(count) + " | Ue_ID='" + Ue_ID + "' | Ab_ID='" + Ab_ID + "' | LANG='" + LANG + "' | Status=" + Status + " | " + nachwort;
+				System.out.println(message);
+			} else {
+				System.err.println("Tabelle " + database + " nicht implementiert.");
 			}
-			System.out.println(message);
 		}
 	}
 

@@ -16,6 +16,7 @@ import utilities.SqlManager;
 
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 
 public class yearProcessor {
 
@@ -63,35 +64,41 @@ public class yearProcessor {
 		System.out.println("yearProcessor.main Anfang");
 		System.out.println("Clean");
 		Clean.clean();
-		System.out.println("LinkCrawl");
+		System.out.println("LinkCrawl " + LocalDateTime.now());
 		LinkCrawl.processBothLanguages();
-		System.out.println("syncToYear");
-		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_test3.csv";
-		//		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2016.csv";
+		System.out.println("syncToYear " + LocalDateTime.now());
+//		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2017_auszug.csv";
+		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2018.csv";
+		
 		syncToYear(csvFilePath);
-		//		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
-		
-//		SqlManager.INSTANCE.executeUpdate("DELETE FROM ueberordnungen WHERE ID!='ri2009';");
-		SqlManager.INSTANCE.executeUpdate("DELETE FROM ueberordnungen WHERE ID!='gma2010';");
-		
-		System.out.println("UeberordnungDownload");
+//		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
+
+		SqlManager.INSTANCE.executeUpdate("DELETE FROM ueberordnungen WHERE ID!='dkou2018';");
+
+		System.out.println("UeberordnungDownload " + LocalDateTime.now());
 		UeberordnungDownload.ueberordnungDownload();
-		
-//		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='09ri10';");
-		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='10gma146';");
-//		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='11iis03';");
-		
-		System.out.println("UeberordnungConvert");
+//		String Ue_ID = "eth2014", Ab_ID = "14eth01";
+//		SqlManager.INSTANCE.executeUpdate("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('"
+//				+ Ue_ID + "', '" + Ab_ID + "', 'https://www.egms.de/static/de/meetings/eth2014/14eth01.shtml', 'de', 10);");
+//		SqlManager.INSTANCE.executeUpdate("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('"
+//				+ Ue_ID + "', '" + Ab_ID + "', 'https://www.egms.de/static/en/meetings/eth2014/14eth01.shtml', 'en', 10);");
+
+		SqlManager.INSTANCE.executeUpdate("DELETE FROM ueberordnungen WHERE ID!='XXX';");
+		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='18dkou747';");
+//		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='XXX';");
+
+		System.out.println("UeberordnungConvert " + LocalDateTime.now());
 		UeberordnungConvert.ueberordnungConvert();
-		System.out.println("AbstractDownload");
-		AbstractDownload.abstractDownload();
-		System.out.println("AbstractConvert");
-		AbstractConvert.abstractConvert();
-		System.out.println("Überordnungen packen");
+		System.out.println("Überordnungen packen " + LocalDateTime.now());
 		UeberordnungPacker.databaseWorker();
-		System.out.println("Abstracts packen");
+		
+		System.out.println("AbstractDownload " + LocalDateTime.now());
+		AbstractDownload.abstractDownload();
+		System.out.println("AbstractConvert " + LocalDateTime.now());
+		AbstractConvert.abstractConvert();
+		System.out.println("Abstracts packen " + LocalDateTime.now());
 		AbstractPacker.databaseWorker();
-		System.out.println("yearProcessor.main Ende");
+		System.out.println("yearProcessor.main Ende " + LocalDateTime.now());
 	}
 
 }
