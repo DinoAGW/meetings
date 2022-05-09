@@ -267,7 +267,7 @@ public class UeberordnungDownload {
 	}
 
 	public static void main(String[] args) throws Exception {
-		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 10 WHERE ID = 'eth2014';");
+		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 10 WHERE ID = 'eth2013';");
 		ueberordnungDownload();
 		System.out.println("UeberordnungDownload Ende.");
 	}

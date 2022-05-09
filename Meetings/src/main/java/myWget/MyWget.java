@@ -267,6 +267,7 @@ public class MyWget {
 					StandardCopyOption.REPLACE_EXISTING);
 			target = new File(this.dirTo + "content" + fs + "target.html");
 			Document doc = Jsoup.parse(target, "CP1252" , this.pageFrom.getHost());//vorher: "ISO-8859-1"
+//			System.out.println(doc.getElementsByClass("contentTextblock").last().getElementsByTag("em"));
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
 			doc.outputSettings().charset("UTF-8");
 			

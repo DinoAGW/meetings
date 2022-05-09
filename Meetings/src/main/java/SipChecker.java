@@ -18,6 +18,8 @@ public class SipChecker {
 		int doneSips = 0;
 		int restSips = 0;
 		int nasSips = 0;
+		int minSipId = 0;
+		int maxSipId = 0;
 		for (File inst : insts) {
 			if (inst.isDirectory()) {
 				String instName = inst.getName();
@@ -54,6 +56,10 @@ public class SipChecker {
 									++doneSips;
 									System.out.println(
 											"Done: '".concat(subDirectoryName).concat("' in '").concat(rosettaInstance).concat("'."));
+									utilities.PropertiesManager prop = new utilities.PropertiesManager(subDirectoryName.concat("DONE.txt"));
+									int sipId = Integer.valueOf(prop.readStringFromProperty("sipID"));
+									if (minSipId > sipId || minSipId == 0) minSipId = sipId;
+									if (maxSipId < sipId || maxSipId == 0) maxSipId = sipId;
 								} else {
 									++restSips;
 									System.out.println(
@@ -65,10 +71,11 @@ public class SipChecker {
 				}
 			}
 		}
-		System.err.println("Insgesamt " + errorSips + " SIPs mit Status ERROR");
 		System.out.println("Insgesamt " + doneSips + " SIPs mit Status DONE");
+		System.out.println("Insgesamt " + errorSips + " SIPs mit Status ERROR");
 		System.out.println("Insgesamt " + nasSips + " SIPs ohne Status");
 		System.out.println("Insgesamt " + restSips + " SIPs mit anderem Status");
+		System.out.println("SipIDs reichen von " + minSipId + " bis " + maxSipId + " .");
 	}
 
 	

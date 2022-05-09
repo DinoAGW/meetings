@@ -39,14 +39,18 @@ public class testing {
 
 	public static void main(String[] args) throws Exception {
 		printSonderfallListe();
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=10 WHERE status = 65;");//invalide SIPs erneut versuchen
+//		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=10 WHERE ID = 'dgnc2019';");//reaktiviere Ueberordnung
 		System.out.println("UeberordnungDownload " + LocalDateTime.now());
 		UeberordnungDownload.ueberordnungDownload();
+//		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=11 WHERE ID = 'dgnc2019';");//deaktiviere Ueberordnung
 		System.out.println("UeberordnungConvert " + LocalDateTime.now());
 		UeberordnungConvert.ueberordnungConvert();
 		System.out.println("Überordnungen packen " + LocalDateTime.now());
 		UeberordnungPacker.databaseWorker();
-		String Ab = "18dkou747";
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 10 WHERE Ab_ID = '" + Ab + "';");
+//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 10 WHERE Ab_ID = '18dgrh054';");//reaktiviere Abstract
+//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 11 WHERE Ab_ID = '19ifssh0674';");//deaktiviere Abstract
+//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 11 WHERE status = 10 AND Ab_ID != '19dgnc359';");//deaktiviere andere Abstracts
 		System.out.println("AbstractDownload " + LocalDateTime.now());
 		AbstractDownload.abstractDownload();
 		System.out.println("AbstractConvert " + LocalDateTime.now());
@@ -55,7 +59,7 @@ public class testing {
 //		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 50 WHERE status = 65;");
 		System.out.println("Abstracts packen " + LocalDateTime.now());
 		AbstractPacker.databaseWorker();
-//		Database.printDatabaseWithStatus("abstracts", 65, "");
+		Database.printDatabaseWithStatus("abstracts", 65, "");
 		System.out.println("testing Ende " + LocalDateTime.now());
 	}
 

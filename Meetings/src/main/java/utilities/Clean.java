@@ -6,13 +6,15 @@ import java.sql.Statement;
 
 public class Clean {
 
-	public static void clean() {
+	public static void cleanDirs() {
 		//Ordner leeren
 		Utilities.deleteDir(Drive.landPath);
 		Utilities.deleteDir(Drive.captPath);
 		Utilities.deleteDir(Drive.absPath);
 		//		Utilities.deleteDir(Drive.sipPath);
-
+	}
+	
+	public static void cleanTables() {
 		//Tabellen erstellen
 		try {
 			Statement stmt = SqlManager.INSTANCE.getConnection().createStatement();
@@ -24,6 +26,7 @@ public class Clean {
 			stmt.executeUpdate(
 					"CREATE TABLE abstracts ( Ue_ID VARCHAR(20), Ab_ID VARCHAR(20), URL VARCHAR (200), LANG VARCHAR(5), Status INT );");
 			Database.createMetadataDatabase();
+			//Stelle sicher, dass die HtKuerzelDatenbank existiert
 			HtKuerzelDatenbank.createHtKuerzelDatenbank();
 		} catch (SQLException e) {
 			e.printStackTrace();

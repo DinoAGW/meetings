@@ -282,6 +282,8 @@ public class AbstractPacker {
 			mimeType = "image/png";
 		} else if (dateiname.endsWith(".avi")) {
 			mimeType = "video/x-msvideo";
+		} else if (dateiname.endsWith(".mp4")) {
+			mimeType = "video/mp4";
 		} else {
 			System.err.println("Dateiendung nicht erkannt: ".concat(dateiname));
 			throw new Exception();
@@ -485,7 +487,8 @@ public class AbstractPacker {
 
 			if (differentSupplements(new File(Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("Supplementals").concat(fs)),
 					Drive.getAbstractDir(Ue_ID, Ab_ID, "en").concat("Supplementals").concat(fs))) {
-				System.err.println("Unterschiedliche Supplementals in der deutschen und englischen Version entdeckt.");
+				System.err.println("Unterschiedliche Supplementals in der deutschen und englischen Version entdeckt. Pfad:");
+				System.err.println(Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("Supplementals").concat(fs));
 				throw new Exception();
 			}
 

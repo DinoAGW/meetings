@@ -20,60 +20,21 @@ import java.time.LocalDateTime;
 
 public class yearProcessor {
 
-	private static String processHT(String HT) throws Exception {
-		System.out.println(HT);
-		return UeberordnungMetadataParser.okeanos2Database(HT);
-	}
-
-	private static void syncToYear(String csvFilePath) throws Exception {
-		File csvFile = new File(csvFilePath);
-		Scanner csvScanner = new Scanner(csvFile);
-		List<String> HTnummern = new ArrayList<String>();
-		List<String> IDs = new ArrayList<String>();
-		//Hole alle Metadaten zu den jeweiligen HT Nummern
-		while (csvScanner.hasNext()) {
-			String HT = csvScanner.next();
-			HTnummern.add(HT);
-			String ID = processHT(HT);
-			IDs.add(ID);
-			//prüfe ob die echten URLS ermittelt werden können
-			if (!Database.ueberordnungenDatabaseContainsBothIds(ID)) {
-				csvScanner.close();
-				System.err
-						.println("ID '".concat(ID).concat("' ist nicht in beiden Sprachen in den Überordnungen vertreten"));
-				throw new Exception();
-			}
-		}
-		csvScanner.close();
-		ResultSet resultSet = Database.getDatabaseWithStatus("ueberordnungen", 10);
-		//Lösche Überordnungen die nicht in diesem Jahr vorkommen
-		while (resultSet.next()) {
-			String ID = resultSet.getString("ID");
-			if (!IDs.contains(ID)) {
-				//				System.out.println("Alle Einträge mit der ID='".concat(kurzID).concat("' werden wieder gelöscht"));
-				Statement stmt;
-				stmt = SqlManager.INSTANCE.getConnection().createStatement();
-				String update = "DELETE FROM ueberordnungen WHERE ID='".concat(ID).concat("';");
-				stmt.executeUpdate(update);
-			}
-		}
-
-	}
-
 	public static void main(String[] args) throws Exception {
 		System.out.println("yearProcessor.main Anfang");
 		System.out.println("Clean");
-		Clean.clean();
+		Clean.cleanDirs();
+		Clean.cleanTables();
 		System.out.println("LinkCrawl " + LocalDateTime.now());
 		LinkCrawl.processBothLanguages();
 		System.out.println("syncToYear " + LocalDateTime.now());
 //		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2017_auszug.csv";
-		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2018.csv";
+		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2021.csv";
 		
-		syncToYear(csvFilePath);
+		Database.syncToYear(csvFilePath);
 //		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
 
-		SqlManager.INSTANCE.executeUpdate("DELETE FROM ueberordnungen WHERE ID!='dkou2018';");
+//		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=11 WHERE ID!='dgpp2017';");
 
 		System.out.println("UeberordnungDownload " + LocalDateTime.now());
 		UeberordnungDownload.ueberordnungDownload();
@@ -83,9 +44,11 @@ public class yearProcessor {
 //		SqlManager.INSTANCE.executeUpdate("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('"
 //				+ Ue_ID + "', '" + Ab_ID + "', 'https://www.egms.de/static/en/meetings/eth2014/14eth01.shtml', 'en', 10);");
 
-		SqlManager.INSTANCE.executeUpdate("DELETE FROM ueberordnungen WHERE ID!='XXX';");
-		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='18dkou747';");
-//		SqlManager.INSTANCE.executeUpdate("DELETE FROM abstracts WHERE Ab_ID!='XXX';");
+//		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=11 WHERE ID!='XXX';");
+//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID!='19gmds210';");
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='21dkg65';");
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='21dkou050';");
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='21dkou091';");
 
 		System.out.println("UeberordnungConvert " + LocalDateTime.now());
 		UeberordnungConvert.ueberordnungConvert();
