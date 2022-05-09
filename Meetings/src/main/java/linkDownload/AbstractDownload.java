@@ -1,12 +1,17 @@
 package linkDownload;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,15 +25,14 @@ import utilities.Drive;
 import utilities.Resources;
 import utilities.SqlManager;
 import utilities.Utilities;
+import utilities.Reference;
 
 public class AbstractDownload {
 	private static String fs = System.getProperty("file.separator");
 
 	public static void linkDownload(String absPath, String protokoll, String hostname)
 			throws Exception {
-		ResultSet resultSet = null;
-
-		resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE status=10");
+		ResultSet resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE status=10");
 
 		int Anzahl = -2 * 1;
 		while (resultSet.next()) {
@@ -56,7 +60,11 @@ public class AbstractDownload {
 
 			File kongressFile = new File(
 					kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat("target.html"));
+//			checkFor65533(kongressFile);
 			Document doc = Jsoup.parse(kongressFile, "CP1252", protokoll.concat(hostname));
+//			System.out.println(doc.getElementsByClass("contentTextblock").last().getElementsByTag("em").text().charAt(2)+0+String.format("%X", 65533));
+//			System.out.println(doc.getElementsByClass("contentTextblock").last().getElementsByTag("em").toString().charAt(15)+0);
+//			System.out.println(doc.getElementsByClass("contentTextblock").last().getElementsByTag("em").toString().contains(String.format("%X", 65533)));
 			// doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
 			// doc.outputSettings().charset("UTF-8");
 
@@ -73,6 +81,7 @@ public class AbstractDownload {
 			processTables(content, kongressDir, LANG);
 			processAttachments(content, kongressDir, LANG);
 			content.getElementById("page").child(0).before("<div style=\"height:130px;\"></div>");
+			ersetzeNbspInTitle(doc);
 
 			String htmlPath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("target.html");
 			FileOutputStream fstream = new FileOutputStream(htmlPath);
@@ -107,11 +116,70 @@ public class AbstractDownload {
 		}
 
 	}
+	
+	private static void checkFor65533(File kongressFile) throws IOException {
+		InputStreamReader readerFrom = new InputStreamReader(new FileInputStream(kongressFile), "CP1252");
+//		FileReader readerFrom = new FileReader(kongressFile);
+		int i, count65533 = 0, intBuf, zeile=1, spalte=1;
+		for (i = 0;; i++) {
+			intBuf = readerFrom.read();
+			if (intBuf == -1) {
+				System.out.println(i + " Zeichen gelesen. Davon " + count65533 + " " + (char) 65533);
+				break;
+			}
+			if (intBuf == 65533) {
+				System.out.printf("Hier: %5d (%5d, %5d)%n", i, zeile, spalte);
+				count65533++;
+			}
+			if (intBuf == 10) {
+				++zeile;
+				spalte = 1;
+			} else {
+				++spalte;
+			}
+		}
+		readerFrom.close();
+	}
 
-	private static void processFigures(Element content, String abstractDir, String LANG) throws IOException {
+	public static void ersetzeNbspInTitle(final Document doc) throws Exception {
+		Element elem = doc.head();
+		if (elem == null) {
+			System.err.println("Dokument hat kein head");
+			throw new Exception();
+		}
+		elem = elem.getElementsByTag("title").first();
+		if (elem == null) {
+			System.err.println("Head hat kein title");
+			throw new Exception();
+		}
+		//ersetze Text durch whitespace normalisierte Version
+		elem.text(elem.text().replace("\u00A0", " "));
+		
+		elem = doc.head().getElementsByAttributeValue("name", "DC.Title").first();
+		if (elem == null) {
+			System.err.println("Head hat kein DC.Title");
+			throw new Exception();
+		}
+		//ersetze Text durch whitespace normalisierte Version
+		elem.attr("content", elem.attr("content").replace("\u00A0", " "));
+		
+		elem = doc.getElementById("owner_description");
+		if (elem == null) {
+			System.err.println("Dokument hat keine owner_description");
+			throw new Exception();
+		}
+		elem = elem.getElementsByTag("h2").first();
+		if (elem == null) {
+			System.err.println("owner_description hat kein h2");
+			throw new Exception();
+		}
+		elem.text(elem.text().replace("\u00A0", " "));
+	}
+	
+	private static void processFigures(Element content, String abstractDir, String LANG) throws Exception {
 		Elements figureLinks = content.getElementsByClass("link-figure");
 		int figuresIncluded = 0;
-		//700 ist zu viel, 650 könnte bisschen größer sein
+		LinkedList<Reference> figureList = new LinkedList<Reference>();
 		String appandage = null;
 		if (LANG.equalsIgnoreCase("de")) {
 			appandage = "<h3>Abbildungsverzeichnis</h3><div><table align=\"left\" width=\"670\" cellspacing=\"1\" cellpadding=\"1\" border=\"1\"><thdead><tr><th scope=\"col\">Verweis</th><th scope=\"col\">Dateiname</th><th scope=\"col\">Beschreibung</th></tr></thead><tbody>";
@@ -119,45 +187,87 @@ public class AbstractDownload {
 			appandage = "<h3>List of Figures</h3><div><table align=\"left\" width=\"670\" cellspacing=\"1\" cellpadding=\"1\" border=\"1\"><thdead><tr><th scope=\"col\">Reference</th><th scope=\"col\">Filename</th><th scope=\"col\">Description</th></tr></thead><tbody>";
 		}
 		for (Element figureLink : figureLinks) {
-			++figuresIncluded;
-			String href = figureLink.attr("href");
-			Document doc = Utilities.getWebsite(href);
-			Element figure = doc.getElementsByTag("img").first();
-			String figureSrc = figure.attr("src");
-			String beschreibung = figure.nextElementSibling().text();
-			String dateiname = "Abb" + figuresIncluded + ".png";
-			Utilities.downloadUrlToFile("https://www.egms.de".concat(figureSrc),
-					abstractDir.concat("Supplementals").concat(fs).concat(dateiname));
-			appandage = appandage.concat(
-					"<tr><td>" + figureLink.text() + "</td><td>" + dateiname + "</td><td>" + beschreibung + "</td></tr>");
+			//collect Infos
+			Reference figure = new Reference();
+			figure.href = figureLink.attr("href");
+			figure.text = figureLink.text();
+			Document doc = Utilities.getWebsite(figure.href);
+			Element figureElem = doc.getElementsByTag("img").first();
+			figure.src = figureElem.attr("src");
+			figure.beschreibung = figureElem.nextElementSibling().text();
+			
+			//check for duplicates
+			boolean isNew = true;
+			for (Reference anFig : figureList) {
+				boolean isNewText, isNewHref;
+				isNewText = !figure.text.contentEquals(anFig.text);
+				isNewHref = !figure.href.contentEquals(anFig.href);
+				if (isNewText != isNewHref) {
+					System.err.println("Inkonsistenz entdeckt zwischen neuer Referenz Text und Link '" + figure.text + "', '" + anFig.text + "', '" + figure.href + "', '" + anFig.href + '"');
+					throw new Exception();
+				}
+				if (!isNewHref) {
+					isNew = false;
+				}
+			}
+			//download if new
+			if (isNew) {
+				++figuresIncluded;
+				figure.dateiname = "Abb" + figuresIncluded + ".png";
+				figureList.add(figure);
+				Utilities.downloadUrlToFile("https://www.egms.de".concat(figure.src),
+						abstractDir.concat("Supplementals").concat(fs).concat(figure.dateiname));
+				appandage = appandage.concat(
+						"<tr><td>" + figure.text + "</td><td>" + figure.dateiname + "</td><td>" + figure.beschreibung + "</td></tr>");
+			}
 		}
 		if (figuresIncluded > 0) {
 			content.getElementById("content").append(appandage + "</tbody></table></div>");
 		}
 	}
 
-	private static void processTables(Element content, String abstractDir, String LANG) throws IOException {
+	private static void processTables(Element content, String abstractDir, String LANG) throws Exception {
 		Elements tableLinks = content.getElementsByClass("link-table");
 		int tablesIncluded = 0;
-		//700 ist zu viel, 650 könnte bisschen größer sein
+		LinkedList<Reference> tableList = new LinkedList<Reference>();
 		String appandage = null;
 		if (LANG.equalsIgnoreCase("de")) {
 			appandage = "<h3>Tabellenverzeichnis</h3><div><table align=\"left\" width=\"670\" cellspacing=\"1\" cellpadding=\"1\" border=\"1\"><thdead><tr><th scope=\"col\">Verweis</th><th scope=\"col\">Dateiname</th><th scope=\"col\">Beschreibung</th></tr></thead><tbody>";
 		} else {
 			appandage = "<h3>List of Tables</h3><div><table align=\"left\" width=\"670\" cellspacing=\"1\" cellpadding=\"1\" border=\"1\"><thdead><tr><th scope=\"col\">Reference</th><th scope=\"col\">Filename</th><th scope=\"col\">Description</th></tr></thead><tbody>";
 		}
-		for (Element figureLink : tableLinks) {
-			++tablesIncluded;
-			String href = figureLink.attr("href");
-			Document doc = Utilities.getWebsite(href);
-			Element table = doc.getElementsByTag("img").first();
-			String figureSrc = table.attr("src");
-			String beschreibung = table.nextElementSibling().text();
-			String dateiname = "Tab" + tablesIncluded + ".png";
-			Utilities.downloadUrlToFile("https://www.egms.de".concat(figureSrc),
-					abstractDir.concat("Supplementals").concat(fs).concat(dateiname));
-			appandage = appandage.concat(
-					"<tr><td>" + figureLink.text() + "</td><td>" + dateiname + "</td><td>" + beschreibung + "</td></tr>");
+		for (Element tableLink : tableLinks) {
+			// collect Infos
+			Reference table = new Reference();
+			table.href = tableLink.attr("href");
+			table.text = tableLink.text();
+			Document doc = Utilities.getWebsite(table.href);
+			Element tableElem = doc.getElementsByTag("img").first();
+			table.src = tableElem.attr("src");
+			table.beschreibung = tableElem.nextElementSibling().text();
+			
+			//check for duplicates
+			boolean isNew = true;
+			for (Reference anTab : tableList) {
+				boolean isNewText, isNewHref;
+				isNewText = !table.text.contentEquals(anTab.text);
+				isNewHref = !table.href.contentEquals(anTab.href);
+				if (isNewText != isNewHref) {
+					System.err.println("Inkonsistenz entdeckt zwischen neuer Referenz Text und Link '" + table.text + "', '" + anTab.text + "', '" + table.href + "', '" + anTab.href + '"');
+					throw new Exception();
+				}
+				isNew = isNewText;
+			}
+			//download if new
+			if (isNew) {
+				++tablesIncluded;
+				table.dateiname = "Tab" + tablesIncluded + ".png";
+				tableList.add(table);
+				Utilities.downloadUrlToFile("https://www.egms.de".concat(table.src),
+						abstractDir.concat("Supplementals").concat(fs).concat(table.dateiname));
+				appandage = appandage.concat(
+						"<tr><td>" + table.text + "</td><td>" + table.dateiname + "</td><td>" + table.beschreibung + "</td></tr>");
+			}
 		}
 		if (tablesIncluded > 0) {
 			content.getElementById("content").append(appandage + "</tbody></table></div>");
@@ -202,13 +312,6 @@ public class AbstractDownload {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET Status = 10 WHERE Ab_ID = '11iis03' AND LANG = 'de';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET Status = 10 WHERE Ab_ID = '09ri10' AND LANG = 'de';");
-		abstractDownload();
-		System.out.println("AbstractDownload Ende.");
-	}
-
 	public static void abstractDownload() throws Exception {
 		String absPath = Drive.absPath;
 
@@ -216,5 +319,28 @@ public class AbstractDownload {
 		String hostname = "www.egms.de";
 
 		linkDownload(absPath, protokoll, hostname);
+	}
+
+	public static void main(String[] args) throws Exception {
+//		String UeO = "dav2016";String Ab = "16dav01";String LANG="de";
+		String Ab = "21dkou091";String LANG="de";//17dgpp15
+		boolean zuBearbeiten = false; boolean bothLanguages = true;
+		
+		if (bothLanguages) {
+			if (zuBearbeiten) {
+				SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 10 WHERE Ab_ID = '" + Ab + "';");
+			} else {
+				SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 11 WHERE Ab_ID = '" + Ab + "';");
+			}
+		} else {
+			if (zuBearbeiten) {
+				SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 10 WHERE Ab_ID = '" + Ab + "' AND LANG = '" + LANG + "';");
+			} else {
+				SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status = 11 WHERE Ab_ID = '" + Ab + "' AND LANG = '" + LANG + "';");
+			}
+		}
+		
+		abstractDownload();
+		System.out.println("AbstractDownload Ende.");
 	}
 }

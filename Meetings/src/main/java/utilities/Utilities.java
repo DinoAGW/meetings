@@ -49,6 +49,9 @@ public class Utilities {
 		return process;
 	}
 	
+	/*
+	 * Lade URL in ein jsoup Document
+	 */
 	public static Document getWebsite(String URL) {
 		Document doc = null;
 		try {

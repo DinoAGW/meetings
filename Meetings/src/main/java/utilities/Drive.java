@@ -47,17 +47,17 @@ public class Drive {
 
 	public static String getUeberordnungPreSipXml(String Kuerzel) {
 		String preSipDir = getKongressPreSipDir(Kuerzel);
-		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SOURCE_MD").concat(fs).concat("SRU.xml");
+		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SourceMD").concat(fs).concat("SRU.xml");
 	}
 
 	public static String getAbstractPreSipWebXml(String Ue_ID, String Ab_ID) {
 		String preSipDir = getAbstractPreSipDir(Ue_ID, Ab_ID);
-		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SOURCE_MD").concat(fs).concat(Ab_ID).concat(".xml");
+		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SourceMD").concat(fs).concat(Ab_ID).concat(".xml");
 	}
 
 	public static String getAbstractPreSipOaiXml(String Ue_ID, String Ab_ID) {
 		String preSipDir = getAbstractPreSipDir(Ue_ID, Ab_ID);
-		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SOURCE_MD").concat(fs).concat("OAI.xml");
+		return preSipDir.concat("content").concat(fs).concat("streams").concat(fs).concat("SourceMD").concat(fs).concat("OAI.xml");
 	}
 
 	public static String getKongressPreSipDir(String Kuerzel) {
@@ -93,8 +93,18 @@ public class Drive {
 				.concat(producerId).concat(fs).concat(Kuerzel).concat(fs);
 	}
 
+	public static String getInvalidKongressSipDir(String rosettaInstance, String materialflowID, String producerId, String Kuerzel) {
+		return sipPath.concat(rosettaInstance).concat("_invalid").concat(fs).concat(materialflowID).concat(fs)
+				.concat(producerId).concat(fs).concat(Kuerzel).concat(fs);
+	}
+	
 	public static String getAbstractSipDir(String rosettaInstance, String materialflowID, String producerId, String Ue_ID, String Ab_ID) {
 		return sipPath.concat(rosettaInstance).concat(fs).concat(materialflowID).concat(fs)
+				.concat(producerId).concat(fs).concat(Ue_ID.concat("_").concat(Ab_ID)).concat(fs);
+	}
+	
+	public static String getInvalidAbstractSipDir(String rosettaInstance, String materialflowID, String producerId, String Ue_ID, String Ab_ID) {
+		return sipPath.concat(rosettaInstance).concat("_invalid").concat(fs).concat(materialflowID).concat(fs)
 				.concat(producerId).concat(fs).concat(Ue_ID.concat("_").concat(Ab_ID)).concat(fs);
 	}
 

@@ -19,6 +19,8 @@ import utilities.SqlManager;
 
 public class LinkCrawl {
 	static String fs = System.getProperty("file.separator");
+	
+	private static final int overviewsToGo = -1;
 
 	public static void linkCrawl(URL landingPage, String LANG, String mainPath) throws IOException, SQLException {
 		// lade die Webseite herrunter
@@ -50,7 +52,7 @@ public class LinkCrawl {
 
 		ResultSet resultSet = null;
 
-		int Anzahl = -1;
+		int Anzahl = overviewsToGo;
 		for (Kongress it : listNew) {
 			resultSet = SqlManager.INSTANCE
 					.executeQuery("SELECT * FROM ueberordnungen WHERE ID = '" + it.kurzID + "' AND LANG = '" + LANG + "';");

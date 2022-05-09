@@ -31,11 +31,6 @@ import utilities.SqlManager;
 
 public class UeberordnungConvert {
 	static String fs = System.getProperty("file.separator");
-
-	public static void main(String[] args) throws IOException, SQLException {
-		ueberordnungConvert();
-		System.out.println("UeberordnungConvert Ende.");
-	}
 	
 	public static void ueberordnungConvert() throws IOException, SQLException {
 
@@ -95,4 +90,9 @@ public class UeberordnungConvert {
 		}
 	}
 
+	public static void main(String[] args) throws IOException, SQLException {
+		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 30 WHERE ID = 'dav2016';");
+		ueberordnungConvert();
+		System.out.println("UeberordnungConvert Ende.");
+	}
 }

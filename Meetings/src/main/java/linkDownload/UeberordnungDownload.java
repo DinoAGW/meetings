@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.codec.binary.Hex;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,11 +36,11 @@ import utilities.Utilities;
 public class UeberordnungDownload {
 	static String fs = System.getProperty("file.separator");
 	
-	private static final int overviewsToGo = -1;
+	private static final int overviewsToGo = -1; // funktioniert noch nicht
 	private static final int abstractsToGo = -1;
 
 	public static void linkDownload(String protokoll, String hostname)
-			throws IOException, SQLException, InterruptedException {
+			throws Exception {
 
 		// Get everything from the overview table
 		ResultSet resultSet = Database.getDatabaseWithStatus("ueberordnungen", 10);
@@ -152,6 +154,8 @@ public class UeberordnungDownload {
 			}
 			Utilities.addExtLinkImages(doc);
 			Utilities.addMailLinkImages(doc);
+			ersetzeNbspInTitle(doc);
+			
 			// and save it to harddisk
 			String mergePath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("target.html");
 			FileOutputStream fstream = new FileOutputStream(mergePath);
@@ -229,14 +233,41 @@ public class UeberordnungDownload {
 
 	}
 
-	public static void ueberordnungDownload() throws IOException, SQLException, InterruptedException {
+	public static void ersetzeNbspInTitle(final Document doc) throws Exception {
+		Element elem = doc.head();
+		if (elem == null) {
+			System.err.println("Dokument hat kein head");
+			throw new Exception();
+		}
+		elem = elem.getElementsByTag("title").first();
+		if (elem == null) {
+			System.err.println("Head hat kein title");
+			throw new Exception();
+		}
+		elem.text(elem.text().replace("\u00A0", " "));
+		
+		elem = doc.getElementById("owner_description");
+		if (elem == null) {
+			System.err.println("Dokument hat keine owner_description");
+			throw new Exception();
+		}
+		elem = elem.getElementsByTag("h2").first();
+		if (elem == null) {
+			System.err.println("owner_description hat kein h2");
+			throw new Exception();
+		}
+		elem.text(elem.text().replace("\u00A0", " "));
+	}
+	
+	public static void ueberordnungDownload() throws Exception {
 		String protokoll = "https://";
 		String hostname = "www.egms.de";
 
 		linkDownload(protokoll, hostname);
 	}
 
-	public static void main(String[] args) throws IOException, SQLException, InterruptedException {
+	public static void main(String[] args) throws Exception {
+		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 10 WHERE ID = 'eth2013';");
 		ueberordnungDownload();
 		System.out.println("UeberordnungDownload Ende.");
 	}
