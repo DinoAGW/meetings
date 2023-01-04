@@ -42,7 +42,9 @@ import com.exlibris.core.sdk.utils.FileUtil;
 import com.exlibris.digitool.common.dnx.DnxDocument;
 import com.exlibris.digitool.common.dnx.DnxDocumentFactory;
 import com.exlibris.digitool.common.dnx.DnxDocumentHelper;
+import com.exlibris.digitool.common.dnx.DnxDocumentHelper.GeneralIECharacteristics;
 import com.exlibris.digitool.common.dnx.DnxDocumentHelper.PreservationLevel;
+import com.exlibris.digitool.common.dnx.DnxSection;
 import com.exlibris.dps.sdk.deposit.IEParser;
 import com.exlibris.dps.sdk.deposit.IEParserFactory;
 import gov.loc.mets.FileType;
@@ -62,6 +64,7 @@ public class AbstractPacker {
 	final static String rosettaInstance = "dev";
 	final static String materialflowID = "76661659";
 	final static String producerId = "2049290";
+	public static String userDefinedB = "20220812";
 
 	private static final String ROSETTA_METS_SCHEMA = "http://www.exlibrisgroup.com/xsd/dps/rosettaMets";
 	private static final String METS_SCHEMA = "http://www.loc.gov/METS/";
@@ -100,6 +103,7 @@ public class AbstractPacker {
 		}
 
 		ie.setIEDublinCore(dc);
+		
 		List<FileGrp> fGrpList = new ArrayList<FileGrp>();
 
 		FileGrp fGrp1 = makeFileGroup(ie, Enum.UsageType.VIEW, "PRESERVATION_MASTER", "1", Ab_ID.concat("_original"));
@@ -195,6 +199,9 @@ public class AbstractPacker {
 		DnxDocument ieDnx = DnxDocumentFactory.getInstance().createDnxDocument();
 		DnxDocumentHelper ieDnxHelper = new DnxDocumentHelper(ieDnx);
 		//TODO sourceMD sollte noch hinzugefügt werden
+		//Füge UserDefinedA&B hinzu
+		GeneralIECharacteristics generalIeCharacteristics = ieDnxHelper.new GeneralIECharacteristics(null, null, null, null, null, "GMSKON_" + Ab_ID, userDefinedB, null);
+		ieDnxHelper.setGeneralIECharacteristics(generalIeCharacteristics);
 		ie.setIeDnx(ieDnxHelper.getDocument());
 
 		//example for adding a logical Struct Map.
@@ -611,8 +618,8 @@ public class AbstractPacker {
 		//		String ID = "gma2016";
 		//		processSIP(filesRootFolder, HT, ID);
 //		String UeO = "dgpraec2016";String Ab = "16dgpraec001";
-		String UeO = "inhere2018";String Ab = "18inhere12";
-		boolean zuBearbeiten = false;
+		String UeO = "dgpraec2015";String Ab = "15dgpraec004";
+		boolean zuBearbeiten = true;
 
 		if (zuBearbeiten) {
 			String sipString = Drive.getAbstractSipDir(rosettaInstance, materialflowID, producerId, UeO, Ab);

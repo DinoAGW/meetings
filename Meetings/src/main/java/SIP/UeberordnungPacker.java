@@ -42,6 +42,7 @@ import com.exlibris.core.sdk.utils.FileUtil;
 import com.exlibris.digitool.common.dnx.DnxDocument;
 import com.exlibris.digitool.common.dnx.DnxDocumentFactory;
 import com.exlibris.digitool.common.dnx.DnxDocumentHelper;
+import com.exlibris.digitool.common.dnx.DnxDocumentHelper.GeneralIECharacteristics;
 import com.exlibris.digitool.common.dnx.DnxDocumentHelper.PreservationLevel;
 import com.exlibris.dps.sdk.deposit.IEParser;
 import com.exlibris.dps.sdk.deposit.IEParserFactory;
@@ -140,6 +141,7 @@ public class UeberordnungPacker {
 					// add dnx - A new DNX is constructed and added on the file level
 					DnxDocument dnx = ie.getFileDnx(fileType.getID());
 					DnxDocumentHelper fileDocumentHelper = new DnxDocumentHelper(dnx);
+					
 					if (file.getName().equals("Abstractband.pdf")) {
 						fileDocumentHelper.getGeneralFileCharacteristics().setLabel("Abstractband");
 					} else if (file.getName().equals("SRU.xml")) {
@@ -185,13 +187,20 @@ public class UeberordnungPacker {
 		ie.generateChecksum(filesRootFolder, Enum.FixityType.MD5.toString());
 		ie.updateSize(filesRootFolder);
 
-		//cms Enrichment verankern
 		DnxDocument ieDnx = DnxDocumentFactory.getInstance().createDnxDocument();
 		DnxDocumentHelper ieDnxHelper = new DnxDocumentHelper(ieDnx);
+
+		//Füge UserDefinedA&B hinzu
+		GeneralIECharacteristics generalIeCharacteristics = ieDnxHelper.new GeneralIECharacteristics(null, null, null, null, null, "GMSKON_" + ID, "20220811", null);
+		ieDnxHelper.setGeneralIECharacteristics(generalIeCharacteristics);
+		
+		//cms Enrichment verankern
 		DnxDocumentHelper.CMS cms = ieDnxHelper.new CMS();
 		cms.setSystem("HBZ01");
 		cms.setRecordId(HT);
 		ieDnxHelper.setCMS(cms);
+		
+		
 		ie.setIeDnx(ieDnxHelper.getDocument());
 
 		//example for adding a logical Struct Map.
@@ -202,6 +211,7 @@ public class UeberordnungPacker {
 		XmlOptions opt = new XmlOptions();
 		opt.setSavePrettyPrint();
 		String xmlMetsContent = metsDoc.xmlText(opt);
+		
 		//Need to replace manually the namespace with Rosetta Mets schema in order to pass validation against mets_rosetta.xsd
 		String xmlRosettaMetsContent = xmlMetsContent.replaceAll(XML_SCHEMA, XML_SCHEMA_REPLACEMENT);
 		xmlRosettaMetsContent = xmlMetsContent.replaceAll(METS_SCHEMA, ROSETTA_METS_SCHEMA);
@@ -344,9 +354,10 @@ public class UeberordnungPacker {
 
 			String preSipDir = Drive.getKongressPreSipDir(ID);
 			File destDir = new File(preSipDir.concat("content").concat(fs).concat("streams").concat(fs));
-			//			if (!destDir.exists()) {
+			if (destDir.exists()) {
+				FileUtils.deleteDirectory(destDir);
+			}
 			destDir.mkdirs();
-			//			}
 
 			Document kongressDoc = Utilities.getWebsite(aURL);
 			Elements abstractbandElements = kongressDoc.getElementById("owner_tabs")
@@ -382,6 +393,7 @@ public class UeberordnungPacker {
 					StandardCopyOption.REPLACE_EXISTING);
 
 			String metadataURL = UeberordnungMetadataDownloader.ht2okeanos(HT);
+			System.out.println("Lade Metadaten herunter von: " + metadataURL);
 			FileUtils.copyURLToFile(new URL(metadataURL), new File(Drive.getUeberordnungPreSipXml(ID)));
 
 			// add originals as zip
@@ -415,7 +427,7 @@ public class UeberordnungPacker {
 				if (sipDir.exists())
 					sipDir.delete();
 				sipDir.mkdirs();
-				Drive.move(new File(Drive.getKongressPreSipDir(ID)), sipDir);
+				Drive.move(new File(preSipDir), sipDir);
 
 				// update Status
 				int updated = SqlManager.INSTANCE
@@ -449,7 +461,7 @@ public class UeberordnungPacker {
 		//		String HT = "HT020488506";
 		//		String ID = "gma2016";
 		//		processSIP(filesRootFolder, HT, ID);
-		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 50 WHERE ID = 'dav2016';");
+		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 50 WHERE ID = 'dgpraec2016';");
 		databaseWorker();
 		System.out.println("UeberordnungPacker Ende");
 	}

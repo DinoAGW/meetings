@@ -30,11 +30,12 @@ public class yearProcessor {
 		System.out.println("syncToYear " + LocalDateTime.now());
 //		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2017_auszug.csv";
 		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2021.csv";
+		AbstractPacker.userDefinedB = "20220812";
 		
 		Database.syncToYear(csvFilePath);
 //		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
 
-//		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=11 WHERE ID!='dgpp2017';");
+//		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=11 WHERE ID!='dgnc2020';");
 
 		System.out.println("UeberordnungDownload " + LocalDateTime.now());
 		UeberordnungDownload.ueberordnungDownload();
@@ -44,11 +45,8 @@ public class yearProcessor {
 //		SqlManager.INSTANCE.executeUpdate("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('"
 //				+ Ue_ID + "', '" + Ab_ID + "', 'https://www.egms.de/static/en/meetings/eth2014/14eth01.shtml', 'en', 10);");
 
-//		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=11 WHERE ID!='XXX';");
-//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID!='19gmds210';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='21dkg65';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='21dkou050';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='21dkou091';");
+//		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=11;");
+//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID!='20dgnc025';");
 
 		System.out.println("UeberordnungConvert " + LocalDateTime.now());
 		UeberordnungConvert.ueberordnungConvert();

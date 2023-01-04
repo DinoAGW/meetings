@@ -146,6 +146,8 @@ public class Database {
 			if (!IDs.contains(ID)) {
 				//				System.out.println("Alle Einträge mit der ID='".concat(kurzID).concat("' werden wieder gelöscht"));
 				Database.updateStatusUeberordnung(ID, 11);
+			} else {
+				Database.updateStatusUeberordnung(ID, 10);
 			}
 		}
 	}

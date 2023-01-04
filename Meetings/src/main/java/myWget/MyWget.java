@@ -269,7 +269,7 @@ public class MyWget {
 			Document doc = Jsoup.parse(target, "CP1252" , this.pageFrom.getHost());//vorher: "ISO-8859-1"
 //			System.out.println(doc.getElementsByClass("contentTextblock").last().getElementsByTag("em"));
 			doc.outputSettings().syntax(org.jsoup.nodes.Document.OutputSettings.Syntax.xml);
-			doc.outputSettings().charset("UTF-8");
+			doc.outputSettings().charset("UTF-8"); //scheinbar kritisch
 			
 			Elements select = doc.select("a");
 			for (Element e : select) {
