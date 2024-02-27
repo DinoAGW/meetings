@@ -17,17 +17,24 @@ public class UeberordnungMetadataParser {
 		Database.insertIntoMetadataDatabase(HT, ID, xPathKey, value);
 	}
 
-	public static void insertSelectIntoMetadata(Document doc, String HT, String ID, String selector, String xPathKey) throws Exception {
+	public static void insertSelectIntoMetadata(Document doc, String HT, String ID, String selector, String xPathKey)
+			throws Exception {
 		Elements elems = doc.select(selector);
 		for (Element elem : elems) {
 			insertIntoMetadata(HT, ID, xPathKey, elem.text());
 		}
 	}
-	
-	public static String getURLoutofDoc(Document doc) throws Exception{
-		Elements identifierElements = doc.select("identifier");
+
+	public static String getURLoutofDoc(Document doc) throws Exception {
+//		for (Element temp : doc.getAllElements()) {
+//			System.out.println("Element: " + temp.cssSelector());
+//		}
+		Elements identifierElements = doc
+				.select("searchRetrieveResponse > records > record > recordData > srw_dc|dc > dc|identifier");
+//		System.out.println("Anzahl = " + identifierElements.size());
 		String URL = null;
 		for (Element identifierElement : identifierElements) {
+//			System.out.println("title: " + identifierElement.text());
 			if (identifierElement.text().startsWith("http")) {
 				if (URL != null) {
 					System.err.println("In den Metadaten mehr als einen Identifier mit http am Anfang gefunden");
@@ -44,7 +51,8 @@ public class UeberordnungMetadataParser {
 	}
 
 	/*
-	 * schiebt die benötigten Metadaten zu einer HT Nummer von der okeanos Schnittstelle in die Metadaten Datenbank
+	 * schiebt die benötigten Metadaten zu einer HT Nummer von der okeanos
+	 * Schnittstelle in die Metadaten Datenbank
 	 */
 	public static String okeanos2Database(String HT) throws Exception {
 		Document doc = UeberordnungMetadataDownloader.getdoc(HT);
@@ -52,7 +60,7 @@ public class UeberordnungMetadataParser {
 
 		String ID = Kongress.url2kuerzel(URL);
 		HtKuerzelDatenbank.insertIntoHtKuerzelDatenbank(HT, ID);
-		
+
 		insertSelectIntoMetadata(doc, HT, ID, "identifier", "dc:identifier");
 		insertSelectIntoMetadata(doc, HT, ID, "title", "dc:title");
 		insertSelectIntoMetadata(doc, HT, ID, "creator", "dc:creator");
@@ -60,10 +68,10 @@ public class UeberordnungMetadataParser {
 		insertSelectIntoMetadata(doc, HT, ID, "date", "dc:date");
 		insertIntoMetadata(HT, ID, "dc:type", "conferenceObject");
 		insertIntoMetadata(HT, ID, "dc:format", "1 Online-Ressource");
-		
+
 		return ID;
 	}
-	
+
 	public static void csv2Database(String csvFilePath) throws Exception {
 		File csvFile = new File(csvFilePath);
 		csv2Database(csvFile);
@@ -82,4 +90,14 @@ public class UeberordnungMetadataParser {
 		}
 	}
 
+	public static void main(String[] args) throws Exception {
+		String HT = "HT020674641";
+		Document doc = UeberordnungMetadataDownloader.getdoc(HT);
+		Elements identifierElements = doc
+				.select("dc|identifier");
+		System.out.println("Anzahl = " + identifierElements.size());
+		for (Element identifierElement : identifierElements) {
+			System.out.println("title: " + identifierElement.text());
+		}
+	}
 }

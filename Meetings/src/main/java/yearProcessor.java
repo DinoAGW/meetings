@@ -30,7 +30,7 @@ public class yearProcessor {
 		System.out.println("syncToYear " + LocalDateTime.now());
 //		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2017_auszug.csv";
 		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2021.csv";
-		AbstractPacker.userDefinedB = "20220812";
+		AbstractPacker.userDefinedB = "20240227";
 		
 		Database.syncToYear(csvFilePath);
 //		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
