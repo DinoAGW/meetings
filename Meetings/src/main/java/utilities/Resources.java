@@ -5,43 +5,46 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public enum Resources {
-	INSTANCE;
-	
-	public static final String CSS = "de/zbmed/gms-framework.css";
-	public static final String CSS2 = "de/zbmed/gms-content.css";
-	public static final String LOGO = "de/zbmed/header_logo.png";
-	public static final String ICC = "de/zbmed/sRGB_v4_ICC_preference_displayclass.icc";
-	public static final String FONT = "de/zbmed/OpenSans-Regular.ttf";
-	
-	public File getCss() {
-		return getResourceFile(CSS);
-	}
+    INSTANCE;
 
-	public File getCss2() {
-		return getResourceFile(CSS2);
-	}
+    public static final String CSS = "de/zbmed/gms-framework.css";
+    public static final String CSS2 = "de/zbmed/gms-content.css";
+    public static final String LOGO = "de/zbmed/header_logo.png";
+    public static final String ICC = "de/zbmed/sRGB_v4_ICC_preference_displayclass.icc";
+    public static final String FONT = "de/zbmed/OpenSans-Regular.ttf";
 
-	public File getLogo() {
-		return getResourceFile(LOGO);
-	}
+    public File getCss() {
+        return getResourceFile(CSS);
+    }
 
-	public File getDisplayIcc() {
-		return getResourceFile(ICC);
-	}
-	
-	public File getFont() {
-		return getResourceFile(FONT);
-	}
-	
-	private static File getResourceFile(final String name) {
-		URL url = Resources.class.getClassLoader().getResource(name);
-		if (url == null) {
-			throw new IllegalArgumentException("Resource ".concat(name).concat(" could not be found."));
-		}
-		try {
-			return new File(url.toURI());
-		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException("Resource ".concat(name).concat(" caused an illegal URI problem."), e);
-		}
-	}
+    public File getCss2() {
+        return getResourceFile(CSS2);
+    }
+
+    public File getLogo() {
+        return getResourceFile(LOGO);
+    }
+
+    public File getDisplayIcc() {
+        return getResourceFile(ICC);
+    }
+
+    public File getFont() {
+        return getResourceFile(FONT);
+    }
+
+    static File getResourceFile(final String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Resource name must not be null.");
+        }
+        URL url = Resources.class.getClassLoader().getResource(name);
+        if (url == null) {
+            throw new IllegalArgumentException("Resource ".concat(name).concat(" could not be found."));
+        }
+        try {
+            return new File(url.toURI());
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Resource ".concat(name).concat(" caused an illegal URI problem."), e);
+        }
+    }
 }
