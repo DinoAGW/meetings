@@ -66,6 +66,7 @@ public class UeberordnungPacker {
 	final static String rosettaInstance = "dev";
 	final static String materialflowID = "76661659";
 	final static String producerId = "2049290";
+	public static String userDefinedB = "20240307";
 
 	private static final String METS_SCHEMA = "http://www.loc.gov/METS/";
 	private static final String ROSETTA_METS_SCHEMA = "http://www.exlibrisgroup.com/xsd/dps/rosettaMets";
@@ -191,7 +192,7 @@ public class UeberordnungPacker {
 		DnxDocumentHelper ieDnxHelper = new DnxDocumentHelper(ieDnx);
 
 		//Füge UserDefinedA&B hinzu
-		GeneralIECharacteristics generalIeCharacteristics = ieDnxHelper.new GeneralIECharacteristics(null, null, null, null, null, "GMSKON_" + ID, "20220811", null);
+		GeneralIECharacteristics generalIeCharacteristics = ieDnxHelper.new GeneralIECharacteristics(null, null, null, null, null, "GMSKON_" + ID, userDefinedB, null);
 		ieDnxHelper.setGeneralIECharacteristics(generalIeCharacteristics);
 		
 		//cms Enrichment verankern
@@ -392,7 +393,7 @@ public class UeberordnungPacker {
 			Files.copy(Paths.get(Drive.getKongressPDF(ID, "en")), Paths.get(Drive.getKongressPreSipPdf(ID, "en")),
 					StandardCopyOption.REPLACE_EXISTING);
 
-			String metadataURL = UeberordnungMetadataDownloader.ht2okeanos(HT);
+			String metadataURL = UeberordnungMetadataDownloader.ht2alma(HT);
 			System.out.println("Lade Metadaten herunter von: " + metadataURL);
 			FileUtils.copyURLToFile(new URL(metadataURL), new File(Drive.getUeberordnungPreSipXml(ID)));
 

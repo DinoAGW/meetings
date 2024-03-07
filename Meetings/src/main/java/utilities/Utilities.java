@@ -142,7 +142,7 @@ public class Utilities {
 	public static void replaceFiles(File from, String to, String md5Sum) throws IOException {
 		File toFile = new File(to);
 		if (!MyUtils.md5_of_file(toFile).equals(md5Sum)) {
-			System.err.println("MD5 Summe stimmt nicht");
+			System.err.println("MD5 Summe stimmt nicht bei Datei " + to);
 		}
 		Files.copy(from.toPath(), toFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	}

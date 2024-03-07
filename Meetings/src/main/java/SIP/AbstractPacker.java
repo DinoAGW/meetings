@@ -64,7 +64,7 @@ public class AbstractPacker {
 	final static String rosettaInstance = "dev";
 	final static String materialflowID = "76661659";
 	final static String producerId = "2049290";
-	public static String userDefinedB = "20220812";
+	public static String userDefinedB = "20240307";
 
 	private static final String ROSETTA_METS_SCHEMA = "http://www.exlibrisgroup.com/xsd/dps/rosettaMets";
 	private static final String METS_SCHEMA = "http://www.loc.gov/METS/";
