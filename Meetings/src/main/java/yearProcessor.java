@@ -47,7 +47,7 @@ public class yearProcessor {
 //				+ Ue_ID + "', '" + Ab_ID + "', 'https://www.egms.de/static/en/meetings/eth2014/14eth01.shtml', 'en', 10);");
 
 //		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=11;");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID NOT LIKE '%dgpraec0%';");
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID NOT LIKE '%dgpraec001';");
 
 		System.out.println("UeberordnungConvert " + LocalDateTime.now());
 		UeberordnungConvert.ueberordnungConvert();

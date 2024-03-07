@@ -10,7 +10,7 @@ public class UeberordnungMetadataDownloader {
 //	}
 	
 	public static String ht2alma(String HT) {
-		return "https://eu04.alma.exlibrisgroup.com/view/sru/49HBZ_NETWORK?version=1.2&operation=searchRetrieve&recordSchema=dc&query=alma.other_system_number=(DE-605)".concat(HT);
+		return "https://eu04.alma.exlibrisgroup.com/view/sru/49HBZ_ZBM?version=1.2&operation=searchRetrieve&recordSchema=dc&query=alma.other_system_number=(DE-605)".concat(HT);
 	}
 
 	public static Document getdoc(String HT) throws Exception {

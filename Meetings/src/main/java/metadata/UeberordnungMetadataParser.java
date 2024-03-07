@@ -61,9 +61,11 @@ public class UeberordnungMetadataParser {
 		String ID = Kongress.url2kuerzel(URL);
 		HtKuerzelDatenbank.insertIntoHtKuerzelDatenbank(HT, ID);
 
-		Elements elems = doc.select("searchRetrieveResponse > records > record > recordData > srw_dc|dc").first().children();
+		Elements elems = doc.select("searchRetrieveResponse > records > record > recordData > srw_dc|dc").first()
+				.children();
 		for (Element elem : elems) {
-			insertIntoMetadata(HT, ID, elem.nodeName(), elem.text());
+			String xPathKey = (elem.nodeName().contentEquals("dc:contributor")) ? "dc:creator" : elem.nodeName();
+			insertIntoMetadata(HT, ID, xPathKey, elem.text());
 		}
 		insertIntoMetadata(HT, ID, "dc:publisher", "Düsseldorf German Medical Science GMS Publishing House");
 		insertIntoMetadata(HT, ID, "dc:type", "conferenceObject");
