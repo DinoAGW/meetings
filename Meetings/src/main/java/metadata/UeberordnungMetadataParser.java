@@ -64,7 +64,9 @@ public class UeberordnungMetadataParser {
 		Elements elems = doc.select("searchRetrieveResponse > records > record > recordData > srw_dc|dc").first()
 				.children();
 		for (Element elem : elems) {
-			String xPathKey = (elem.nodeName().contentEquals("dc:contributor")) ? "dc:creator" : elem.nodeName();
+			String xPathKey = elem.nodeName();
+			if (xPathKey.contentEquals("dc:type")) continue;
+			if (xPathKey.contentEquals("dc:contributor")) xPathKey = "dc:creator";
 			insertIntoMetadata(HT, ID, xPathKey, elem.text());
 		}
 		insertIntoMetadata(HT, ID, "dc:publisher", "Düsseldorf German Medical Science GMS Publishing House");
