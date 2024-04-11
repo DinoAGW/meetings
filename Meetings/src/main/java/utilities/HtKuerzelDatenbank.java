@@ -62,12 +62,18 @@ public class HtKuerzelDatenbank {
 			} else {
 				System.err.println("Kürzel '".concat(Kuerzel).concat("' ist bereits mit einer anderen HT-Nummer verknüpft"));
 			}
-			throw new Exception();
+			throw new Exception("HT Nummer: " + HT + " Kürzel: " + Kuerzel);
 		}
 		if (!HtExists) {
 			SqlManager.INSTANCE.executeUpdate("INSERT INTO htkuerzel (HT, Kuerzel) VALUES ('".concat(HT).concat("', '").concat(Kuerzel).concat("');"));
 		}
 	}
 	
-	
+	public static void main(String[] args) throws Exception {
+		ResultSet resultSet = getEntry("Kuerzel", "wdhno2022");
+		while (resultSet.next()) {
+			String HT = resultSet.getString("HT");
+			System.out.println(HT);
+		}
+	}
 }

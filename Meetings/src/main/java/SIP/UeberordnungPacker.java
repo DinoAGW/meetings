@@ -394,7 +394,7 @@ public class UeberordnungPacker {
 					StandardCopyOption.REPLACE_EXISTING);
 
 			String metadataURL = UeberordnungMetadataDownloader.ht2alma(HT);
-			System.out.println("Lade Metadaten herunter von: " + metadataURL);
+//			System.out.println("Lade Metadaten herunter von: " + metadataURL);
 			FileUtils.copyURLToFile(new URL(metadataURL), new File(Drive.getUeberordnungPreSipXml(ID)));
 
 			// add originals as zip
