@@ -92,7 +92,7 @@ a.anchor {} /* seiteninterne Sprungziele <a name="..." class="anchor"> = ggf. un
 #page a.hx_link:hover { color:#800000; }
 
 /*a.link-ext         { background:url(../images/picto/browserfenster-ext.png) no-repeat right; padding-right:16px; }*/
-a.link-ext-mainnav { background:url(../images/picto/browserfenster-ext-white.png) no-repeat center; }
+a.link-ext-mainnav { background:url(../images/picto/browserfenster-ext-white.png) no-repeat 95%; }
 a.link-int         { background:url(../images/picto/browserfenster-int.png) no-repeat right; padding-right:16px; }
 /*a.link-mail        { background:url(../images/picto/umschlag.png)           no-repeat right; padding-right:16px; }*/
 li.link-ext { background:url(../images/picto/browserfenster-ext.png) no-repeat top left; padding-left:18px;  }
@@ -266,7 +266,7 @@ ul#owner_tabs  li.selected a:hover { background-color:#2b4878; color:white; }
 	background-repeat:no-repeat;
 	margin-bottom:0.5em;
 	padding:0 1em 4em 100px;
-	min-height:12em;
+	min-height:15em;
 }
 #owner_description *  { margin-left:1em; }
 #owner_description a  { margin-left:0; }

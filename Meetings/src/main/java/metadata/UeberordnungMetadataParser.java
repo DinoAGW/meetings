@@ -61,11 +61,15 @@ public class UeberordnungMetadataParser {
 		String ID = Kongress.url2kuerzel(URL);
 		HtKuerzelDatenbank.insertIntoHtKuerzelDatenbank(HT, ID);
 
-		insertSelectIntoMetadata(doc, HT, ID, "identifier", "dc:identifier");
-		insertSelectIntoMetadata(doc, HT, ID, "title", "dc:title");
-		insertSelectIntoMetadata(doc, HT, ID, "creator", "dc:creator");
-		insertSelectIntoMetadata(doc, HT, ID, "publisher", "dc:publisher");
-		insertSelectIntoMetadata(doc, HT, ID, "date", "dc:date");
+		Elements elems = doc.select("searchRetrieveResponse > records > record > recordData > srw_dc|dc").first()
+				.children();
+		for (Element elem : elems) {
+			String xPathKey = elem.nodeName();
+			if (xPathKey.contentEquals("dc:type")) continue;
+			if (xPathKey.contentEquals("dc:contributor")) xPathKey = "dc:creator";
+			insertIntoMetadata(HT, ID, xPathKey, elem.text());
+		}
+		insertIntoMetadata(HT, ID, "dc:publisher", "Düsseldorf German Medical Science GMS Publishing House");
 		insertIntoMetadata(HT, ID, "dc:type", "conferenceObject");
 		insertIntoMetadata(HT, ID, "dc:format", "1 Online-Ressource");
 
@@ -93,8 +97,7 @@ public class UeberordnungMetadataParser {
 	public static void main(String[] args) throws Exception {
 		String HT = "HT020674641";
 		Document doc = UeberordnungMetadataDownloader.getdoc(HT);
-		Elements identifierElements = doc
-				.select("dc|identifier");
+		Elements identifierElements = doc.select("dc|identifier");
 		System.out.println("Anzahl = " + identifierElements.size());
 		for (Element identifierElement : identifierElements) {
 			System.out.println("title: " + identifierElement.text());

@@ -64,7 +64,7 @@ public class AbstractPacker {
 	final static String rosettaInstance = "dev";
 	final static String materialflowID = "76661659";
 	final static String producerId = "2049290";
-	public static String userDefinedB = "20220812";
+	public static String userDefinedB = "20240307";
 
 	private static final String ROSETTA_METS_SCHEMA = "http://www.exlibrisgroup.com/xsd/dps/rosettaMets";
 	private static final String METS_SCHEMA = "http://www.loc.gov/METS/";
@@ -79,31 +79,32 @@ public class AbstractPacker {
 //		System.out.println("Verarbeite: '".concat(Ue_ID).concat("', '").concat(Ab_ID).concat("', '").concat(URL)
 //				.concat("', '").concat(subDirectoryName).concat("'."));
 
-		//		org.apache.log4j.helpers.LogLog.setQuietMode(true);
+		// org.apache.log4j.helpers.LogLog.setQuietMode(true);
 
-		//create parser
+		// create parser
 		IEParser ie = IEParserFactory.create();
 
 		// add ie dc
 		DublinCore dc = ie.getDublinCoreParser();
 		boolean isAllValid = addDcMetadata(dc, URL, Ue_ID, Ab_ID);
 
-		//falls jetzt schon ein Problem auftaucht, merke das Abstract
+		// falls jetzt schon ein Problem auftaucht, merke das Abstract
 		if (!isAllValid) {
 			System.err.println("Metadata error entdeckt.");
 			ResultSet resultSet2 = SqlManager.INSTANCE
 					.executeQuery("SELECT * FROM sonderfaelle WHERE Ab_ID = '" + Ab_ID + "'");
 			if (!resultSet2.first()) {
 				System.err.println("Wird der Tabelle sonderfaelle hinzugefügt.");
-				SqlManager.INSTANCE.executeUpdate("INSERT INTO sonderfaelle (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('"
-						+ Ue_ID + "', '" + Ab_ID + "', '" + URL + "', 'both', 52);");
+				SqlManager.INSTANCE
+						.executeUpdate("INSERT INTO sonderfaelle (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('" + Ue_ID
+								+ "', '" + Ab_ID + "', '" + URL + "', 'both', 52);");
 			} else {
 				System.err.println("War schon bekannt.");
 			}
 		}
 
 		ie.setIEDublinCore(dc);
-		
+
 		List<FileGrp> fGrpList = new ArrayList<FileGrp>();
 
 		FileGrp fGrp1 = makeFileGroup(ie, Enum.UsageType.VIEW, "PRESERVATION_MASTER", "1", Ab_ID.concat("_original"));
@@ -114,7 +115,7 @@ public class AbstractPacker {
 		FileGrp fGrp3 = makeFileGroup(ie, Enum.UsageType.VIEW, "MODIFIED_MASTER", "1", Ab_ID.concat("_pdf"));
 		fGrpList.add(fGrp3);
 
-		//prepare validation
+		// prepare validation
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		org.w3c.dom.Document xmlDocument = documentBuilder.newDocument();
@@ -164,16 +165,17 @@ public class AbstractPacker {
 					fileDocumentHelper.getGeneralFileCharacteristics()
 							.setFileOriginalPath(file.getAbsolutePath().substring(subDirectoryName.length()));
 
-					//					if (file.getName().endsWith(".tar")) {
-					//						PreservationLevel pLevel = fileDocumentHelper.new PreservationLevel();
-					//						pLevel.setPreservationLevelValue("Bitstream Preservation");
-					//						fileDocumentHelper.setPreservationLevel(pLevel);
-					//					}
+					// if (file.getName().endsWith(".tar")) {
+					// PreservationLevel pLevel = fileDocumentHelper.new PreservationLevel();
+					// pLevel.setPreservationLevelValue("Bitstream Preservation");
+					// fileDocumentHelper.setPreservationLevel(pLevel);
+					// }
 
 					ie.setFileDnx(fileDocumentHelper.getDocument(), fileType.getID());
 
-					//validate File
-					boolean inclVeraPdf = file.getAbsolutePath().contentEquals(Drive.getAbstractPreSipPdf(Ue_ID, Ab_ID, "de"))
+					// validate File
+					boolean inclVeraPdf = file.getAbsolutePath()
+							.contentEquals(Drive.getAbstractPreSipPdf(Ue_ID, Ab_ID, "de"))
 							|| file.getAbsolutePath().contentEquals(Drive.getAbstractPreSipPdf(Ue_ID, Ab_ID, "en"));
 					if (!isValid(file, xmlDocument, rootElement, subDirectoryName, inclVeraPdf)) {
 						isAllValid = false;
@@ -183,7 +185,7 @@ public class AbstractPacker {
 			}
 		}
 
-		//write validationresults
+		// write validationresults
 		DOMSource domSource = new DOMSource(xmlDocument);
 		File fileOutput = new File(filesRootFolder.concat("SourceMD").concat(fs).concat("Validation.xml"));
 		StreamResult streamresult = new StreamResult(fileOutput);
@@ -198,27 +200,30 @@ public class AbstractPacker {
 
 		DnxDocument ieDnx = DnxDocumentFactory.getInstance().createDnxDocument();
 		DnxDocumentHelper ieDnxHelper = new DnxDocumentHelper(ieDnx);
-		//TODO sourceMD sollte noch hinzugefügt werden
-		//Füge UserDefinedA&B hinzu
-		GeneralIECharacteristics generalIeCharacteristics = ieDnxHelper.new GeneralIECharacteristics(null, null, null, null, null, "GMSKON_" + Ab_ID, userDefinedB, null);
+		// TODO sourceMD sollte noch hinzugefügt werden
+		// Füge UserDefinedA&B hinzu
+		GeneralIECharacteristics generalIeCharacteristics = ieDnxHelper.new GeneralIECharacteristics(null, null, null,
+				null, null, "GMSKON_" + Ab_ID, userDefinedB, null);
 		ieDnxHelper.setGeneralIECharacteristics(generalIeCharacteristics);
 		ie.setIeDnx(ieDnxHelper.getDocument());
 
-		//example for adding a logical Struct Map.
+		// example for adding a logical Struct Map.
 		MetsDocument metsDoc = MetsDocument.Factory.parse(ie.toXML());
 
-		//insert IE created in content directory
+		// insert IE created in content directory
 		File ieXML = new File(IEfullFileName);
 		XmlOptions opt = new XmlOptions();
 		opt.setSavePrettyPrint();
 		String xmlMetsContent = metsDoc.xmlText(opt);
 
-		//Need to replace manually the namespace with Rosetta Mets schema in order to pass validation against mets_rosetta.xsd
+		// Need to replace manually the namespace with Rosetta Mets schema in order to
+		// pass validation against mets_rosetta.xsd
 		String xmlRosettaMetsContent = xmlMetsContent.replaceAll(XML_SCHEMA, XML_SCHEMA_REPLACEMENT);
 		xmlRosettaMetsContent = xmlMetsContent.replaceAll(METS_SCHEMA, ROSETTA_METS_SCHEMA);
 		FileUtil.writeFile(ieXML, xmlRosettaMetsContent);
 
-		//validateXML(ieXML.getAbsolutePath(), xmlRosettaMetsContent, ROSETTA_METS_XSD);
+		// validateXML(ieXML.getAbsolutePath(), xmlRosettaMetsContent,
+		// ROSETTA_METS_XSD);
 		return isAllValid;
 	}
 
@@ -241,7 +246,8 @@ public class AbstractPacker {
 	}
 
 	private static boolean validate(File file, String extension, String JhoveModul, org.w3c.dom.Document xmlDocument,
-			org.w3c.dom.Element rootElement, String subDirectoryName, boolean justWellFormed, boolean inclVeraPdf) throws Exception {
+			org.w3c.dom.Element rootElement, String subDirectoryName, boolean justWellFormed, boolean inclVeraPdf)
+			throws Exception {
 		boolean ret;
 		String result = Jhove.jhove(JhoveModul, file.getAbsolutePath());
 		org.w3c.dom.Element validationsErgebnis = xmlDocument.createElement("ValidationsErgebnis");
@@ -371,22 +377,22 @@ public class AbstractPacker {
 		}
 		Elements elems = abstractDoc.getElementsByTag("GmsArticle");
 		if (elems.size() != 1) {
-			System.err.println(
-					"Es gibt ungleich 1 GmsArticle in der Abstract Metadaten xml: ".concat(Integer.toString(elems.size())));
+			System.err.println("Es gibt ungleich 1 GmsArticle in der Abstract Metadaten xml: "
+					.concat(Integer.toString(elems.size())));
 			throw new Exception();
 		}
 		Element elem = elems.first();
 		elems = elem.getElementsByTag("MetaData");
 		if (elems.size() != 1) {
-			System.err.println(
-					"Es gibt ungleich 1 MetaData in der Abstract Metadaten xml: ".concat(Integer.toString(elems.size())));
+			System.err.println("Es gibt ungleich 1 MetaData in der Abstract Metadaten xml: "
+					.concat(Integer.toString(elems.size())));
 			throw new Exception();
 		}
 		elem = elems.first();
 		elems = elem.getElementsByTag("CreatorList");
 		if (elems.size() != 1) {
-			System.err.println(
-					"Es gibt ungleich 1 CreatorList in der Abstract Metadaten xml: ".concat(Integer.toString(elems.size())));
+			System.err.println("Es gibt ungleich 1 CreatorList in der Abstract Metadaten xml: "
+					.concat(Integer.toString(elems.size())));
 			throw new Exception();
 		}
 		elem = elems.first();
@@ -431,8 +437,8 @@ public class AbstractPacker {
 				elem = elems.first();
 				elems = elem.getElementsByTag("Corporatename");
 				if (elems.size() != 1) {
-					System.err.println(
-							"Es gibt ungleich 1 Corporatename in der Abstract Metadaten xml: ".concat(Integer.toString(elems.size())));
+					System.err.println("Es gibt ungleich 1 Corporatename in der Abstract Metadaten xml: "
+							.concat(Integer.toString(elems.size())));
 					throw new Exception();
 				}
 				dc.addElement("dc:creator", elems.first().text());
@@ -444,7 +450,12 @@ public class AbstractPacker {
 		int letzterSlash = URL.lastIndexOf("/");
 		String Kuerzel = URL.substring(letzterSlash + 1, URL.length() - ".shtml".length());
 		String OaiUrl = kuerzel2oai(Kuerzel);
-		Document oaiDoc = Utilities.getWebsite(OaiUrl);
+		Document oaiDoc = null;
+		try {
+			oaiDoc = Utilities.getWebsite(OaiUrl);
+		} catch (Exception e) {
+			throw new Exception("Konnte die Metadaten von " + Ab_ID + " nicht abrufen: " + OaiUrl);
+		}
 		elems = oaiDoc.getElementsByTag("oai_dc:dc");
 		if (elems.size() != 1) {
 			System.err.println("OAI hat ungleich 1 oai_dc:dc Tag Elemente: ".concat(Integer.toString(elems.size())));
@@ -489,12 +500,14 @@ public class AbstractPacker {
 			String Ue_ID = results.getString("Ue_ID");
 			String Ab_ID = results.getString("Ab_ID");
 			String aURL = results.getString("URL");
-			
+
 			System.out.println("Verarbeite: '".concat(Ab_ID).concat("', URL: '").concat(aURL).concat("'."));
 
-			if (differentSupplements(new File(Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("Supplementals").concat(fs)),
+			if (differentSupplements(
+					new File(Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("Supplementals").concat(fs)),
 					Drive.getAbstractDir(Ue_ID, Ab_ID, "en").concat("Supplementals").concat(fs))) {
-				System.err.println("Unterschiedliche Supplementals in der deutschen und englischen Version entdeckt. Pfad:");
+				System.err.println(
+						"Unterschiedliche Supplementals in der deutschen und englischen Version entdeckt. Pfad:");
 				System.err.println(Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("Supplementals").concat(fs));
 				throw new Exception();
 			}
@@ -543,18 +556,24 @@ public class AbstractPacker {
 			// add originals as tar
 			String fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("original").concat(fs);
 			Tar.createTar(fromString, fromString, master.concat("OriginalHtml_de.tar"));
-			//			new ZipFile(master.concat("OriginalHtml_de.zip")).addFolder(new File(fromString));
+			// new ZipFile(master.concat("OriginalHtml_de.zip")).addFolder(new
+			// File(fromString));
 			fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "en").concat("original").concat(fs);
-			//			new ZipFile(master.concat("OriginalHtml_en.zip")).addFolder(new File(fromString));
+			// new ZipFile(master.concat("OriginalHtml_en.zip")).addFolder(new
+			// File(fromString));
 			Tar.createTar(fromString, fromString, master.concat("OriginalHtml_en.tar"));
 
 			// add merged content as tar
 
 			fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "de").concat("merge").concat(fs);
-			//			new ZipFile(preIngestModifiedMaster.concat("HtmlForPdf_de.zip")).addFolder(new File(fromString));
+			// new
+			// ZipFile(preIngestModifiedMaster.concat("HtmlForPdf_de.zip")).addFolder(new
+			// File(fromString));
 			Tar.createTar(fromString, fromString, preIngestModifiedMaster.concat("HtmlForPdf_de.tar"));
 			fromString = Drive.getAbstractDir(Ue_ID, Ab_ID, "en").concat("merge").concat(fs);
-			//			new ZipFile(preIngestModifiedMaster.concat("HtmlForPdf_en.zip")).addFolder(new File(fromString));
+			// new
+			// ZipFile(preIngestModifiedMaster.concat("HtmlForPdf_en.zip")).addFolder(new
+			// File(fromString));
 			Tar.createTar(fromString, fromString, preIngestModifiedMaster.concat("HtmlForPdf_en.tar"));
 
 			// finish completion of SIP
@@ -562,7 +581,8 @@ public class AbstractPacker {
 
 			if (isAllValid) {
 				// move finished SIP to SIP-Directory
-				File sipDir = new File(Drive.getAbstractSipDir(rosettaInstance, materialflowID, producerId, Ue_ID, Ab_ID));
+				File sipDir = new File(
+						Drive.getAbstractSipDir(rosettaInstance, materialflowID, producerId, Ue_ID, Ab_ID));
 				if (sipDir.exists())
 					sipDir.delete();
 				sipDir.mkdirs();
@@ -572,8 +592,8 @@ public class AbstractPacker {
 				int updated = SqlManager.INSTANCE
 						.executeUpdate("UPDATE abstracts SET status = 70 WHERE Ab_ID = '".concat(Ab_ID).concat("';"));
 				if (updated != 2) {
-					System.err.println("Es sollte sich nun genau zwei Zeilen aktualisiert haben unter dem Kürzel '" + Ab_ID
-							+ "', aber es waren: " + updated + ".");
+					System.err.println("Es sollte sich nun genau zwei Zeilen aktualisiert haben unter dem Kürzel '"
+							+ Ab_ID + "', aber es waren: " + updated + ".");
 				}
 			} else {
 				// move finished SIP to SIP-Directory
@@ -589,8 +609,8 @@ public class AbstractPacker {
 				int updated = SqlManager.INSTANCE
 						.executeUpdate("UPDATE abstracts SET status = 65 WHERE Ab_ID = '".concat(Ab_ID).concat("';"));
 				if (updated != 2) {
-					System.err.println("Es sollte sich nun genau zwei Zeilen aktualisiert haben unter dem Kürzel '" + Ab_ID
-							+ "', aber es waren: " + updated + ".");
+					System.err.println("Es sollte sich nun genau zwei Zeilen aktualisiert haben unter dem Kürzel '"
+							+ Ab_ID + "', aber es waren: " + updated + ".");
 				}
 			}
 		}
@@ -613,12 +633,14 @@ public class AbstractPacker {
 	}
 
 	public static void main(String[] args) throws Exception {
-		//		final String filesRootFolder = "/home/wutschka/.meetings/Ueberordnungen/gma2016/preSIP/";
-		//		String HT = "HT020488506";
-		//		String ID = "gma2016";
-		//		processSIP(filesRootFolder, HT, ID);
+		// final String filesRootFolder =
+		// "/home/wutschka/.meetings/Ueberordnungen/gma2016/preSIP/";
+		// String HT = "HT020488506";
+		// String ID = "gma2016";
+		// processSIP(filesRootFolder, HT, ID);
 //		String UeO = "dgpraec2016";String Ab = "16dgpraec001";
-		String UeO = "dgpraec2015";String Ab = "15dgpraec004";
+		String UeO = "dgpraec2015";
+		String Ab = "15dgpraec004";
 		boolean zuBearbeiten = true;
 
 		if (zuBearbeiten) {

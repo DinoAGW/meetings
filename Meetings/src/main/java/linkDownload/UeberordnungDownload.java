@@ -174,7 +174,7 @@ public class UeberordnungDownload {
 			Utilities.replaceFiles(Resources.INSTANCE.getLogo(), logoPath, "649a32c9a8e49162d2eb48364caa2f20");
 			String css2Path = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de")
 					.concat(fs).concat("static").concat(fs).concat("css").concat(fs).concat("gms-content.css");
-			Utilities.replaceFiles(Resources.INSTANCE.getCss2(), css2Path, "b878eba1c5bc4b50779bebc1b6589ff8");
+			Utilities.replaceFiles(Resources.INSTANCE.getCss2(), css2Path, "883399c552b79d39aac20649472aa2e5");
 
 			// The "LandingPage" of the congress always have a sessionlist, with websites,
 			// where the links to the abstracts can be found

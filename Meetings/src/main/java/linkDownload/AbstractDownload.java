@@ -97,7 +97,7 @@ public class AbstractDownload {
 			Utilities.replaceFiles(Resources.INSTANCE.getLogo(), logoPath, "649a32c9a8e49162d2eb48364caa2f20");
 			String css2Path = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("www.egms.de")
 					.concat(fs).concat("static").concat(fs).concat("css").concat(fs).concat("gms-content.css");
-			Utilities.replaceFiles(Resources.INSTANCE.getCss2(), css2Path, "b878eba1c5bc4b50779bebc1b6589ff8");
+			Utilities.replaceFiles(Resources.INSTANCE.getCss2(), css2Path, "883399c552b79d39aac20649472aa2e5");
 
 			// Den Fortschritt in der Datenbank vermerken
 			int updated = SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET Status = 30 WHERE Ab_ID = '"
@@ -194,7 +194,11 @@ public class AbstractDownload {
 			Document doc = Utilities.getWebsite(figure.href);
 			Element figureElem = doc.getElementsByTag("img").first();
 			figure.src = figureElem.attr("src");
-			figure.beschreibung = figureElem.nextElementSibling().text();
+			Element beschreibungElem = figureElem.nextElementSibling();
+			if (beschreibungElem == null) {
+				throw new Exception("Abstract hat keine Beschreibung bei " + figure.text);
+			}
+			figure.beschreibung = beschreibungElem.text();
 			
 			//check for duplicates
 			boolean isNew = true;
@@ -244,7 +248,11 @@ public class AbstractDownload {
 			Document doc = Utilities.getWebsite(table.href);
 			Element tableElem = doc.getElementsByTag("img").first();
 			table.src = tableElem.attr("src");
-			table.beschreibung = tableElem.nextElementSibling().text();
+			Element beschreibungElem = tableElem.nextElementSibling();
+			if (beschreibungElem == null) {
+				throw new Exception("Abstract hat keine Beschreibung bei " + table.text);
+			}
+			table.beschreibung = beschreibungElem.text();
 			
 			//check for duplicates
 			boolean isNew = true;
