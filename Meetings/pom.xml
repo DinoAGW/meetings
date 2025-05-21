@@ -79,8 +79,10 @@
 			<version>2.6</version>
 		</dependency>
 		<!-- Kommt von ConvertHtmlToPDF2 -->
-		<!-- <dependency> <groupId>com.itextpdf</groupId> <artifactId>layout</artifactId> 
-			<version>7.1.10</version> <scope>system</scope> <systemPath>${project.basedir}/lib/itext7-layout-7.1.10-SNAPSHOT.jar</systemPath> 
+		<!-- <dependency> <groupId>com.itextpdf</groupId>
+		<artifactId>layout</artifactId> 
+			<version>7.1.10</version> <scope>system</scope>
+		<systemPath>${project.basedir}/lib/itext7-layout-7.1.10-SNAPSHOT.jar</systemPath> 
 			</dependency> -->
 		<!-- https://mvnrepository.com/artifact/com.itextpdf/layout -->
 		<dependency>
@@ -94,7 +96,8 @@
 			<groupId>com.itextpdf</groupId>
 			<artifactId>html2pdf</artifactId>
 			<version>3.0.3</version>
-			<!-- <exclusions> <exclusion> <groupId>com.itextpdf</groupId> <artifactId>layout</artifactId> 
+			<!-- <exclusions> <exclusion> <groupId>com.itextpdf</groupId>
+			<artifactId>layout</artifactId> 
 				</exclusion> </exclusions> -->
 		</dependency>
 		<!-- Kommt von ConvertHtmlToPDF2 -->
@@ -159,11 +162,18 @@
 			<artifactId>jxl</artifactId>
 			<version>2.6.12</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j zum zippen -->
+		<!-- https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j zum
+		zippen -->
 		<dependency>
 			<groupId>net.lingala.zip4j</groupId>
 			<artifactId>zip4j</artifactId>
 			<version>2.8.0</version>
+		</dependency>
+		<!--to parse csv File-->
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>5.3</version>
 		</dependency>
 
 	</dependencies>

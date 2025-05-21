@@ -69,11 +69,20 @@ public class HtKuerzelDatenbank {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
-		ResultSet resultSet = getEntry("Kuerzel", "wdhno2022");
+	public static void printHTnummer(String kuerzel) throws Exception{
+		ResultSet resultSet = getEntry("Kuerzel", kuerzel);
 		while (resultSet.next()) {
 			String HT = resultSet.getString("HT");
 			System.out.println(HT);
 		}
+	}
+	
+	public static int removeEntry(String Key, String value ) throws Exception {
+		return SqlManager.INSTANCE.executeUpdate("DELETE FROM htkuerzel WHERE ".concat(Key).concat(" = '").concat(value).concat("';"));
+	}
+	
+	public static void main(String[] args) throws Exception {
+//		printHTnummer("wdhno2022");
+//		System.out.println("Gelöscht = " + removeEntry("HT", "HT021591441"));
 	}
 }

@@ -451,15 +451,24 @@ public class AbstractPacker {
 		String Kuerzel = URL.substring(letzterSlash + 1, URL.length() - ".shtml".length());
 		String OaiUrl = kuerzel2oai(Kuerzel);
 		Document oaiDoc = null;
-		try {
-			oaiDoc = Utilities.getWebsite(OaiUrl);
-		} catch (Exception e) {
-			throw new Exception("Konnte die Metadaten von " + Ab_ID + " nicht abrufen: " + OaiUrl);
-		}
-		elems = oaiDoc.getElementsByTag("oai_dc:dc");
-		if (elems.size() != 1) {
-			System.err.println("OAI hat ungleich 1 oai_dc:dc Tag Elemente: ".concat(Integer.toString(elems.size())));
-			throw new Exception();
+		int versuche = 10;
+		while (true) {
+			try {
+				oaiDoc = Utilities.getWebsite(OaiUrl);
+				elems = oaiDoc.getElementsByTag("oai_dc:dc");
+				if (elems.size() != 1) {
+					throw new Exception("OAI hat ungleich 1 oai_dc:dc Tag Elemente: ".concat(Integer.toString(elems.size())));
+				}
+				break;
+			} catch (Exception e) {
+				if (versuche > 0) {
+					System.err.println("Fehler bei Metadaten download, versuche erneut...");
+					Thread.sleep(1000);
+					--versuche;
+				} else {
+					throw new Exception("Konnte die Metadaten von " + Ab_ID + " nicht abrufen: " + OaiUrl);
+				}
+			}
 		}
 		elem = elems.first();
 		elems = elem.children();

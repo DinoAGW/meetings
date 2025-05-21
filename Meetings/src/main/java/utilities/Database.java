@@ -3,14 +3,21 @@ package utilities;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Scanner;
 
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+
 import metadata.UeberordnungMetadataParser;
 
 import java.io.File;
+import java.io.FileReader;
 import java.sql.ResultSet;
 
 public class Database {
@@ -150,23 +157,85 @@ public class Database {
 			if (!IDs.contains(ID)) {
 				// System.out.println("Alle Einträge mit der ID='".concat(kurzID).concat("'
 				// werden wieder gelöscht"));
-				Database.updateStatusUeberordnung(ID, 11);
+				updateStatusUeberordnung(ID, 11);
 			} else {
-				Database.updateStatusUeberordnung(ID, 10);
+				updateStatusUeberordnung(ID, 10);
 			}
 		}
 	}
 
-	public static void updateStatusUeberordnung(String wert, int status) throws SQLException {
-		updateStatus("ueberordnungen", "ID", wert, status);
+	public static void findOutOfDate(String bfarmListe, String rosettaListe) throws Exception {
+		CSVParser semicolonParser = new CSVParserBuilder().withSeparator(';').build();
+		CSVReader readBfarmListe = new CSVReaderBuilder(new FileReader(bfarmListe)).withCSVParser(semicolonParser)
+				.withSkipLines(1).build();
+		int insg = 0;
+		for (String[] bfarmLine : readBfarmListe) {
+			String id = bfarmLine[0];
+			int dateLast = 0;
+			String dlcorr = bfarmLine[2];
+			if (!dlcorr.equals("")) {
+				int value = Integer.parseInt(dlcorr);
+				if (dateLast < value) {
+					dateLast = value;
+				}
+			}
+			String dlerr = bfarmLine[3];
+			if (!dlerr.equals("")) {
+				int value = Integer.parseInt(dlerr);
+				if (dateLast < value) {
+					dateLast = value;
+				}
+			}
+			if (dateLast == 0) {
+				if (updateStatusAbstracts(id, 11) != 1) {
+//					System.out.println("Abstract " + id + " ist nicht als HT-Nummer drin");
+				}
+				continue;
+			}
+			String uda = "GMSKON_" + id;
+			int udb = 0;
+			CSVReader readRosettaListe = new CSVReaderBuilder(new FileReader(rosettaListe)).withSkipLines(1).build();
+			String[] rosettaLineFound = null;
+			for (String[] rosettaLine : readRosettaListe) {
+				if (uda.equals(rosettaLine[4])) {
+					udb = Integer.parseInt(rosettaLine[5]);
+					rosettaLineFound = rosettaLine;
+					break;
+				}
+			}
+			if (udb == 0) {
+				throw new Exception("IE " + uda + " ist nicht in Rosetta enthalten");
+			}
+			if (dateLast <= udb) {
+				if (updateStatusAbstracts(id, 11) != 1) {
+//					System.out.println("Abstract " + id + " ist nicht als HT-Nummer drin");
+				}
+			} else {
+				System.out.println(bfarmLine.length + " " + Arrays.toString(bfarmLine));
+				System.out.println(rosettaLineFound.length + " " + Arrays.toString(rosettaLineFound));
+				System.out.println("Das ergibt " + dateLast + " > " + udb + " = " + (dateLast > udb));
+				ResultSet resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE Ab_ID = '" + id + "';");
+				if (!resultSet.next()) {
+					System.out.println("Abstract " + id + " ist nicht als HT-Nummer drin");
+				} else {
+					System.out.println("Abstract " + id + " ist zu aktualisieren");
+				}
+				++insg;
+			}
+		}
+		System.out.println("Insgesamt = " + insg);
 	}
 
-	public static void updateStatusAbstracts(String wert, int status) throws SQLException {
-		updateStatus("abstracts", "Ab_ID", wert, status);
+	public static int updateStatusUeberordnung(String wert, int status) throws SQLException {
+		return updateStatus("ueberordnungen", "ID", wert, status);
 	}
 
-	private static void updateStatus(String database, String feld, String wert, int status) throws SQLException {
-		SqlManager.INSTANCE
+	public static int updateStatusAbstracts(String wert, int status) throws SQLException {
+		return updateStatus("abstracts", "Ab_ID", wert, status);
+	}
+
+	private static int updateStatus(String database, String feld, String wert, int status) throws SQLException {
+		return SqlManager.INSTANCE
 				.executeUpdate("UPDATE ".concat(database).concat(" SET status = ").concat(Integer.toString(status))
 						.concat(" WHERE ").concat(feld).concat(" = '").concat(wert).concat("';"));
 	}
@@ -183,7 +252,7 @@ public class Database {
 				tabelle.put(Status, 1);
 			}
 		}
-		while(tabelle.size() > 0) {
+		while (tabelle.size() > 0) {
 			Enumeration<Integer> keys = tabelle.keys();
 			int min = keys.nextElement();
 			while (keys.hasMoreElements()) {
@@ -198,6 +267,9 @@ public class Database {
 	}
 
 	public static void main(String[] args) throws Exception {
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=10;");
+		findOutOfDate("/home/wutschka/workspace/Kongresse_GM03_2022-04-18.csv",
+				"/home/wutschka/workspace/GMS_Kongresse.csv");
 		printDatabaseOverview("abstracts");
 	}
 }
