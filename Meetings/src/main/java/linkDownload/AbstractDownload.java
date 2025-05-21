@@ -144,34 +144,29 @@ public class AbstractDownload {
 	public static void ersetzeNbspInTitle(final Document doc) throws Exception {
 		Element elem = doc.head();
 		if (elem == null) {
-			System.err.println("Dokument hat kein head");
-			throw new Exception();
+			throw new Exception("Dokument hat kein head");
 		}
 		elem = elem.getElementsByTag("title").first();
 		if (elem == null) {
-			System.err.println("Head hat kein title");
-			throw new Exception();
+			throw new Exception("Head hat kein title");
 		}
 		//ersetze Text durch whitespace normalisierte Version
 		elem.text(elem.text().replace("\u00A0", " "));
 		
 		elem = doc.head().getElementsByAttributeValue("name", "DC.Title").first();
 		if (elem == null) {
-			System.err.println("Head hat kein DC.Title");
-			throw new Exception();
+			throw new Exception("Head hat kein DC.Title");
 		}
 		//ersetze Text durch whitespace normalisierte Version
 		elem.attr("content", elem.attr("content").replace("\u00A0", " "));
 		
 		elem = doc.getElementById("owner_description");
 		if (elem == null) {
-			System.err.println("Dokument hat keine owner_description");
-			throw new Exception();
+			throw new Exception("Dokument hat keine owner_description");
 		}
 		elem = elem.getElementsByTag("h2").first();
 		if (elem == null) {
-			System.err.println("owner_description hat kein h2");
-			throw new Exception();
+			throw new Exception("owner_description hat kein h2");
 		}
 		elem.text(elem.text().replace("\u00A0", " "));
 	}
@@ -196,7 +191,7 @@ public class AbstractDownload {
 			figure.src = figureElem.attr("src");
 			Element beschreibungElem = figureElem.nextElementSibling();
 			if (beschreibungElem == null) {
-				throw new Exception("Abstract hat keine Beschreibung bei " + figure.text);
+				throw new Exception("Abbildung hat keine Beschreibung bei " + figure.text);
 			}
 			figure.beschreibung = beschreibungElem.text();
 			
@@ -207,8 +202,7 @@ public class AbstractDownload {
 				isNewText = !figure.text.contentEquals(anFig.text);
 				isNewHref = !figure.href.contentEquals(anFig.href);
 				if (isNewText != isNewHref) {
-					System.err.println("Inkonsistenz entdeckt zwischen neuer Referenz Text und Link '" + figure.text + "', '" + anFig.text + "', '" + figure.href + "', '" + anFig.href + '"');
-					throw new Exception();
+					throw new Exception("Inkonsistenz entdeckt zwischen neuer Referenz Text und Link '" + figure.text + "', '" + anFig.text + "', '" + figure.href + "', '" + anFig.href + '"');
 				}
 				if (!isNewHref) {
 					isNew = false;

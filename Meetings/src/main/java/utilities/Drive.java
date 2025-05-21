@@ -113,12 +113,12 @@ public class Drive {
 
 	public static String getAbstractSipDir(String rosettaInstance, String materialflowID, String producerId,
 			String Ue_ID, String Ab_ID) {
-		return getValidSipsDir(rosettaInstance, materialflowID, producerId).concat(Ue_ID.concat("_").concat(Ab_ID)).concat(fs);
+		return getValidSipsDir(rosettaInstance, materialflowID, producerId).concat(Ue_ID).concat("_").concat(Ab_ID).concat(fs);
 	}
 
 	public static String getInvalidAbstractSipDir(String rosettaInstance, String materialflowID, String producerId,
 			String Ue_ID, String Ab_ID) {
-		return getInvalidSipsDir(rosettaInstance, materialflowID, producerId).concat(Ue_ID.concat("_").concat(Ab_ID)).concat(fs);
+		return getInvalidSipsDir(rosettaInstance, materialflowID, producerId).concat(Ue_ID).concat("_").concat(Ab_ID).concat(fs);
 	}
 
 	public static void move(File from, File to) throws IOException {

@@ -1,7 +1,3 @@
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 import SIP.AbstractPacker;
 import SIP.UeberordnungPacker;
 import html2pdf.AbstractConvert;
@@ -9,22 +5,19 @@ import html2pdf.UeberordnungConvert;
 import linkCrawl.LinkCrawl;
 import linkDownload.AbstractDownload;
 import linkDownload.UeberordnungDownload;
-import metadata.UeberordnungMetadataParser;
 import utilities.Clean;
 import utilities.Database;
 import utilities.SqlManager;
 
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 
 public class yearProcessor {
 
 	private static boolean vonVorne = false;
-	private static String userDefinedB = "20240409";
+	private static String userDefinedB = "20250521";
 
-	public static void main(String[] args) throws Exception {
-		System.out.println("yearProcessor.main Anfang");
+	public static void processYear() throws Exception {
+		System.out.println("processYear Anfang");
 		AbstractPacker.userDefinedB = userDefinedB;
 		UeberordnungPacker.userDefinedB = userDefinedB;
 		if (vonVorne) {
@@ -33,11 +26,12 @@ public class yearProcessor {
 			Clean.cleanTables();
 			System.out.println("LinkCrawl " + LocalDateTime.now());
 			LinkCrawl.processBothLanguages();
-			System.out.println("syncToYear " + LocalDateTime.now());
 //		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2017_auszug.csv";
 //		String csvFilePath = "/home/wutschka/workspace/Kongress_HT_2021_zweiDavon.csv";
-			String csvFilePath = "/home/wutschka/workspace/2024_04_04 zuArchivieren.csv";
-
+//			String csvFilePath = "/home/wutschka/workspace/HTNummer.csv";
+			String csvFilePath = "/home/wutschka/workspace/ToDo.csv";
+			
+			System.out.println("sync with csv-File '" + csvFilePath + "' " + LocalDateTime.now());
 			Database.syncToYear(csvFilePath);
 		}
 //		Database.printDatabaseWithStatus("ueberordnungen", 10, "");
@@ -53,18 +47,8 @@ public class yearProcessor {
 //				+ Ue_ID + "', '" + Ab_ID + "', 'https://www.egms.de/static/en/meetings/eth2014/14eth01.shtml', 'en', 10);");
 
 //		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status=11;");
-//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID NOT LIKE '%01';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='23dkou015';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='23dgh14';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='23dgh66';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='23degam289';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='23dgrh197';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='22dkou367';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='22dgrh141';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='22dgrh151';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='22altra04';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='22dgnc372';");
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='21degam204';");
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11 WHERE Ab_ID='25dga026';");
+//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=10 WHERE Ab_ID='22gma146';");
 
 		System.out.println("UeberordnungConvert " + LocalDateTime.now());
 		UeberordnungConvert.ueberordnungConvert();
@@ -77,7 +61,42 @@ public class yearProcessor {
 		AbstractConvert.abstractConvert();
 		System.out.println("Abstracts packen " + LocalDateTime.now());
 		AbstractPacker.databaseWorker();
-		System.out.println("yearProcessor.main Ende " + LocalDateTime.now());
+		System.out.println("processYear Ende " + LocalDateTime.now());
 	}
 
+	public static void buildUpdates() throws Exception {
+		System.out.println("buildUpdates Anfang");
+		AbstractPacker.userDefinedB = userDefinedB;
+		UeberordnungPacker.userDefinedB = userDefinedB;//wobei Überordnungen eh nicht hierrüber geupdatet werden
+		if (vonVorne) {
+			System.out.println("Clean");
+			Clean.cleanDirs();
+			Clean.cleanTables();
+			System.out.println("LinkCrawl " + LocalDateTime.now());
+			LinkCrawl.processBothLanguages();
+			System.out.println("syncToYear " + LocalDateTime.now());
+			String csvFilePath = "/home/wutschka/workspace/2016.csv";
+			Database.syncToYear(csvFilePath);
+			System.out.println("UeberordnungDownload " + LocalDateTime.now());
+			UeberordnungDownload.ueberordnungDownload();//ist nötig um die Abstract IDs in die Datenbank zu kriegen
+			
+//			SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=10 WHERE Ab_ID='22gma146';");
+			Database.findOutOfDate("/home/wutschka/workspace/Kongresse_GM03_2022-04-18.csv", "/home/wutschka/workspace/GMS_Kongresse.csv");
+		}
+		Database.printDatabaseOverview("abstracts");
+		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=11;");
+		
+		System.out.println("AbstractDownload " + LocalDateTime.now());
+		AbstractDownload.abstractDownload();
+		System.out.println("AbstractConvert " + LocalDateTime.now());
+		AbstractConvert.abstractConvert();
+		System.out.println("Abstracts packen " + LocalDateTime.now());
+		AbstractPacker.databaseWorker();
+		System.out.println("buildUpdates Ende " + LocalDateTime.now());
+	}
+
+	public static void main(String[] args) throws Exception {
+		processYear();
+//		buildUpdates();
+	}
 }

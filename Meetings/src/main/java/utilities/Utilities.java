@@ -57,7 +57,7 @@ public class Utilities {
 		try {
 			doc = Jsoup.connect(URL).get();
 		} catch (IOException e) {
-			System.out.println("Jsoup connect failed");
+			System.out.println("Jsoup connect fehlgeschlagen bei URL: " + URL);
 			e.printStackTrace();
 		}
 		return doc;
