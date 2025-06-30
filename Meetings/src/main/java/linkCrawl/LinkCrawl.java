@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import myWget.MyWget;
 import utilities.Database;
 import utilities.Drive;
+import utilities.HtKuerzelDatenbank;
 import utilities.Kongress;
 import utilities.SqlManager;
 
@@ -70,14 +71,14 @@ public class LinkCrawl {
 		}
 	}
 
-	public static void processBothLanguages() throws IOException, SQLException {
+	public static void processBothLanguages() throws Exception {
 		String overviewPath = Drive.landPath;
 
 		linkCrawl(crawlURL("/static/de/meetings/index.htm"), "de", overviewPath.concat("de").concat(fs));
 		linkCrawl(crawlURL("/static/en/meetings/index.htm"), "en", overviewPath.concat("en").concat(fs));
 	}
 
-	public static void main(String[] args) throws IOException, SQLException {
+	public static void main(String[] args) throws Exception {
 		processBothLanguages();
 		System.out.println("LinkCrawl Ende.");
 	}

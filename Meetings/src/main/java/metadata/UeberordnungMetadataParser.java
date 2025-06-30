@@ -37,15 +37,13 @@ public class UeberordnungMetadataParser {
 //			System.out.println("title: " + identifierElement.text());
 			if (identifierElement.text().startsWith("http")) {
 				if (URL != null) {
-					System.err.println("In den Metadaten mehr als einen Identifier mit http am Anfang gefunden");
-					throw new Exception();
+					throw new Exception("In den Metadaten mehr als einen Identifier mit http am Anfang gefunden");
 				}
 				URL = identifierElement.text();
 			}
 		}
 		if (URL == null) {
-			System.err.println("In den Metadaten keinen identifier mit http am Anfang gefunden");
-			throw new Exception();
+			throw new Exception("In den Metadaten keinen identifier mit http am Anfang gefunden");
 		} else
 			return URL;
 	}
@@ -56,7 +54,13 @@ public class UeberordnungMetadataParser {
 	 */
 	public static String okeanos2Database(String HT) throws Exception {
 		Document doc = UeberordnungMetadataDownloader.getdoc(HT);
-		String URL = getURLoutofDoc(doc);
+		String URL = null;
+		try {
+			URL = getURLoutofDoc(doc);
+		} catch (Exception e) {
+			System.err.println("Fehler bei HT Nummer: " + UeberordnungMetadataDownloader.ht2alma(HT));
+			throw e;
+		}
 
 		String ID = Kongress.url2kuerzel(URL);
 		HtKuerzelDatenbank.insertIntoHtKuerzelDatenbank(HT, ID);
@@ -65,8 +69,10 @@ public class UeberordnungMetadataParser {
 				.children();
 		for (Element elem : elems) {
 			String xPathKey = elem.nodeName();
-			if (xPathKey.contentEquals("dc:type")) continue;
-			if (xPathKey.contentEquals("dc:contributor")) xPathKey = "dc:creator";
+			if (xPathKey.contentEquals("dc:type"))
+				continue;
+			if (xPathKey.contentEquals("dc:contributor"))
+				xPathKey = "dc:creator";
 			insertIntoMetadata(HT, ID, xPathKey, elem.text());
 		}
 		insertIntoMetadata(HT, ID, "dc:publisher", "Düsseldorf German Medical Science GMS Publishing House");

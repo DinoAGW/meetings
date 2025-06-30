@@ -267,9 +267,9 @@ public class Database {
 	}
 
 	public static void main(String[] args) throws Exception {
-		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=10;");
-		findOutOfDate("/home/wutschka/workspace/Kongresse_GM03_2022-04-18.csv",
-				"/home/wutschka/workspace/GMS_Kongresse.csv");
+//		SqlManager.INSTANCE.executeUpdate("UPDATE abstracts SET status=10;");
+//		findOutOfDate("/home/wutschka/workspace/Kongresse_GM03_2022-04-18.csv",
+//				"/home/wutschka/workspace/GMS_Kongresse.csv");
 		printDatabaseOverview("abstracts");
 	}
 }
