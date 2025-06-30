@@ -35,30 +35,28 @@ import utilities.Utilities;
 
 public class UeberordnungDownload {
 	static String fs = System.getProperty("file.separator");
-	
+
 	private static final int overviewsToGo = -1; // funktioniert noch nicht
 	private static final int abstractsToGo = -1;
 
-	public static void linkDownload(String protokoll, String hostname)
-			throws Exception {
+	public static void linkDownload(String protokoll, String hostname) throws Exception {
 
 		// Get everything from the overview table
 		ResultSet resultSet = Database.getDatabaseWithStatus("ueberordnungen", 10);
 
 		// limiting work done for testing purpose
-		int Anzahl = 2*overviewsToGo;
+		int Anzahl = 2 * overviewsToGo;
 
 		while (resultSet.next()) {
 			String ID = resultSet.getString("ID");
 			String URL = resultSet.getString("URL");
 			String LANG = resultSet.getString("LANG");
 			// For each overview record
-			System.out
-					.println("Verarbeite: '".concat(ID).concat("', '").concat(URL).concat("', '").concat(LANG).concat("'"));
+			System.out.println(
+					"Verarbeite: '".concat(ID).concat("', '").concat(URL).concat("', '").concat(LANG).concat("'"));
 			Kongress it = new Kongress(URL);
 			// der eigentliche Aufruf
-			String kongressDir = Drive.captPath.concat(it.kurzID).concat("_")
-					.concat(LANG).concat(fs);
+			String kongressDir = Drive.captPath.concat(it.kurzID).concat("_").concat(LANG).concat(fs);
 			MyWget myWget = new MyWget(it.url, kongressDir.concat("original").concat(fs), true);
 			myWget.getPage();
 
@@ -77,8 +75,8 @@ public class UeberordnungDownload {
 			String[] contentPath = new String[owner_links.size()];
 			for (int i = 0; i < owner_links.size(); i++) {
 				// System.out.println("herunterladen: " + owner_links.get(i));
-				contentPath[i] = Drive.captPath.concat(it.kurzID).concat("_")
-						.concat(LANG).concat(fs).concat("original").concat(fs).concat("owner_links").concat(fs).concat(Integer.toString(i)).concat(fs);
+				contentPath[i] = Drive.captPath.concat(it.kurzID).concat("_").concat(LANG).concat(fs).concat("original")
+						.concat(fs).concat("owner_links").concat(fs).concat(Integer.toString(i)).concat(fs);
 				contentMyWget[i] = new MyWget(owner_links.get(i), contentPath[i], true);
 				contentMyWget[i].getPage();
 			}
@@ -90,7 +88,9 @@ public class UeberordnungDownload {
 			if (dest.exists()) {
 				MyUtils.deleteDirectory(dest);
 			}
-			MyUtils.copyFolder(new File(kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat(hostname).concat(fs)), dest);
+			MyUtils.copyFolder(new File(
+					kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat(hostname).concat(fs)),
+					dest);
 			for (int i = 0; i < owner_links.size(); i++) {
 				String source = contentPath[i].concat("content").concat(fs).concat(hostname).concat(fs);
 				MyUtils.copyFolder(new File(source), dest);
@@ -99,16 +99,16 @@ public class UeberordnungDownload {
 			// merge the checksum Files (actually isn't needed yet, just to keep the
 			// standard)
 			SortedSet<String> lines = new TreeSet<>();
-			BufferedReader br = new BufferedReader(
-					new FileReader(new File(kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat("checksum.md5"))));
+			BufferedReader br = new BufferedReader(new FileReader(new File(
+					kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat("checksum.md5"))));
 			String line;
 			while ((line = br.readLine()) != null) {
 				lines.add(line);
 			}
 			br.close();
 			for (int i = 0; i < owner_links.size(); i++) {
-				String checksumPath = kongressDir.concat("original").concat(fs).concat("owner_links").concat(fs).concat(Integer.toString(i)).concat(fs).concat("content").concat(fs)
-						.concat("checksum.md5");
+				String checksumPath = kongressDir.concat("original").concat(fs).concat("owner_links").concat(fs)
+						.concat(Integer.toString(i)).concat(fs).concat("content").concat(fs).concat("checksum.md5");
 				br = new BufferedReader(new FileReader(new File(checksumPath)));
 				while ((line = br.readLine()) != null) {
 					lines.add(line);
@@ -125,7 +125,8 @@ public class UeberordnungDownload {
 			bw.close();
 
 			// take the "landingpage" of the congress
-			String htmlPath = kongressDir.concat("original").concat(fs).concat("content").concat(fs).concat("target.html");
+			String htmlPath = kongressDir.concat("original").concat(fs).concat("content").concat(fs)
+					.concat("target.html");
 			File htmlFile = new File(htmlPath);
 			doc = Jsoup.parse(htmlFile, "CP1252", protokoll + hostname);
 
@@ -155,9 +156,10 @@ public class UeberordnungDownload {
 			Utilities.addExtLinkImages(doc);
 			Utilities.addMailLinkImages(doc);
 			ersetzeNbspInTitle(doc);
-			
+
 			// and save it to harddisk
-			String mergePath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs).concat("target.html");
+			String mergePath = kongressDir.concat("merge").concat(fs).concat("content").concat(fs)
+					.concat("target.html");
 			FileOutputStream fstream = new FileOutputStream(mergePath);
 			OutputStreamWriter out = new OutputStreamWriter(fstream, "windows-1252");
 			out.append(doc.html());
@@ -186,8 +188,8 @@ public class UeberordnungDownload {
 			// "landingPage" of the congress download purpose, but because it is needed
 			// later)
 			for (Element session : sessionlist) {
-				String kongressDir2 = Drive.captPath.concat(it.kurzID).concat("_")
-						.concat(LANG).concat(fs).concat("original").concat(fs).concat("abstractlists").concat(fs).concat(Integer.toString(++i));
+				String kongressDir2 = Drive.captPath.concat(it.kurzID).concat("_").concat(LANG).concat(fs)
+						.concat("original").concat(fs).concat("abstractlists").concat(fs).concat(Integer.toString(++i));
 				// download the Sessions from the Sessionlist
 				MyWget myWget2 = new MyWget(new URL(session.attr("href")), kongressDir2, true);
 				myWget2.getPage();
@@ -199,16 +201,18 @@ public class UeberordnungDownload {
 				// go through the abstracts in a session
 				for (Element abstractElement : abstractlist) {
 					Abstract aAbstract = new Abstract(abstractElement.attr("href"));
-					ResultSet resultSet2 = SqlManager.INSTANCE.executeQuery(
-							"SELECT * FROM abstracts WHERE Ab_ID = '" + aAbstract.Ab_ID + "' AND LANG = '" + LANG + "'");
+					ResultSet resultSet2 = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE Ab_ID = '"
+							+ aAbstract.Ab_ID + "' AND LANG = '" + LANG + "'");
 					// Check if the abstract was in the Database before
 					// Prüfe, ob sich bereits ein solcher Eintrag in der Datenbank befindet
 					if (resultSet2.next()) {
 						// skip if yes
 					} else {
 						// otherwise insert it
-						SqlManager.INSTANCE.executeUpdate("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('"
-								+ aAbstract.Ue_ID + "', '" + aAbstract.Ab_ID + "', '" + aAbstract.url + "', '" + LANG + "', 10);");
+						SqlManager.INSTANCE
+								.executeUpdate("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('"
+										+ aAbstract.Ue_ID + "', '" + aAbstract.Ab_ID + "', '" + aAbstract.url + "', '"
+										+ LANG + "', 10);");
 						if (0 == --Anzahl2)
 							break; // don't do too much (for testing purpose)
 					}
@@ -221,8 +225,8 @@ public class UeberordnungDownload {
 			int updated = SqlManager.INSTANCE.executeUpdate(
 					"UPDATE ueberordnungen SET Status = 30 WHERE ID = '" + it.kurzID + "' AND LANG = '" + LANG + "';");
 			if (updated != 1)
-				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '" + it.kurzID
-						+ "_" + it.language + "', aber es waren: " + updated + ".");
+				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
+						+ it.kurzID + "_" + it.language + "', aber es waren: " + updated + ".");
 			// For less Traffic, wait after every congress
 			System.out.flush();
 			TimeUnit.SECONDS.sleep(1);
@@ -230,7 +234,6 @@ public class UeberordnungDownload {
 			if (0 == --Anzahl)
 				break; // don't do too much (for testing purpose)
 		}
-
 	}
 
 	public static void ersetzeNbspInTitle(final Document doc) throws Exception {
@@ -245,7 +248,7 @@ public class UeberordnungDownload {
 			throw new Exception();
 		}
 		elem.text(elem.text().replace("\u00A0", " "));
-		
+
 		elem = doc.getElementById("owner_description");
 		if (elem == null) {
 			System.err.println("Dokument hat keine owner_description");
@@ -258,7 +261,7 @@ public class UeberordnungDownload {
 		}
 		elem.text(elem.text().replace("\u00A0", " "));
 	}
-	
+
 	public static void ueberordnungDownload() throws Exception {
 		String protokoll = "https://";
 		String hostname = "www.egms.de";
@@ -266,9 +269,72 @@ public class UeberordnungDownload {
 		linkDownload(protokoll, hostname);
 	}
 
+	public static void ueberordnungDownload_nur_fuer_abstracts() throws Exception {
+		String protokoll = "https://";
+		String hostname = "www.egms.de";
+
+		// Get everything from the overview table
+		ResultSet resultSet = Database.getDatabaseWithStatus("ueberordnungen", 10);
+
+		while (resultSet.next()) {
+			String ID = resultSet.getString("ID");
+			String URL = resultSet.getString("URL");
+			String LANG = resultSet.getString("LANG");
+			// For each overview record
+			System.out.println(
+					"Verarbeite: '".concat(ID).concat("', '").concat(URL).concat("', '").concat(LANG).concat("'"));
+			Kongress it = new Kongress(URL);
+
+			// Extracting which websites give aditional Infos...
+			Document doc = Jsoup.connect(URL).get();
+			Element content = doc.child(0);
+
+			// The "LandingPage" of the congress always have a sessionlist, with websites,
+			// where the links to the abstracts can be found
+			Elements sessionlist = null;
+			try {
+				sessionlist = content.getElementsByClass("sessionlist").first().getElementsByTag("a");
+			} catch (Exception e) {
+				System.err.println("Fehler bei " + ID);
+				System.err.println(e.getStackTrace());
+				continue;
+			}
+			for (Element session : sessionlist) {
+				Elements abstractlist = Jsoup.connect(protokoll + hostname + session.attr("href")).get().child(0)
+						.getElementsByClass("hx_link");
+
+				// go through the abstracts in a session
+				for (Element abstractElement : abstractlist) {
+					Abstract aAbstract = new Abstract(protokoll + hostname + abstractElement.attr("href"));
+					ResultSet resultSet2 = SqlManager.INSTANCE.executeQuery("SELECT * FROM abstracts WHERE Ab_ID = '"
+							+ aAbstract.Ab_ID + "' AND LANG = '" + LANG + "'");
+					if (resultSet2.next()) {
+						// skip if yes
+					} else {
+						// otherwise insert it
+						SqlManager.INSTANCE
+								.executeUpdate("INSERT INTO abstracts (Ue_ID, Ab_ID , URL, LANG, Status) VALUES ('"
+										+ aAbstract.Ue_ID + "', '" + aAbstract.Ab_ID + "', '" + aAbstract.url + "', '"
+										+ LANG + "', 10);");
+					}
+				}
+			}
+
+			// assign this congress as downloaded
+			int updated = SqlManager.INSTANCE.executeUpdate(
+					"UPDATE ueberordnungen SET Status = 11 WHERE ID = '" + it.kurzID + "' AND LANG = '" + LANG + "';");
+			if (updated != 1)
+				System.err.println("Es sollte sich nun genau eine Zeile aktualisiert haben unter der KurzID '"
+						+ it.kurzID + "_" + it.language + "', aber es waren: " + updated + ".");
+			// For less Traffic, wait after every congress
+			System.out.flush();
+			TimeUnit.SECONDS.sleep(1);
+		}
+	}
+
 	public static void main(String[] args) throws Exception {
-		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 10 WHERE ID = 'eth2013';");
-		ueberordnungDownload();
+//		SqlManager.INSTANCE.executeUpdate("UPDATE ueberordnungen SET status = 10 WHERE ID = 'eth2013';");
+//		ueberordnungDownload();
 		System.out.println("UeberordnungDownload Ende.");
 	}
 }

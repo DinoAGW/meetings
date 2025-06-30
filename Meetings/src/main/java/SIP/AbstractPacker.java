@@ -297,6 +297,8 @@ public class AbstractPacker {
 			mimeType = "video/x-msvideo";
 		} else if (dateiname.endsWith(".mp4")) {
 			mimeType = "video/mp4";
+		} else if (dateiname.endsWith(".mp3")) {
+			mimeType = "audio/mpeg";
 		} else {
 			System.err.println("Dateiendung nicht erkannt: ".concat(dateiname));
 			throw new Exception();
@@ -454,6 +456,9 @@ public class AbstractPacker {
 		int versuche = 10;
 		while (true) {
 			try {
+				if (OaiUrl.contentEquals("https://portal.dimdi.de/oai-gms/OAIHandler?verb=GetRecord&metadataPrefix=oai_dc&identifier=oai:oai-gms.dimdi.de:GM17isls36a")) {
+					OaiUrl = "https://portal.dimdi.de/oai-gms/OAIHandler?verb=ListRecords&metadataPrefix=oai_dc&set=doc-type:conferenceObject&from=2017-03-24&until=2017-03-24";
+				}//hack aufgrund Sonderfall
 				oaiDoc = Utilities.getWebsite(OaiUrl);
 				elems = oaiDoc.getElementsByTag("oai_dc:dc");
 				if (elems.size() != 1) {

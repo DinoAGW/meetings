@@ -61,6 +61,9 @@ public class HtKuerzelDatenbank {
 				System.err.println("HT-Nummer '".concat(HT).concat("' ist bereits mit einem anderen Kürzel verknüpft"));
 			} else {
 				System.err.println("Kürzel '".concat(Kuerzel).concat("' ist bereits mit einer anderen HT-Nummer verknüpft"));
+				printHTnummer(Kuerzel);
+				System.out.println(checkHtExists(HT));
+				System.out.println(checkKuerzelExists(Kuerzel));
 			}
 			throw new Exception("HT Nummer: " + HT + " Kürzel: " + Kuerzel);
 		}
@@ -83,6 +86,11 @@ public class HtKuerzelDatenbank {
 	
 	public static void main(String[] args) throws Exception {
 //		printHTnummer("wdhno2022");
+		ResultSet resultSet = SqlManager.INSTANCE.executeQuery("SELECT * FROM htkuerzel WHERE HT LIKE '(DE-605)%';");
+		while (resultSet.next()) {
+			System.out.println(resultSet.getString("HT") + " -> " + resultSet.getString("Kuerzel"));
+			SqlManager.INSTANCE.executeUpdate("DELETE FROM htkuerzel WHERE HT = '".concat(resultSet.getString("HT")).concat("';"));
+		}
 //		System.out.println("Gelöscht = " + removeEntry("HT", "HT021591441"));
 	}
 }
